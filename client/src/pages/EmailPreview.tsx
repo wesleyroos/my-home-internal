@@ -5,6 +5,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { motion } from "framer-motion";
 import { Monitor, Smartphone, Copy, Check, Download } from "lucide-react";
 
@@ -400,6 +401,7 @@ export default function EmailPreview() {
               <h1 className="font-semibold text-sm text-[#0C2340]">Email Template Preview</h1>
               <p className="text-xs text-[#5A7A9A]">Property Report — Homeowner Hook Email</p>
             </div>
+            <BackToDashboard />
           </div>
 
           <div className="flex items-center gap-2">

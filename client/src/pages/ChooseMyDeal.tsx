@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { ownerProperty } from "@/lib/mockData";
 import { Switch } from "@/components/ui/switch";
+import { BackToDashboard } from "@/components/BackToDashboard";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -293,10 +294,13 @@ export default function ChooseMyDeal() {
       <div className="bg-white border-b border-border sticky top-0 z-20">
         <div className="container py-3 flex items-center justify-between">
           <img src={LOGO} alt="MyHome" className="h-6" />
-          <div className="flex items-center gap-2 text-muted-foreground text-xs">
-            <span>Property Report</span>
-            <ChevronRight className="w-3 h-3" />
-            <span className="text-[#0C2340] font-semibold">Choose My Deal</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs">
+              <span>Property Report</span>
+              <ChevronRight className="w-3 h-3" />
+              <span className="text-[#0C2340] font-semibold">Choose My Deal</span>
+            </div>
+            <BackToDashboard />
           </div>
         </div>
       </div>

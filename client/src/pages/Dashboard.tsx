@@ -9,7 +9,7 @@ const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663031491909/TspP3qLjT
 
 const SCREENS = [
   {
-    route: "/",
+    route: "/report",
     label: "Property Report",
     description: "The main homeowner-facing report. Value trend, suburb stats, surrounding sales, active listings and premium locked sections.",
     icon: <Home className="w-5 h-5" />,

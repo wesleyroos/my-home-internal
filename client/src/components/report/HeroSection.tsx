@@ -6,6 +6,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { motion } from "framer-motion";
 import { AnimatedCounter } from "@/components/AnimatedCounter";
 import { ownerProperty, formatRand } from "@/lib/mockData";
@@ -57,7 +58,10 @@ export function HeroSection() {
         >
           <div className="flex items-center justify-between">
             <img src={LOGO_FULL} alt="MyHome" className="h-7 sm:h-8 lg:h-9 brightness-0 invert" />
-            <span className="text-white/70 text-[10px] sm:text-xs font-medium">Property Report — March 2026</span>
+            <div className="flex items-center gap-4">
+              <span className="text-white/70 text-[10px] sm:text-xs font-medium">Property Report — March 2026</span>
+              <BackToDashboard light />
+            </div>
           </div>
         </motion.div>
 

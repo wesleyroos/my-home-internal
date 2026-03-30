@@ -4,6 +4,7 @@
  */
 
 import { motion, useInView } from "framer-motion";
+import { BackToDashboard } from "@/components/BackToDashboard";
 import { useRef } from "react";
 import {
   ArrowDown,
@@ -497,7 +498,10 @@ export default function FIComparison() {
             </div>
             <span className="font-heading font-bold text-[#0C2340] text-sm">MyHome</span>
           </div>
-          <p className="text-muted-foreground text-xs">Internal strategy framework · Not for distribution</p>
+          <div className="flex items-center gap-4">
+            <p className="text-muted-foreground text-xs">Internal strategy framework · Not for distribution</p>
+            <BackToDashboard />
+          </div>
         </div>
       </div>
     </div>

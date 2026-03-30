@@ -15,8 +15,9 @@ import Dashboard from "./pages/Dashboard";
 function Router() {
   return (
     <Switch>
+      <Route path={"/"} component={Dashboard} />
       <Route path={"/dashboard"} component={Dashboard} />
-      <Route path={"/"} component={Home} />
+      <Route path={"/report"} component={Home} />
       <Route path={"/email"} component={EmailPreview} />
       <Route path={"/fi"} component={FIComparison} />
       <Route path={"/deal"} component={ChooseMyDeal} />
