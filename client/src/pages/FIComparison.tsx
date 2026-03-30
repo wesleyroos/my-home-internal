@@ -95,15 +95,10 @@ const homeSteps = [
     dim: false,
   },
   {
-    role: "Bond Originator",
-    description: "Betterbond / ooba submits to multiple banks simultaneously.",
-    dim: false,
-  },
-  {
     role: "Bond Consultant",
-    description: "Should present the full product suite at the moment of bond approval — just like F&I in motor. This moment barely exists today.",
+    description: "Betterbond / ooba submits to multiple banks simultaneously. This same consultant should present the full product suite at bond approval — just like F&I in motor. This moment barely exists today.",
     highlight: true,
-    label: "Proposed role",
+    label: "Proposed F&I moment",
   },
 ];
 
@@ -124,7 +119,7 @@ const homeProducts: Product[] = [
   { icon: <Wrench className="w-3.5 h-3.5" />, name: "Home Services Plan", description: "Prepaid cover — plumbing, electrical, appliances.", status: "proposed" },
   { icon: <Zap className="w-3.5 h-3.5" />, name: "Smart Geyser Controller", description: "Hardware at pre-transfer + monitoring sub. Easy bolt-on, brilliant margins.", status: "proposed" },
   { icon: <HeartPulse className="w-3.5 h-3.5" />, name: "Credit Life", description: "Covers bond on death, disability or retrenchment.", status: "exists" },
-  { icon: <TrendingDown className="w-3.5 h-3.5" />, name: "Credit Shortfall", description: "Covers gap if property sells below outstanding bond.", status: "proposed" },
+  { icon: <TrendingDown className="w-3.5 h-3.5" />, name: "Credit Shortfall", description: "Covers gap if property sells below outstanding bond.", status: "exists" },
   { icon: <Shield className="w-3.5 h-3.5" />, name: "Building Insurance", description: "Required by all lenders. Rarely packaged as a value-add.", status: "exists" },
   { icon: <Zap className="w-3.5 h-3.5" />, name: "Electrical & Compliance", description: "COC certs, solar/EV readiness — new bundleable product.", status: "proposed" },
   { icon: <CircleDollarSign className="w-3.5 h-3.5" />, name: "Admin Fee", description: "Bond originator and attorney administration fees.", status: "exists" },
@@ -138,7 +133,7 @@ const equivalencies = [
   { vehicle: "Service Plan",        home: "Home Services Plan",                match: "proposed" },
   { vehicle: "Netstar Tracking",    home: "Smart Geyser Controller",           match: "proposed" },
   { vehicle: "Credit Life",         home: "Credit Life",                       match: "direct"   },
-  { vehicle: "Credit Shortfall",    home: "Credit Shortfall",                  match: "proposed" },
+  { vehicle: "Credit Shortfall",    home: "Credit Shortfall",                  match: "direct"   },
   { vehicle: "Scratch & Dent",      home: "Building Insurance",                match: "partial"  },
   { vehicle: "Tyre & Rim",          home: "Electrical & Compliance",           match: "proposed" },
   { vehicle: "Admin Fee",           home: "Admin Fee",                         match: "direct"   },
@@ -452,7 +447,7 @@ export default function FIComparison() {
               {[
                 {
                   heading: "No structured handover",
-                  body: "In motor, the F&I manager is a defined, trained role. In property there's no equivalent. The estate agent closes the deal and the bond originator processes finance — but nobody sits with the buyer to present a structured product suite.",
+                  body: "In motor, the F&I manager is a defined, trained role. In property there's no equivalent. The estate agent closes the deal and the bond consultant (Betterbond/ooba) processes finance — but that same consultant never sits with the buyer to present a structured product suite.",
                 },
                 {
                   heading: "Products exist, but scattered",
