@@ -529,6 +529,45 @@ export default function ChooseMyDeal() {
           </div>
 
         </div>
+
+        {/* Compliance block */}
+        <div className="mt-12 pt-8 border-t border-slate-100">
+          <div className="grid sm:grid-cols-3 gap-6 mb-8">
+            {[
+              {
+                heading: "Rates are variable",
+                body: "All interest rates quoted are linked to the South African Reserve Bank's prime lending rate, currently 10.25%. Your repayment will adjust whenever prime changes.",
+              },
+              {
+                heading: "Products are optional",
+                body: "Except where marked as required by your lender, all add-on products are optional. You may source equivalent cover independently before registration.",
+              },
+              {
+                heading: "This is not financial advice",
+                body: "The figures shown are indicative estimates based on the information provided. Consult a registered financial adviser before making any commitment.",
+              },
+            ].map((item) => (
+              <div key={item.heading}>
+                <p className="text-xs font-semibold text-[#0C2340] mb-1">{item.heading}</p>
+                <p className="text-xs text-slate-400 leading-relaxed">{item.body}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-6 border-t border-slate-100">
+            <div className="flex items-center gap-2">
+              <img src={LOGO} alt="MyHome" className="h-5 opacity-50" />
+              <span className="text-slate-300 text-xs">|</span>
+              <span className="text-xs text-slate-400">Powered by MyHome · Internal prototype</span>
+            </div>
+            <div className="flex flex-wrap gap-4">
+              {["Privacy Policy", "Terms of Use", "POPIA Compliance", "FSP Licence"].map((label) => (
+                <span key={label} className="text-xs text-slate-400 hover:text-slate-600 cursor-pointer transition-colors">{label}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );
