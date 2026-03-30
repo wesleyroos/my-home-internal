@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Bed, Bath, Car, Maximize2,
   Shield, Wrench, HeartPulse, TrendingDown,
-  BadgeCheck, Zap, CircleDollarSign,
+  BadgeCheck, Zap, CircleDollarSign, FileText,
   Check, ChevronRight, Info, Lock,
   CheckCircle2, Sparkles, TrendingUp,
 } from "lucide-react";
@@ -105,6 +105,14 @@ const ADDONS: Addon[] = [
     description: "Annual COC renewal, geyser compliance and smart monitoring subscription.",
     monthly: 89,
     icon: <CircleDollarSign className="w-4 h-4" />,
+  },
+  {
+    id: "conveyancing",
+    name: "Conveyancing Bundle",
+    description: "Transfer attorney fees (~R50,000) negotiated at a reduced rate and rolled into your bond — spread over your loan term instead of paid upfront at registration.",
+    monthly: 441,
+    icon: <FileText className="w-4 h-4" />,
+    highlight: "Roll into bond",
   },
 ];
 

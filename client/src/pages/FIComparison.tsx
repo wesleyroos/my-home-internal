@@ -99,6 +99,14 @@ const homeSteps = [
     description: "Betterbond / ooba submits to multiple banks simultaneously. This same consultant should present the full product suite at bond approval — just like F&I in motor. This moment barely exists today.",
     highlight: true,
     label: "Proposed F&I moment",
+    parallel: true,
+  },
+  {
+    role: "Conveyancer",
+    description: "Transfer attorney registers the property into the buyer's name. Fees cover attorney costs, deeds office and transfer duty — typically R40,000–R120,000+ depending on purchase price.",
+    highlight: false,
+    label: "Significant cost",
+    parallel: true,
   },
 ];
 
@@ -123,6 +131,7 @@ const homeProducts: Product[] = [
   { icon: <Shield className="w-3.5 h-3.5" />, name: "Building Insurance", description: "Required by all lenders. Rarely packaged as a value-add.", status: "exists" },
   { icon: <Zap className="w-3.5 h-3.5" />, name: "Electrical & Compliance", description: "COC certs, solar/EV readiness — new bundleable product.", status: "proposed" },
   { icon: <CircleDollarSign className="w-3.5 h-3.5" />, name: "Admin Fee", description: "Bond originator and attorney administration fees.", status: "exists" },
+  { icon: <FileText className="w-3.5 h-3.5" />, name: "Conveyancing Bundle", description: "Transfer attorney fees negotiated and bundled. Opportunity to roll into bond for cash-flow relief.", status: "proposed" },
 ];
 
 const equivalencies = [
@@ -137,7 +146,7 @@ const equivalencies = [
   { vehicle: "Scratch & Dent",      home: "Building Insurance",                match: "partial"  },
   { vehicle: "Tyre & Rim",          home: "Electrical & Compliance",           match: "proposed" },
   { vehicle: "Admin Fee",           home: "Admin Fee",                         match: "direct"   },
-  { vehicle: "Registration Fee",    home: "Transfer Duty / Conveyancing",      match: "direct"   },
+  { vehicle: "Registration Fee",    home: "Transfer Duty / Conveyancing",      match: "partial"  },
 ];
 
 // ─── Canvas sub-components ───────────────────────────────────────────────────
@@ -228,11 +237,24 @@ function CanvasFrame({
   icon: React.ReactNode;
   title: string;
   subtitle: string;
-  steps: { role: string; description: string; highlight?: boolean; label?: string }[];
+  steps: { role: string; description: string; highlight?: boolean; label?: string; parallel?: boolean }[];
   products: Product[];
   productsLabel: string;
   delay: number;
 }) {
+  // Group consecutive parallel steps into rows
+  const rows: (typeof steps[0] | typeof steps)[] = [];
+  let i = 0;
+  while (i < steps.length) {
+    if (steps[i].parallel && steps[i + 1]?.parallel) {
+      rows.push([steps[i], steps[i + 1]] as typeof steps);
+      i += 2;
+    } else {
+      rows.push(steps[i]);
+      i++;
+    }
+  }
+
   return (
     <Reveal delay={delay} className="relative">
       {/* Figma-style frame label tab */}
@@ -253,10 +275,16 @@ function CanvasFrame({
       >
         {/* Flow steps */}
         <div className="flex flex-col">
-          {steps.map((step, i) => (
-            <div key={step.role}>
-              <FlowNode {...step} />
-              {i < steps.length - 1 && <FlowConnector />}
+          {rows.map((row, ri) => (
+            <div key={Array.isArray(row) ? row[0].role : row.role}>
+              {Array.isArray(row) ? (
+                <div className="grid grid-cols-2 gap-2">
+                  {row.map((step) => <FlowNode key={step.role} {...step} />)}
+                </div>
+              ) : (
+                <FlowNode {...row} />
+              )}
+              {ri < rows.length - 1 && <FlowConnector />}
             </div>
           ))}
         </div>
@@ -310,20 +338,6 @@ export default function FIComparison() {
               equivalent process for residential property — and the gap we want to fill.
             </p>
           </Reveal>
-          <Reveal delay={0.1}>
-            <div className="flex flex-wrap gap-8 mt-6">
-              {[
-                { label: "F&I products per car deal",   value: "5–9"  },
-                { label: "Motor F&I revenue share",     value: "~35%" },
-                { label: "Equivalent home products",    value: "0–2"  },
-              ].map((s) => (
-                <div key={s.label}>
-                  <div className="font-heading font-bold text-2xl sm:text-3xl text-[#3DBFAD]">{s.value}</div>
-                  <div className="text-white/45 text-xs mt-0.5">{s.label}</div>
-                </div>
-              ))}
-            </div>
-          </Reveal>
         </div>
       </div>
 
@@ -336,8 +350,8 @@ export default function FIComparison() {
           backgroundSize: "22px 22px",
         }}
       >
-        <div className="px-6" style={{ minWidth: 720 }}>
-          <Reveal className="mb-8 max-w-4xl mx-auto">
+        <div className="container" style={{ minWidth: 720 }}>
+          <Reveal className="mb-8">
             <h2 className="font-heading font-bold text-lg text-[#0C2340] mb-1">
               Post-Sale Process
             </h2>
@@ -346,7 +360,7 @@ export default function FIComparison() {
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto items-start">
+          <div className="grid grid-cols-2 gap-6 items-start">
             <CanvasFrame
               side="motor"
               accentColor="#0C2340"
@@ -465,6 +479,23 @@ export default function FIComparison() {
                   </div>
                 </Reveal>
               ))}
+            </div>
+
+            <div className="border-t border-white/10 pt-6 mb-6">
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 rounded-lg bg-amber-400/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <PlusCircle className="w-4 h-4 text-amber-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-heading font-bold text-amber-400 text-sm">Next step: Bank partnership conversations</h3>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full">13 April</span>
+                  </div>
+                  <p className="text-white/60 text-xs leading-relaxed">
+                    A key unknown is which products banks will allow to be bundled into or presented alongside the bond. Meeting scheduled with Stephan (13 April) to explore what banks will include, what they'll refer, and what commercial model makes sense.
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
