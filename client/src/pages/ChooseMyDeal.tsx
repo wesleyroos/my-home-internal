@@ -20,11 +20,12 @@ import { BackToDashboard } from "@/components/BackToDashboard";
 const PROPERTY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663031491909/TspP3qLjTap5M6WtdxfZix/property-hero-3MRLeyu3Lsybd5cyftJY8F.webp";
 const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663031491909/TspP3qLjTap5M6WtdxfZix/myhome-logo-full_208030e1.png";
 
-const PURCHASE_PRICE = 1_595_000;
-const DEPOSIT_PCT    = 0.10;
-const DEPOSIT        = PURCHASE_PRICE * DEPOSIT_PCT;
-const BOND_AMOUNT    = PURCHASE_PRICE - DEPOSIT;
-const PRIME          = 10.25;
+const PURCHASE_PRICE        = 1_595_000;
+const DEPOSIT_PCT           = 0.10;
+const DEPOSIT               = PURCHASE_PRICE * DEPOSIT_PCT;
+const BOND_AMOUNT           = PURCHASE_PRICE - DEPOSIT;
+const PRIME                 = 10.25;
+const CONVEYANCING_AMOUNT   = 50_000;
 
 // ─── Data ─────────────────────────────────────────────────────────────────────
 
@@ -359,6 +360,12 @@ export default function ChooseMyDeal() {
                 <div className="text-xs text-muted-foreground mt-0.5">
                   Deposit {fmtRand(DEPOSIT)} (10%) · Bond {fmtRand(BOND_AMOUNT)}
                 </div>
+                {enabledAddons.includes("conveyancing") && (
+                  <div className="mt-1.5 inline-flex items-center gap-1.5 bg-[#3DBFAD]/10 text-[#1a9d8e] text-[11px] font-medium px-2 py-0.5 rounded-md">
+                    <FileText className="w-3 h-3 flex-shrink-0" />
+                    Conveyancing {fmtRand(CONVEYANCING_AMOUNT)} rolled into bond · effective bond {fmtRand(BOND_AMOUNT + CONVEYANCING_AMOUNT)}
+                  </div>
+                )}
               </div>
             </div>
           </div>
