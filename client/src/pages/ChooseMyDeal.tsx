@@ -2,14 +2,14 @@
  * ChooseMyDeal — Buyer-facing bond deal configurator
  */
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Bed, Bath, Car, Maximize2,
   Shield, Wrench, HeartPulse, TrendingDown,
   BadgeCheck, Zap, CircleDollarSign, FileText,
   Check, ChevronRight, Info, Lock,
-  CheckCircle2, Sparkles, TrendingUp,
+  CheckCircle2, Sparkles, TrendingUp, Pencil,
 } from "lucide-react";
 import { ownerProperty } from "@/lib/mockData";
 import { Switch } from "@/components/ui/switch";
@@ -21,9 +21,7 @@ const PROPERTY_IMG = "https://d2xsxph8kpxj0f.cloudfront.net/310419663031491909/T
 const LOGO = "https://d2xsxph8kpxj0f.cloudfront.net/310419663031491909/TspP3qLjTap5M6WtdxfZix/myhome-logo-full_208030e1.png";
 
 const PURCHASE_PRICE        = 1_595_000;
-const DEPOSIT_PCT           = 0.10;
-const DEPOSIT               = PURCHASE_PRICE * DEPOSIT_PCT;
-const BOND_AMOUNT           = PURCHASE_PRICE - DEPOSIT;
+const DEFAULT_DEPOSIT       = PURCHASE_PRICE * 0.10;
 const PRIME                 = 10.25;
 const CONVEYANCING_AMOUNT   = 50_000;
 
@@ -272,18 +270,39 @@ export default function ChooseMyDeal() {
     ADDONS.filter((a) => a.required || a.recommended).map((a) => a.id)
   );
   const [confirmed, setConfirmed] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(DEFAULT_DEPOSIT);
+  const [depositEditing, setDepositEditing] = useState(false);
+  const [depositInputStr, setDepositInputStr] = useState("");
+  const depositInputRef = useRef<HTMLInputElement>(null);
+
+  const bondAmount = PURCHASE_PRICE - depositAmount;
+  const depositPct = ((depositAmount / PURCHASE_PRICE) * 100).toFixed(1).replace(/\.0$/, "");
+
+  function handleDepositFocus() {
+    setDepositInputStr(String(Math.round(depositAmount)));
+    setDepositEditing(true);
+    setTimeout(() => depositInputRef.current?.select(), 0);
+  }
+
+  function handleDepositBlur() {
+    const parsed = parseInt(depositInputStr.replace(/\D/g, ""), 10);
+    if (!isNaN(parsed)) {
+      setDepositAmount(Math.min(Math.max(parsed, 0), PURCHASE_PRICE));
+    }
+    setDepositEditing(false);
+  }
 
   const bank = BANKS.find((b) => b.id === selectedBank)!;
   const effectiveRate = PRIME - bank.discount;
 
   const monthlyBond = useMemo(
-    () => calcMonthly(effectiveRate, term, BOND_AMOUNT),
-    [effectiveRate, term]
+    () => calcMonthly(effectiveRate, term, bondAmount),
+    [effectiveRate, term, bondAmount]
   );
 
   const bankMonthlyMap = useMemo(
-    () => Object.fromEntries(BANKS.map((b) => [b.id, calcMonthly(PRIME - b.discount, term, BOND_AMOUNT)])),
-    [term]
+    () => Object.fromEntries(BANKS.map((b) => [b.id, calcMonthly(PRIME - b.discount, term, bondAmount)])),
+    [term, bondAmount]
   );
 
   const activeAddons = ADDONS.filter((a) => enabledAddons.includes(a.id));
@@ -357,8 +376,29 @@ export default function ChooseMyDeal() {
               <div className="sm:text-right flex-shrink-0">
                 <div className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">Purchase price</div>
                 <div className="font-heading font-bold text-[#0C2340] text-2xl">{fmtRand(PURCHASE_PRICE)}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">
-                  Deposit {fmtRand(DEPOSIT)} (10%) · Bond {fmtRand(BOND_AMOUNT)}
+                <div className="flex items-center justify-end gap-1.5 mt-1">
+                  <span className="text-xs text-muted-foreground">Deposit</span>
+                  <div
+                    className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 border transition-colors cursor-text ${
+                      depositEditing
+                        ? "border-[#3DBFAD] bg-white"
+                        : "border-slate-200 bg-slate-50 hover:border-slate-300"
+                    }`}
+                    onClick={() => depositInputRef.current?.focus()}
+                  >
+                    <span className="text-xs text-muted-foreground">R</span>
+                    <input
+                      ref={depositInputRef}
+                      className="text-xs font-semibold text-[#0C2340] bg-transparent outline-none w-20 text-right"
+                      value={depositEditing ? depositInputStr : Math.round(depositAmount).toLocaleString("en-ZA")}
+                      onChange={(e) => setDepositInputStr(e.target.value)}
+                      onFocus={handleDepositFocus}
+                      onBlur={handleDepositBlur}
+                      onKeyDown={(e) => e.key === "Enter" && depositInputRef.current?.blur()}
+                    />
+                    {!depositEditing && <Pencil className="w-2.5 h-2.5 text-slate-400" />}
+                  </div>
+                  <span className="text-xs text-muted-foreground">({depositPct}%) · Bond {fmtRand(bondAmount)}</span>
                 </div>
                 <div className={`mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md transition-colors ${
                   enabledAddons.includes("conveyancing")
@@ -367,7 +407,7 @@ export default function ChooseMyDeal() {
                 }`}>
                   <FileText className="w-3 h-3 flex-shrink-0" />
                   {enabledAddons.includes("conveyancing")
-                    ? `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing rolled in · effective bond ${fmtRand(BOND_AMOUNT + CONVEYANCING_AMOUNT)}`
+                    ? `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing rolled in · effective bond ${fmtRand(bondAmount + CONVEYANCING_AMOUNT)}`
                     : `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing fees — roll into bond?`}
                 </div>
               </div>
@@ -478,6 +518,7 @@ export default function ChooseMyDeal() {
                       { label: "Bank",       value: bank.name },
                       { label: "Rate",       value: `${effectiveRate.toFixed(2)}% p.a.` },
                       { label: "Term",       value: `${term} years` },
+                      { label: "Bond",       value: fmtRand(bondAmount) },
                     ].map((row) => (
                       <div key={row.label} className="flex justify-between text-sm">
                         <span className="text-muted-foreground">{row.label}</span>
