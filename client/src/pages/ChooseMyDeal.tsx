@@ -360,12 +360,16 @@ export default function ChooseMyDeal() {
                 <div className="text-xs text-muted-foreground mt-0.5">
                   Deposit {fmtRand(DEPOSIT)} (10%) · Bond {fmtRand(BOND_AMOUNT)}
                 </div>
-                {enabledAddons.includes("conveyancing") && (
-                  <div className="mt-1.5 inline-flex items-center gap-1.5 bg-[#3DBFAD]/10 text-[#1a9d8e] text-[11px] font-medium px-2 py-0.5 rounded-md">
-                    <FileText className="w-3 h-3 flex-shrink-0" />
-                    Conveyancing {fmtRand(CONVEYANCING_AMOUNT)} rolled into bond · effective bond {fmtRand(BOND_AMOUNT + CONVEYANCING_AMOUNT)}
-                  </div>
-                )}
+                <div className={`mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md transition-colors ${
+                  enabledAddons.includes("conveyancing")
+                    ? "bg-[#3DBFAD]/10 text-[#1a9d8e]"
+                    : "bg-slate-100 text-slate-400"
+                }`}>
+                  <FileText className="w-3 h-3 flex-shrink-0" />
+                  {enabledAddons.includes("conveyancing")
+                    ? `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing rolled in · effective bond ${fmtRand(BOND_AMOUNT + CONVEYANCING_AMOUNT)}`
+                    : `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing fees — roll into bond?`}
+                </div>
               </div>
             </div>
           </div>
