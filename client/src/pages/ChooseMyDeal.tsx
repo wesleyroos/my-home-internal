@@ -352,9 +352,9 @@ export default function ChooseMyDeal() {
             </div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-semibold text-[#0C2340]">Rudy Buerta</span>
+                <span className="text-sm font-semibold text-[#0C2340]">Rudy Botha</span>
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide">Verified</span>
+                <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide">BetterID Verified</span>
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
                 SA ID · 8804155012088 · Primary applicant
