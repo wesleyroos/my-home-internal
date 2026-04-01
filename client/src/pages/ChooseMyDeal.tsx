@@ -343,9 +343,24 @@ export default function ChooseMyDeal() {
           <h1 className="font-heading font-bold text-2xl sm:text-3xl text-[#0C2340] mb-1">
             Choose My Deal
           </h1>
-          <p className="text-slate-400 text-sm max-w-lg">
+          <p className="text-slate-400 text-sm max-w-lg mb-4">
             Your bond application has been approved by multiple banks. Select your preferred offer and customise your add-ons.
           </p>
+          <div className="inline-flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 shadow-sm">
+            <div className="w-7 h-7 rounded-full bg-[#0C2340] flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-[10px] font-bold">RB</span>
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm font-semibold text-[#0C2340]">Rudy Buerta</span>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide">Verified</span>
+              </div>
+              <div className="text-[11px] text-slate-400 mt-0.5">
+                SA ID · 8804155012088 · Primary applicant
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
