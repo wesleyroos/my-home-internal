@@ -11,11 +11,12 @@ import EmailPreview from "./pages/EmailPreview";
 import FIComparison from "./pages/FIComparison";
 import ChooseMyDeal from "./pages/ChooseMyDeal";
 import Dashboard from "./pages/Dashboard";
+import BetterHomeJourney from "./pages/BetterHomeJourney";
 
 function Router() {
   return (
     <Switch>
-      <Route path={"/"} component={Dashboard} />
+      <Route path={"/"} component={BetterHomeJourney} />
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/report"} component={Home} />
       <Route path={"/email"} component={EmailPreview} />
