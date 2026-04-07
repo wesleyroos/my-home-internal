@@ -4,7 +4,8 @@
  */
 
 import { motion, useInView } from "framer-motion";
-import { BackToDashboard } from "@/components/BackToDashboard";
+import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { useRef } from "react";
 import {
   ArrowDown,
@@ -25,6 +26,7 @@ import {
   CheckCircle2,
   AlertCircle,
   PlusCircle,
+  Truck,
 } from "lucide-react";
 
 // ─── Reveal ──────────────────────────────────────────────────────────────────
@@ -131,6 +133,7 @@ const homeProducts: Product[] = [
   { icon: <Shield className="w-3.5 h-3.5" />, name: "Building Insurance", description: "Required by all lenders. Rarely packaged as a value-add.", status: "exists" },
   { icon: <Zap className="w-3.5 h-3.5" />, name: "Electrical & Compliance", description: "COC certs, solar/EV readiness — new bundleable product.", status: "proposed" },
   { icon: <CircleDollarSign className="w-3.5 h-3.5" />, name: "Admin Fee", description: "Bond originator and attorney administration fees.", status: "exists" },
+  { icon: <Truck className="w-3.5 h-3.5" />, name: "Move-in Service", description: "Professional moving service scaled to property size and location. Rolled into bond.", status: "proposed" },
   { icon: <FileText className="w-3.5 h-3.5" />, name: "Conveyancing Bundle", description: "Transfer attorney fees negotiated and bundled. Opportunity to roll into bond for cash-flow relief.", status: "proposed" },
 ];
 
@@ -321,6 +324,8 @@ function MatchBadge({ match }: { match: string }) {
 export default function FIComparison() {
   return (
     <div className="min-h-screen bg-[#f0f5fa] overflow-x-hidden">
+
+      <AppHeader label="F&I · Strategic Framework" />
 
       {/* Header */}
       <div className="bg-[#0C2340] text-white">
@@ -515,21 +520,7 @@ export default function FIComparison() {
         </Reveal>
       </div>
 
-      {/* Footer */}
-      <div className="border-t border-border bg-white">
-        <div className="container py-5 flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[#0C2340] flex items-center justify-center">
-              <Home className="w-3.5 h-3.5 text-[#3DBFAD]" />
-            </div>
-            <span className="font-heading font-bold text-[#0C2340] text-sm">MyHome</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <p className="text-muted-foreground text-xs">Internal strategy framework · Not for distribution</p>
-            <BackToDashboard />
-          </div>
-        </div>
-      </div>
+      <AppFooter label="Internal strategy framework · Not for distribution" />
     </div>
   );
 }

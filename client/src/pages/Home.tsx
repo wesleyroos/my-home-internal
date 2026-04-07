@@ -6,11 +6,13 @@ import { SurroundingSalesSection } from "@/components/report/SurroundingSalesSec
 import { ActiveListingsSection } from "@/components/report/ActiveListingsSection";
 import { PremiumSections } from "@/components/report/PremiumSections";
 import { InsightsSection } from "@/components/report/InsightsSection";
-import { Footer } from "@/components/report/Footer";
+import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
+      <AppHeader label="Property Report · Homeowner Prototype" />
       <HeroSection />
       <ValueTrendSection />
       <SuburbStatsSection />
@@ -19,7 +21,7 @@ export default function Home() {
       <ActiveListingsSection />
       <PremiumSections />
       <InsightsSection />
-      <Footer />
+      <AppFooter label="Homeowner-facing prototype" />
     </div>
   );
 }

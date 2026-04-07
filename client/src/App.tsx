@@ -12,6 +12,9 @@ import FIComparison from "./pages/FIComparison";
 import ChooseMyDeal from "./pages/ChooseMyDeal";
 import Dashboard from "./pages/Dashboard";
 import BetterHomeJourney from "./pages/BetterHomeJourney";
+import DocVault from "./pages/DocVault";
+import Exco from "./pages/Exco";
+import Landscape from "./pages/Landscape";
 
 function Router() {
   return (
@@ -22,6 +25,9 @@ function Router() {
       <Route path={"/email"} component={EmailPreview} />
       <Route path={"/fi"} component={FIComparison} />
       <Route path={"/deal"} component={ChooseMyDeal} />
+      <Route path={"/vault"} component={DocVault} />
+      <Route path={"/exco"} component={Exco} />
+      <Route path={"/landscape"} component={Landscape} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

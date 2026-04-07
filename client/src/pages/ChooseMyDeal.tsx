@@ -9,11 +9,12 @@ import {
   Shield, Wrench, HeartPulse, TrendingDown,
   BadgeCheck, Zap, CircleDollarSign, FileText,
   Check, ChevronRight, Info, Lock,
-  CheckCircle2, Sparkles, TrendingUp, Pencil,
+  CheckCircle2, Sparkles, TrendingUp, Pencil, Truck,
 } from "lucide-react";
 import { ownerProperty } from "@/lib/mockData";
 import { Switch } from "@/components/ui/switch";
-import { BackToDashboard } from "@/components/BackToDashboard";
+import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -104,6 +105,15 @@ const ADDONS: Addon[] = [
     description: "Annual COC renewal, geyser compliance and smart monitoring subscription.",
     monthly: 89,
     icon: <CircleDollarSign className="w-4 h-4" />,
+  },
+  {
+    id: "move_in",
+    name: "Move-in Service",
+    description: "Professional moving service included with your deal — value scales with property size and location. Roll the cost into your bond.",
+    monthly: 265,
+    icon: <Truck className="w-4 h-4" />,
+    highlight: "Roll into bond",
+    recommended: true,
   },
   {
     id: "conveyancing",
@@ -318,20 +328,7 @@ export default function ChooseMyDeal() {
   return (
     <div className="min-h-screen bg-white">
 
-      {/* Nav */}
-      <div className="bg-white border-b border-border sticky top-0 z-20">
-        <div className="container py-3 flex items-center justify-between">
-          <img src={LOGO} alt="MyHome" className="h-6" />
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs">
-              <span>Property Report</span>
-              <ChevronRight className="w-3 h-3" />
-              <span className="text-[#0C2340] font-semibold">Choose My Deal</span>
-            </div>
-            <BackToDashboard />
-          </div>
-        </div>
-      </div>
+      <AppHeader label="Choose My Deal · Buyer Prototype" />
 
       {/* Page title */}
       <div className="border-b border-border bg-white">
@@ -648,6 +645,7 @@ export default function ChooseMyDeal() {
         </div>
 
       </div>
+      <AppFooter label="Buyer-facing prototype" />
     </div>
   );
 }

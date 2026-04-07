@@ -5,7 +5,8 @@
  */
 
 import { useState, useEffect } from "react";
-import { BackToDashboard } from "@/components/BackToDashboard";
+import { AppHeader } from "@/components/AppHeader";
+import { AppFooter } from "@/components/AppFooter";
 import { motion } from "framer-motion";
 import { Monitor, Smartphone, Copy, Check, Download } from "lucide-react";
 
@@ -392,8 +393,9 @@ export default function EmailPreview() {
 
   return (
     <div className="min-h-screen bg-[#f0f5fa]">
+      <AppHeader label="Email Template · Marketing Prototype" />
       {/* Toolbar — hidden on mobile */}
-      <div className="hidden sm:block sticky top-0 z-50 bg-white border-b border-border shadow-sm">
+      <div className="hidden sm:block sticky top-[57px] z-40 bg-white border-b border-border shadow-sm">
         <div className="container py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={LOGO_ICON} alt="MyHome" className="w-7 h-7" />
@@ -401,7 +403,6 @@ export default function EmailPreview() {
               <h1 className="font-semibold text-sm text-[#0C2340]">Email Template Preview</h1>
               <p className="text-xs text-[#5A7A9A]">Property Report — Homeowner Hook Email</p>
             </div>
-            <BackToDashboard />
           </div>
 
           <div className="flex items-center gap-2">
@@ -522,6 +523,7 @@ export default function EmailPreview() {
           </motion.div>
         </div>
       )}
+      <AppFooter label="Marketing prototype" />
     </div>
   );
 }
