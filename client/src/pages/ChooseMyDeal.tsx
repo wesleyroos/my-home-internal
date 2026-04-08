@@ -10,6 +10,7 @@ import {
   BadgeCheck, Zap, CircleDollarSign, FileText,
   Check, ChevronRight, Info, Lock,
   CheckCircle2, Sparkles, TrendingUp, Pencil, Truck,
+  Sparkle, Sun, Droplets,
 } from "lucide-react";
 import { ownerProperty } from "@/lib/mockData";
 import { Switch } from "@/components/ui/switch";
@@ -121,6 +122,29 @@ const ADDONS: Addon[] = [
     description: "Transfer attorney fees (~R50,000) negotiated at a reduced rate and rolled into your bond — spread over your loan term instead of paid upfront at registration.",
     monthly: 441,
     icon: <FileText className="w-4 h-4" />,
+    highlight: "Roll into bond",
+  },
+  {
+    id: "cleaning",
+    name: "Cleaning Service",
+    description: "Fortnightly professional clean from a vetted, insured team. Schedule and manage everything from your homeowner dashboard.",
+    monthly: 1250,
+    icon: <Sparkle className="w-4 h-4" />,
+  },
+  {
+    id: "solar",
+    name: "Solar Installation",
+    description: "5kW rooftop solar system with inverter and battery backup, fully installed and rolled into your bond. Average saving: R2,200/month on Eskom.",
+    monthly: 1850,
+    icon: <Sun className="w-4 h-4" />,
+    highlight: "Roll into bond",
+  },
+  {
+    id: "water_tank",
+    name: "Water Tank & Pump",
+    description: "5,000L JoJo tank, filtration and pressure pump installed at handover. Keeps the taps running through outages and load-shedding.",
+    monthly: 385,
+    icon: <Droplets className="w-4 h-4" />,
     highlight: "Roll into bond",
   },
 ];
