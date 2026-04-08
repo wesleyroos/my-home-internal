@@ -27,6 +27,9 @@ import {
   AlertCircle,
   PlusCircle,
   Truck,
+  Sparkle,
+  Sun,
+  Droplets,
 } from "lucide-react";
 
 // ─── Reveal ──────────────────────────────────────────────────────────────────
@@ -135,6 +138,9 @@ const homeProducts: Product[] = [
   { icon: <CircleDollarSign className="w-3.5 h-3.5" />, name: "Admin Fee", description: "Bond originator and attorney administration fees.", status: "exists" },
   { icon: <Truck className="w-3.5 h-3.5" />, name: "Move-in Service", description: "Professional moving service scaled to property size and location. Rolled into bond.", status: "proposed" },
   { icon: <FileText className="w-3.5 h-3.5" />, name: "Conveyancing Bundle", description: "Transfer attorney fees negotiated and bundled. Opportunity to roll into bond for cash-flow relief.", status: "proposed" },
+  { icon: <Sparkle className="w-3.5 h-3.5" />, name: "Cleaning Service", description: "Fortnightly professional clean from a vetted team. Pure recurring revenue, high stickiness.", status: "proposed" },
+  { icon: <Sun className="w-3.5 h-3.5" />, name: "Solar Installation", description: "5kW rooftop solar + battery backup capitalised into the bond. Capex bundle with strong attach economics.", status: "proposed" },
+  { icon: <Droplets className="w-3.5 h-3.5" />, name: "Water Tank & Pump", description: "JoJo tank, filtration and pressure pump installed at handover. Rolled into bond like solar.", status: "proposed" },
 ];
 
 const equivalencies = [
