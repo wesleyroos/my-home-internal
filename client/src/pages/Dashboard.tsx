@@ -3,7 +3,7 @@
  */
 
 import { Link } from "wouter";
-import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe } from "lucide-react";
+import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -50,6 +50,14 @@ const GROUPS: Group[] = [
         label: "Global Landscape",
         description: "Competitor scan across 5 categories and 19 companies. Coverage matrix at the bottom.",
         icon: <Globe className="w-5 h-5" />,
+        accentBg: "bg-indigo-50",
+        accentText: "text-indigo-600",
+      },
+      {
+        route: "/bb-direct-grants",
+        label: "BetterBond Direct Grants",
+        description: "Granted business by rand value bracket (Sept 25 – Feb 26). Volume, value, monthly average and distribution charts.",
+        icon: <BarChart3 className="w-5 h-5" />,
         accentBg: "bg-indigo-50",
         accentText: "text-indigo-600",
       },

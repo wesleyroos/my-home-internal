@@ -15,6 +15,7 @@ import BetterHomeJourney from "./pages/BetterHomeJourney";
 import DocVault from "./pages/DocVault";
 import Exco from "./pages/Exco";
 import Landscape from "./pages/Landscape";
+import BetterBondDirectGrants from "./pages/BetterBondDirectGrants";
 
 function Router() {
   return (
@@ -28,6 +29,7 @@ function Router() {
       <Route path={"/vault"} component={DocVault} />
       <Route path={"/exco"} component={Exco} />
       <Route path={"/landscape"} component={Landscape} />
+      <Route path={"/bb-direct-grants"} component={BetterBondDirectGrants} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

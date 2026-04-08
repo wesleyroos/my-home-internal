@@ -38,11 +38,17 @@ const BANKS = [
 
 const TERMS = [15, 20, 25, 30];
 
+type AddonKind = "recurring" | "capitalised";
+
 interface Addon {
   id: string;
   name: string;
   description: string;
-  monthly: number;
+  kind: AddonKind;
+  /** For recurring add-ons: the flat monthly subscription fee. */
+  monthly?: number;
+  /** For capitalised add-ons: the once-off cost financed at the bond rate over the loan term. */
+  principal?: number;
   icon: React.ReactNode;
   required?: boolean;
   recommended?: boolean;
@@ -53,8 +59,9 @@ const ADDONS: Addon[] = [
   {
     id: "building_insurance",
     name: "Building Insurance",
-    description: "Required by your bank. Covers structural damage, fire, flooding and more.",
-    monthly: 645,
+    description: "Required by your bank. Covers structural damage, fire and flooding — premium based on rebuild cost, not market value.",
+    kind: "recurring",
+    monthly: 220,
     icon: <Shield className="w-4 h-4" />,
     required: true,
     recommended: true,
@@ -63,6 +70,7 @@ const ADDONS: Addon[] = [
     id: "credit_life",
     name: "Credit Life",
     description: "Your bond is settled in full on death, permanent disability or retrenchment.",
+    kind: "recurring",
     monthly: 338,
     icon: <HeartPulse className="w-4 h-4" />,
     required: true,
@@ -71,15 +79,18 @@ const ADDONS: Addon[] = [
   {
     id: "home_warranty",
     name: "Home Warranty",
-    description: "5-year structural and latent defect cover from date of transfer.",
-    monthly: 189,
+    description: "5-year structural and latent defect cover from date of transfer. R8,000 once-off rolled into your bond.",
+    kind: "capitalised",
+    principal: 8000,
     icon: <BadgeCheck className="w-4 h-4" />,
+    highlight: "Roll into bond",
     recommended: true,
   },
   {
     id: "services_plan",
     name: "Home Services Plan",
     description: "Unlimited callouts for plumbing, electrical and appliance breakdowns.",
+    kind: "recurring",
     monthly: 299,
     icon: <Wrench className="w-4 h-4" />,
     recommended: true,
@@ -87,8 +98,9 @@ const ADDONS: Addon[] = [
   {
     id: "geyser",
     name: "Smart Geyser Controller",
-    description: "Hardware installed at handover + monthly monitoring. Average saving: R450/month on electricity.",
-    monthly: 149,
+    description: "Hardware and installation (~R5,000) financed over the term. Average saving: R450/month on electricity.",
+    kind: "capitalised",
+    principal: 5000,
     icon: <Zap className="w-4 h-4" />,
     highlight: "Pays for itself",
     recommended: true,
@@ -97,6 +109,7 @@ const ADDONS: Addon[] = [
     id: "credit_shortfall",
     name: "Credit Shortfall",
     description: "Covers the gap if your property is sold under distress for less than the outstanding bond.",
+    kind: "recurring",
     monthly: 125,
     icon: <TrendingDown className="w-4 h-4" />,
   },
@@ -104,14 +117,16 @@ const ADDONS: Addon[] = [
     id: "electrical",
     name: "Electrical & Compliance",
     description: "Annual COC renewal, geyser compliance and smart monitoring subscription.",
+    kind: "recurring",
     monthly: 89,
     icon: <CircleDollarSign className="w-4 h-4" />,
   },
   {
     id: "move_in",
     name: "Move-in Service",
-    description: "Professional moving service included with your deal — value scales with property size and location. Roll the cost into your bond.",
-    monthly: 265,
+    description: "Professional moving service (~R12,000) included with your deal. Once-off cost capitalised into your bond.",
+    kind: "capitalised",
+    principal: 12000,
     icon: <Truck className="w-4 h-4" />,
     highlight: "Roll into bond",
     recommended: true,
@@ -120,7 +135,8 @@ const ADDONS: Addon[] = [
     id: "conveyancing",
     name: "Conveyancing Bundle",
     description: "Transfer attorney fees (~R50,000) negotiated at a reduced rate and rolled into your bond — spread over your loan term instead of paid upfront at registration.",
-    monthly: 441,
+    kind: "capitalised",
+    principal: 50000,
     icon: <FileText className="w-4 h-4" />,
     highlight: "Roll into bond",
   },
@@ -128,22 +144,25 @@ const ADDONS: Addon[] = [
     id: "cleaning",
     name: "Cleaning Service",
     description: "Fortnightly professional clean from a vetted, insured team. Schedule and manage everything from your homeowner dashboard.",
+    kind: "recurring",
     monthly: 1250,
     icon: <Sparkle className="w-4 h-4" />,
   },
   {
     id: "solar",
     name: "Solar Installation",
-    description: "5kW rooftop solar system with inverter and battery backup, fully installed and rolled into your bond. Average saving: R2,200/month on Eskom.",
-    monthly: 1850,
+    description: "5kW rooftop solar system with inverter and battery backup (~R165,000), fully installed and rolled into your bond. Average saving: R2,200/month on Eskom.",
+    kind: "capitalised",
+    principal: 165000,
     icon: <Sun className="w-4 h-4" />,
     highlight: "Roll into bond",
   },
   {
     id: "water_tank",
     name: "Water Tank & Pump",
-    description: "5,000L JoJo tank, filtration and pressure pump installed at handover. Keeps the taps running through outages and load-shedding.",
-    monthly: 385,
+    description: "5,000L JoJo tank, filtration and pressure pump (~R22,000) installed at handover. Keeps the taps running through outages and load-shedding.",
+    kind: "capitalised",
+    principal: 22000,
     icon: <Droplets className="w-4 h-4" />,
     highlight: "Roll into bond",
   },
@@ -155,6 +174,13 @@ function calcMonthly(annualRatePct: number, termYears: number, principal: number
   const r = annualRatePct / 100 / 12;
   const n = termYears * 12;
   return (principal * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+}
+
+/** Returns the effective monthly cost of an add-on, given the bond rate and term. */
+function addonMonthly(addon: Addon, annualRatePct: number, termYears: number) {
+  if (addon.kind === "recurring") return addon.monthly ?? 0;
+  if (!addon.principal) return 0;
+  return calcMonthly(annualRatePct, termYears, addon.principal);
 }
 
 function fmtRand(n: number) {
@@ -239,11 +265,16 @@ function AddonCard({
   addon,
   enabled,
   onToggle,
+  monthly,
+  termMonths,
 }: {
   addon: Addon;
   enabled: boolean;
   onToggle: () => void;
+  monthly: number;
+  termMonths: number;
 }) {
+  const total = monthly * termMonths;
   return (
     <div
       className={`rounded-xl border p-4 transition-colors duration-200 ${
@@ -276,7 +307,7 @@ function AddonCard({
 
         <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-2">
           <span className={`text-sm font-bold font-heading ${enabled ? "text-[#0C2340]" : "text-slate-400"}`}>
-            {fmtRand(addon.monthly)}<span className="text-[10px] font-normal text-slate-400">/mo</span>
+            {fmtRand(total)}<span className="text-[10px] font-normal text-slate-400"> total</span>
           </span>
           {addon.required ? (
             <div className="w-9 h-5 rounded-full bg-[#3DBFAD]/10 flex items-center justify-center">
@@ -339,8 +370,12 @@ export default function ChooseMyDeal() {
     [term, bondAmount]
   );
 
+  const addonMonthlyMap = useMemo(
+    () => Object.fromEntries(ADDONS.map((a) => [a.id, addonMonthly(a, effectiveRate, term)])),
+    [effectiveRate, term]
+  );
   const activeAddons = ADDONS.filter((a) => enabledAddons.includes(a.id));
-  const addonTotal = activeAddons.reduce((sum, a) => sum + a.monthly, 0);
+  const addonTotal = activeAddons.reduce((sum, a) => sum + addonMonthlyMap[a.id], 0);
   const totalMonthly = monthlyBond + addonTotal;
 
   function toggleAddon(id: string) {
@@ -518,6 +553,8 @@ export default function ChooseMyDeal() {
                     addon={addon}
                     enabled={enabledAddons.includes(addon.id)}
                     onToggle={() => !addon.required && toggleAddon(addon.id)}
+                    monthly={addonMonthlyMap[addon.id]}
+                    termMonths={term * 12}
                   />
                 ))}
               </div>
@@ -576,7 +613,7 @@ export default function ChooseMyDeal() {
                       {activeAddons.map((a) => (
                         <div key={a.id} className="flex justify-between text-sm">
                           <span className="text-muted-foreground truncate pr-2">{a.name}</span>
-                          <span className="text-[#0C2340] flex-shrink-0">{fmtRand(a.monthly)}</span>
+                          <span className="text-[#0C2340] flex-shrink-0">{fmtRand(addonMonthlyMap[a.id])}</span>
                         </div>
                       ))}
                       <div className="flex justify-between text-sm pt-2 border-t border-border">
