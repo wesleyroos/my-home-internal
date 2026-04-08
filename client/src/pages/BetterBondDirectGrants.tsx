@@ -18,6 +18,70 @@ const GRANTED_SUMMARY: typeof GRANTED_BRACKETS = [
   { label: "> R3 000 000",   volume: 65,  value: "R282 735 157", volPct: "6,9%",  valPct: "22,2%" },
 ];
 
+function renderWithStats(text: string) {
+  // wrap anything between «» in a coloured stat pill
+  const parts = text.split(/(«[^»]+»)/g);
+  return parts.map((p, i) => {
+    if (p.startsWith("«") && p.endsWith("»")) {
+      return (
+        <span
+          key={i}
+          className="font-bold text-[#0C2340] bg-[#3DBFAD]/20 px-1.5 py-0.5 rounded"
+        >
+          {p.slice(1, -1)}
+        </span>
+      );
+    }
+    return <span key={i}>{p}</span>;
+  });
+}
+
+function InsightBlock({
+  title,
+  headline,
+  points,
+  accent,
+  span,
+}: {
+  title: string;
+  headline?: { value: string; label: string };
+  points: string[];
+  accent?: boolean;
+  span?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-5 flex flex-col ${
+        span ? "lg:col-span-5" : ""
+      } ${
+        accent
+          ? "bg-gradient-to-br from-[#3DBFAD]/10 to-[#0C2340]/5 border-[#3DBFAD]/40"
+          : "bg-slate-50/50 border-slate-100"
+      }`}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-500 mb-3">
+        {title}
+      </p>
+      {headline && (
+        <div className="mb-3">
+          <p className={`text-3xl font-bold leading-none ${accent ? "text-[#3DBFAD]" : "text-[#0C2340]"}`}>
+            {headline.value}
+          </p>
+          <p className="text-[11px] text-slate-500 mt-1">{headline.label}</p>
+        </div>
+      )}
+      <ul className="space-y-2 mt-1">
+        {points.map((p, i) => (
+          <li key={i} className="text-[12px] text-slate-700 leading-relaxed flex gap-1.5">
+            <span className="text-[#3DBFAD] font-bold flex-shrink-0">•</span>
+            <span>{renderWithStats(p)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export default function BetterBondDirectGrants() {
   return (
     <div className="min-h-screen bg-[#f0f2f5]">
@@ -55,16 +119,39 @@ export default function BetterBondDirectGrants() {
                   </tr>
                 </thead>
                 <tbody>
-                  {GRANTED_BRACKETS.map((r) => (
+                  {GRANTED_BRACKETS.map((r) => {
+                    const maxVol = Math.max(...GRANTED_BRACKETS.map((x) => x.volume));
+                    const intensity = r.volume / maxVol;
+                    const volPctNum = parseFloat(r.volPct.replace(",", "."));
+                    const valPctNum = parseFloat(r.valPct.replace(",", "."));
+                    const maxVolPct = Math.max(...GRANTED_BRACKETS.map((x) => parseFloat(x.volPct.replace(",", "."))));
+                    const maxValPct = Math.max(...GRANTED_BRACKETS.map((x) => parseFloat(x.valPct.replace(",", "."))));
+                    return (
                     <tr key={r.label} className="border-b border-slate-100">
                       <td className="py-2 pr-4 text-[#0C2340]">{r.label}</td>
-                      <td className="py-2 px-2 text-right tabular-nums">{r.volume}</td>
+                      <td
+                        className="py-2 px-2 text-right tabular-nums font-semibold"
+                        style={{ backgroundColor: `rgba(61, 191, 173, ${intensity * 0.65})` }}
+                      >
+                        {r.volume}
+                      </td>
                       <td className="py-2 px-2 text-right tabular-nums text-slate-500">{(r.volume / 6).toFixed(1)}</td>
                       <td className="py-2 px-2 text-right tabular-nums">{r.value}</td>
-                      <td className="py-2 px-2 text-right tabular-nums">{r.volPct}</td>
-                      <td className="py-2 pl-2 text-right tabular-nums">{r.valPct}</td>
+                      <td
+                        className="py-2 px-2 text-right tabular-nums font-semibold"
+                        style={{ backgroundColor: `rgba(61, 191, 173, ${(volPctNum / maxVolPct) * 0.65})` }}
+                      >
+                        {r.volPct}
+                      </td>
+                      <td
+                        className="py-2 pl-2 text-right tabular-nums font-semibold"
+                        style={{ backgroundColor: `rgba(99, 102, 241, ${(valPctNum / maxValPct) * 0.55})` }}
+                      >
+                        {r.valPct}
+                      </td>
                     </tr>
-                  ))}
+                    );
+                  })}
                   <tr><td colSpan={6} className="py-2" /></tr>
                   {GRANTED_SUMMARY.map((r) => (
                     <tr key={r.label} className="bg-slate-50 font-semibold">
@@ -122,6 +209,58 @@ export default function BetterBondDirectGrants() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Insights */}
+          <div className="mt-8">
+            <h3 className="text-lg font-bold text-[#0C2340] mb-4">Insights</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <InsightBlock
+              title="Volume vs value mismatch"
+              headline={{ value: "1 in 14", label: "bonds drives 22% of value" }}
+              points={[
+                "R500k–R1m is «34.5%» of deals but only «19.4%» of value — the workhorse band.",
+                ">R3m is «6.9%» of deals but «22.2%» of value.",
+              ]}
+            />
+
+            <InsightBlock
+              title="The fat middle"
+              headline={{ value: "R1m–R2m", label: "true centre of gravity" }}
+              points={[
+                "«31.5%» of volume and «34.1%» of value — the only band where volume share ≈ value share.",
+                "Not the sub-R1m band most people assume.",
+              ]}
+            />
+
+            <InsightBlock
+              title="Average bond size"
+              headline={{ value: "R1.34m", label: "avg grant — above BB national" }}
+              points={[
+                "Sub-R500k avg ≈ «R350k»; >R5m avg ≈ «R7.16m».",
+                "A «20×» spread between smallest and largest segments.",
+              ]}
+            />
+
+            <InsightBlock
+              title="Monthly run-rate"
+              headline={{ value: "~158", label: "grants per month total" }}
+              points={[
+                "R500k–R1m alone = «~55/month» — what MyHome onboarding must absorb first.",
+                "Only «~1.7/month» above R5m — thin but high-margin.",
+              ]}
+            />
+
+            <InsightBlock
+              title="Pareto check"
+              headline={{ value: "65.7%", label: "of volume in R500k–R2m" }}
+              points={[
+                "Top 3 brackets cover «65.7%» of volume and «53.5%» of value.",
+                "Long tail >R3m: «22% of value» from «6.9% of customers» — concierge motion.",
+              ]}
+            />
+
             </div>
           </div>
         </div>
