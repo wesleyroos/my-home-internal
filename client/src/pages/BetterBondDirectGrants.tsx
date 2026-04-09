@@ -14,8 +14,8 @@ const GRANTED_BRACKETS: { label: string; volume: number; value: string; volPct: 
 ];
 
 const GRANTED_SUMMARY: typeof GRANTED_BRACKETS = [
-  { label: "0 – R3 000 000", volume: 883, value: "R990 318 750", volPct: "93,1%", valPct: "77,8%" },
-  { label: "> R3 000 000",   volume: 65,  value: "R282 735 157", volPct: "6,9%",  valPct: "22,2%" },
+  { label: "0 – R1 500 000",  volume: 659, value: "R524 802 630", volPct: "69,6%", valPct: "41,3%" },
+  { label: "R1 500 000+",      volume: 289, value: "R748 251 277", volPct: "30,4%", valPct: "58,7%" },
 ];
 
 function renderWithStats(text: string) {
@@ -95,7 +95,7 @@ export default function BetterBondDirectGrants() {
             </p>
             <h3 className="text-lg font-bold text-[#0C2340] mb-4">BetterBond Direct</h3>
 
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-wide text-slate-500">Total granted business</p>
                 <p className="text-2xl font-bold text-[#0C2340]">948</p>
@@ -103,6 +103,10 @@ export default function BetterBondDirectGrants() {
               <div className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-wide text-slate-500">Value</p>
                 <p className="text-2xl font-bold text-[#0C2340]">R1 273 053 907</p>
+              </div>
+              <div className="rounded-xl bg-[#3DBFAD]/10 border border-[#3DBFAD]/30 px-4 py-3">
+                <p className="text-[11px] uppercase tracking-wide text-[#0C2340]/70">Avg bond grants / month</p>
+                <p className="text-2xl font-bold text-[#0C2340]">158</p>
               </div>
             </div>
 
@@ -135,7 +139,12 @@ export default function BetterBondDirectGrants() {
                       >
                         {r.volume}
                       </td>
-                      <td className="py-2 px-2 text-right tabular-nums text-slate-500">{(r.volume / 6).toFixed(1)}</td>
+                      <td
+                        className="py-2 px-2 text-right tabular-nums font-semibold"
+                        style={{ backgroundColor: `rgba(61, 191, 173, ${intensity * 0.65})` }}
+                      >
+                        {(r.volume / 6).toFixed(1)}
+                      </td>
                       <td className="py-2 px-2 text-right tabular-nums">{r.value}</td>
                       <td
                         className="py-2 px-2 text-right tabular-nums font-semibold"
@@ -153,16 +162,20 @@ export default function BetterBondDirectGrants() {
                     );
                   })}
                   <tr><td colSpan={6} className="py-2" /></tr>
-                  {GRANTED_SUMMARY.map((r) => (
-                    <tr key={r.label} className="bg-slate-50 font-semibold">
-                      <td className="py-2 pr-4 text-[#0C2340]">{r.label}</td>
-                      <td className="py-2 px-2 text-right tabular-nums">{r.volume}</td>
-                      <td className="py-2 px-2 text-right tabular-nums text-slate-500">{(r.volume / 6).toFixed(1)}</td>
-                      <td className="py-2 px-2 text-right tabular-nums">{r.value}</td>
-                      <td className="py-2 px-2 text-right tabular-nums">{r.volPct}</td>
-                      <td className="py-2 pl-2 text-right tabular-nums">{r.valPct}</td>
+                  {GRANTED_SUMMARY.map((r) => {
+                    const isTarget = r.label.includes("1 500 000+");
+                    const bg = isTarget ? "bg-[#0C2340] text-white" : "bg-slate-50 text-[#0C2340]";
+                    return (
+                    <tr key={r.label} className={`font-semibold ${bg}`}>
+                      <td className="py-2.5 pr-4 pl-3 first:rounded-l-md">{r.label}</td>
+                      <td className="py-2.5 px-2 text-right tabular-nums">{r.volume}</td>
+                      <td className="py-2.5 px-2 text-right tabular-nums">{(r.volume / 6).toFixed(1)}</td>
+                      <td className="py-2.5 px-2 text-right tabular-nums">{r.value}</td>
+                      <td className="py-2.5 px-2 text-right tabular-nums">{r.volPct}</td>
+                      <td className="py-2.5 pl-2 pr-3 text-right tabular-nums last:rounded-r-md">{r.valPct}</td>
                     </tr>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -212,52 +225,175 @@ export default function BetterBondDirectGrants() {
             </div>
           </div>
 
+          {/* Lead funnel */}
+          <div className="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">
+              BetterBond Direct
+            </p>
+            <h3 className="text-lg font-bold text-[#0C2340] mb-1">
+              Monthly lead funnel — 8 000 to 158
+            </h3>
+            <p className="text-[13px] text-slate-600 mb-6 max-w-3xl">
+              How BB Direct turns raw leads into granted bonds. The 50% credit drop-off
+              is the single biggest leak, but the step from credit-passed to application
+              is where MyHome has the most room to lift conversion.
+            </p>
+
+            {(() => {
+              const STAGES = [
+                { label: "Leads", value: 8000, color: "#0C2340", note: "Inbound monthly", drop: null as string | null },
+                { label: "Credit passed", value: 4000, color: "#1E3A5F", note: "poor credit · 4 000 drop off", drop: "−50%" },
+                { label: "Applications", value: 200, color: "#3DBFAD", note: "~5% of credit-passed apply · 3 800 drop off", drop: "−95%" },
+                { label: "Granted", value: 158, color: "#10B981", note: "~79% grant rate · 42 drop off", drop: "−21%" },
+              ];
+              // Visual widths — not strictly proportional so the tiny stages stay readable.
+              const WIDTHS = [100, 72, 42, 28];
+              const H = 74;
+              const GAP = 2;
+              const VB_W = 560;
+              const VB_H = STAGES.length * (H + GAP);
+              const CX = VB_W / 2;
+
+              return (
+                <div className="flex items-start gap-6">
+                  {/* Funnel SVG */}
+                  <div className="flex-1 max-w-[560px]">
+                    <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto">
+                      {STAGES.map((s, i) => {
+                        const topW = (WIDTHS[i] / 100) * VB_W;
+                        const botW = (WIDTHS[i + 1] !== undefined ? WIDTHS[i + 1] : WIDTHS[i] * 0.7) / 100 * VB_W;
+                        const y0 = i * (H + GAP);
+                        const y1 = y0 + H;
+                        const points = [
+                          `${CX - topW / 2},${y0}`,
+                          `${CX + topW / 2},${y0}`,
+                          `${CX + botW / 2},${y1}`,
+                          `${CX - botW / 2},${y1}`,
+                        ].join(" ");
+                        return (
+                          <g key={s.label}>
+                            <polygon points={points} fill={s.color} />
+                            <text
+                              x={CX}
+                              y={y0 + H / 2 - 4}
+                              textAnchor="middle"
+                              fill="#ffffff"
+                              fontSize="22"
+                              fontWeight="700"
+                              fontFamily="Inter, system-ui"
+                            >
+                              {s.value.toLocaleString()}
+                            </text>
+                            <text
+                              x={CX}
+                              y={y0 + H / 2 + 16}
+                              textAnchor="middle"
+                              fill="#ffffff"
+                              fontSize="11"
+                              opacity="0.8"
+                              fontFamily="Inter, system-ui"
+                            >
+                              {s.label.toUpperCase()}
+                            </text>
+                          </g>
+                        );
+                      })}
+                    </svg>
+                  </div>
+
+                  {/* Side annotations */}
+                  <div className="flex-shrink-0 w-64 space-y-1 pt-1">
+                    {STAGES.map((s) => (
+                      <div
+                        key={s.label}
+                        className="flex items-start gap-2"
+                        style={{ height: `calc((100% - ${(STAGES.length - 1) * GAP}px) / ${STAGES.length})`, minHeight: 70 }}
+                      >
+                        <div className="w-1 h-10 rounded-full mt-1" style={{ backgroundColor: s.color }} />
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="text-[12px] font-bold text-[#0C2340]">{s.label}</p>
+                            {s.drop && (
+                              <span className="text-[10px] font-bold text-red-600 tabular-nums">
+                                {s.drop}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-500 leading-snug">{s.note}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Funnel summary row */}
+            <div className="grid grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-100">
+              {[
+                { k: "End-to-end conversion", v: "2.0%", s: "158 ÷ 8 000 leads" },
+                { k: "Credit drop-off", v: "50%", s: "Biggest single leak" },
+                { k: "Apply rate (of credit-passed)", v: "5%", s: "200 ÷ 4 000" },
+                { k: "Grant rate (of applications)", v: "79%", s: "158 ÷ 200" },
+              ].map((m) => (
+                <div key={m.k} className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
+                  <p className="text-[10px] uppercase tracking-wide text-slate-500">{m.k}</p>
+                  <p className="text-xl font-bold text-[#0C2340] mt-0.5">{m.v}</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">{m.s}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
           {/* Insights */}
           <div className="mt-8">
             <h3 className="text-lg font-bold text-[#0C2340] mb-4">Insights</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <InsightBlock
-              title="Volume vs value mismatch"
-              headline={{ value: "1 in 14", label: "bonds drives 22% of value" }}
+              title="The ceiling"
+              headline={{ value: "2.0%", label: "leads → grants end-to-end" }}
               points={[
-                "R500k–R1m is «34.5%» of deals but only «19.4%» of value — the workhorse band.",
-                ">R3m is «6.9%» of deals but «22.2%» of value.",
+                "«158» grants from «8 000» leads a month.",
+                "Every insight below is a lever on this single number.",
               ]}
             />
 
             <InsightBlock
-              title="The fat middle"
-              headline={{ value: "R1m–R2m", label: "true centre of gravity" }}
+              title="Credit is half the funnel"
+              headline={{ value: "4 000/mo", label: "lost to poor credit" }}
               points={[
-                "«31.5%» of volume and «34.1%» of value — the only band where volume share ≈ value share.",
-                "Not the sub-R1m band most people assume.",
+                "«50%» of leads never get past credit — the biggest leak.",
+                "Not a funnel fix — it's a separate TAM for credit repair / debt counselling.",
               ]}
             />
 
             <InsightBlock
-              title="Average bond size"
-              headline={{ value: "R1.34m", label: "avg grant — above BB national" }}
+              title="The real opportunity"
+              accent
+              headline={{ value: "3 800/mo", label: "credit-passed, never apply" }}
               points={[
-                "Sub-R500k avg ≈ «R350k»; >R5m avg ≈ «R7.16m».",
-                "A «20×» spread between smallest and largest segments.",
+                "Only «5%» of credit-passed leads submit an application.",
+                "Lift that to «10%» → «+158 grants/month» — doubles the business with zero new leads.",
+                "This is where MyHome's ROA experience + F&I bundling pays off.",
               ]}
             />
 
             <InsightBlock
-              title="Monthly run-rate"
-              headline={{ value: "~158", label: "grants per month total" }}
+              title="Grant rate isn't the problem"
+              headline={{ value: "79%", label: "applications → grants" }}
               points={[
-                "R500k–R1m alone = «~55/month» — what MyHome onboarding must absorb first.",
-                "Only «~1.7/month» above R5m — thin but high-margin.",
+                "Underwriting is mostly saying yes once an application lands.",
+                "Don't waste cycles downstream — focus upstream.",
               ]}
             />
 
             <InsightBlock
-              title="Pareto check"
-              headline={{ value: "65.7%", label: "of volume in R500k–R2m" }}
+              title="Start where the value sits"
+              headline={{ value: "R1.5m+", label: "58.7% of value · 30.4% of volume" }}
               points={[
-                "Top 3 brackets cover «65.7%» of volume and «53.5%» of value.",
-                "Long tail >R3m: «22% of value» from «6.9% of customers» — concierge motion.",
+                "«289/month» grants above R1.5m carry «R748m» in value.",
+                "Higher-ticket buyers, richer F&I attach, better unit economics.",
+                "If MyHome starts here, a small apply-rate lift compounds fast.",
               ]}
             />
 

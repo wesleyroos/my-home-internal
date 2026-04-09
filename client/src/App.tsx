@@ -16,6 +16,7 @@ import DocVault from "./pages/DocVault";
 import Exco from "./pages/Exco";
 import Landscape from "./pages/Landscape";
 import BetterBondDirectGrants from "./pages/BetterBondDirectGrants";
+import BuyerFlow from "./pages/BuyerFlow";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path={"/exco"} component={Exco} />
       <Route path={"/landscape"} component={Landscape} />
       <Route path={"/bb-direct-grants"} component={BetterBondDirectGrants} />
+      <Route path={"/buyer-flow"} component={BuyerFlow} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

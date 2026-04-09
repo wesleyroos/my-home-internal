@@ -3,7 +3,7 @@
  */
 
 import { Link } from "wouter";
-import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3 } from "lucide-react";
+import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -60,6 +60,14 @@ const GROUPS: Group[] = [
         icon: <BarChart3 className="w-5 h-5" />,
         accentBg: "bg-indigo-50",
         accentText: "text-indigo-600",
+      },
+      {
+        route: "/buyer-flow",
+        label: "Buyer F&I Flow",
+        description: "Mapping of the We Buy Cars F&I handover onto MyHome. 5-step flow with the ROA rebranded as buyer-friendly 'Home Match'.",
+        icon: <Workflow className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
       },
       {
         route: "/fi",
