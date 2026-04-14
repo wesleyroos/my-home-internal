@@ -3,7 +3,7 @@
  */
 
 import { Link } from "wouter";
-import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow } from "lucide-react";
+import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -74,6 +74,30 @@ const GROUPS: Group[] = [
         label: "F&I Comparison",
         description: "Strategic framework mapping the motor F&I process to its residential property equivalent.",
         icon: <GitCompare className="w-5 h-5" />,
+        accentBg: "bg-[#0C2340]/8",
+        accentText: "text-[#0C2340]",
+      },
+      {
+        route: "/standard-bank",
+        label: "Standard Bank Notes",
+        description: "Meeting notes — Whizzoh partnership, solar education GTM, solar-value data gap, and connectivity as a home service.",
+        icon: <StickyNote className="w-5 h-5" />,
+        accentBg: "bg-amber-50",
+        accentText: "text-amber-600",
+      },
+      {
+        route: "/loom-meeting",
+        label: "Loom Meeting",
+        description: "Meeting with Jacques (CEO). Loom as data partner, BetterBond as first entry point, AI condition scoring, and MyHome commercial model.",
+        icon: <Database className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
+      },
+      {
+        route: "/bb-direct-meeting",
+        label: "BB Direct Focus Group",
+        description: "Focus group with Di Williams and her team from BetterBond Direct. Notes pending.",
+        icon: <Users className="w-5 h-5" />,
         accentBg: "bg-[#0C2340]/8",
         accentText: "text-[#0C2340]",
       },

@@ -1,467 +1,364 @@
 /*
- * Exco — Five-beat decision narrative for the Better Home Group exco session.
- * Beats: 1) The Prize  2) The Lens  3) The Contenders  4) Head-to-Head  5) The Call
+ * Exco — Decision deck for the Better Home Group exco session.
+ * Structure: Hero → Action Points → Feedback → Contenders → Head-to-Head → The Call
  */
 
-import { useEffect, useRef, useState } from "react";
+import { Link } from "wouter";
 import {
-  Check, X, Target, Scale, Users, Swords, Flag,
-  FileSearch, BarChart3, Briefcase, Vault,
+  Users, FileSearch, BarChart3, Briefcase,
+  ClipboardList, MessageSquare, ArrowRight, Globe,
+  Wrench,
 } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
-// ─── Animated counter ────────────────────────────────────────────────────────
-function useCountUp(target: number, duration = 1800, start = true) {
-  const [value, setValue] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let raf = 0;
-    const t0 = performance.now();
-    const tick = (t: number) => {
-      const p = Math.min((t - t0) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setValue(target * eased);
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration, start]);
-  return value;
-}
+// ─── Design tokens ──────────────────────────────────────────────────────────
 
-function useInView<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setInView(true); obs.disconnect(); } },
-      { threshold: 0.3 }
-    );
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-  return { ref, inView };
-}
+const SECTION = "py-28 sm:py-36 px-8 sm:px-12";
+const CARD = "bg-white rounded-2xl shadow-sm";
+const INNER = "max-w-7xl mx-auto w-full";
 
-// ─── Beat header ─────────────────────────────────────────────────────────────
-function BeatHeader({ num, kicker, title, icon }: { num: string; kicker: string; title: string; icon: React.ReactNode }) {
+// ─── Section header ─────────────────────────────────────────────────────────
+
+function SectionHeader({
+  num, kicker, title, subtitle, icon,
+}: {
+  num: string;
+  kicker: string;
+  title: string;
+  subtitle?: string;
+  icon: React.ReactNode;
+}) {
   return (
-    <div className="max-w-4xl mb-14">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-full bg-[#3DBFAD]/10 text-[#3DBFAD] flex items-center justify-center">
+    <div className="max-w-5xl mb-16">
+      <div className="flex items-center gap-4 mb-6">
+        <div className="w-12 h-12 rounded-2xl bg-[#3DBFAD] text-white flex items-center justify-center shadow-md shadow-[#3DBFAD]/25">
           {icon}
         </div>
-        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#3DBFAD]">
-          Beat {num} · {kicker}
+        <span className="text-sm font-bold uppercase tracking-[0.15em] text-[#3DBFAD]">
+          {num} · {kicker}
         </span>
       </div>
-      <h2 className="font-heading font-bold text-4xl sm:text-5xl text-[#0C2340] leading-[1.05] tracking-tight">
+      <h2 className="font-heading font-bold text-4xl sm:text-5xl lg:text-6xl text-[#0C2340] leading-[1.05] tracking-tight">
         {title}
       </h2>
+      {subtitle && (
+        <p className="mt-5 text-lg sm:text-xl text-slate-500 max-w-4xl leading-relaxed">{subtitle}</p>
+      )}
     </div>
   );
 }
 
-// ─── Beat 1: The Prize ───────────────────────────────────────────────────────
-function ThePrize() {
-  const { ref, inView } = useInView<HTMLDivElement>();
-  const trillions = useCountUp(1.3, 2000, inView);
+// ─── Sub-section label ──────────────────────────────────────────────────────
 
-  const supports = [
-    { stat: "~250,000", label: "bonds registered per year in SA", source: "Deeds Office" },
-    { stat: "~4.5M", label: "monthly visitors on Private Property", source: "Similarweb" },
-    { stat: "~35%", label: "of SA bond applications touch BetterBond", source: "Internal" },
-  ];
-
+function SubLabel({ icon, label, count }: { icon: React.ReactNode; label: string; count?: number }) {
   return (
-    <section ref={ref} className="min-h-screen flex flex-col justify-center py-28 px-8 border-b border-slate-200">
-      <div className="max-w-6xl mx-auto w-full">
-        <BeatHeader num="01" kicker="The Prize" title="Why we're in this room." icon={<Target className="w-5 h-5" />} />
+    <div className="flex items-center gap-3 mb-6">
+      <span className="text-[#3DBFAD]">{icon}</span>
+      <span className="text-sm uppercase tracking-widest font-bold text-[#0C2340]">{label}</span>
+      {count !== undefined && (
+        <span className="w-7 h-7 rounded-full bg-[#0C2340] text-white text-xs font-bold flex items-center justify-center">{count}</span>
+      )}
+    </div>
+  );
+}
 
-        <div className="mb-16">
-          <div className="font-heading font-bold text-[#0C2340] leading-none tracking-tighter">
-            <span className="text-[9rem] sm:text-[13rem]">R{trillions.toFixed(1)}</span>
-            <span className="text-5xl sm:text-6xl text-[#3DBFAD] ml-2">trillion</span>
+// ─── Hero ───────────────────────────────────────────────────────────────────
+
+function Hero() {
+  return (
+    <section className="bg-[#0C2340] relative overflow-hidden">
+      {/* Decorative gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[#0C2340] via-[#0C2340] to-[#163a5e]" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#3DBFAD]/8 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" />
+
+      <div className={`${INNER} px-8 sm:px-12 py-24 sm:py-32 relative`}>
+        <div className="flex items-center gap-3 text-[#3DBFAD] text-sm font-bold uppercase tracking-[0.2em] mb-8">
+          <span className="w-8 h-px bg-[#3DBFAD]" />
+          Decision Deck
+        </div>
+        <h1 className="font-heading font-bold text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.02] tracking-tight mb-6">
+          MyHome<br />
+          <span className="text-[#3DBFAD]">Exco Update · 17 April</span>
+        </h1>
+        <p className="text-white/60 text-lg sm:text-xl max-w-2xl leading-relaxed">
+          Action points from the previous session, what we found, the entry-point options on the table, and a recommendation.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─── Section 1: Action Points ───────────────────────────────────────────────
+
+const MEETINGS = [
+  "Jacques from Loom",
+  "Di Williams from BetterBond",
+  "Stephan Potgieter (BLOS) — bank inclusions in bonds + Avo contact",
+  "Nathan from BetterID — demo for Tersia",
+  "Mary Lindemann (TBC)",
+  "Marc du Plessis (Head of LookSee — Standard Bank)",
+  "Denise — F&I process at We Buy Cars",
+  "Focus group with Di and her team from BetterBond Direct",
+];
+
+const RESEARCH_ITEMS = [
+  "Global competitor research",
+  "SA stats — renters vs owners, transaction volumes, costs",
+  "SA personas",
+];
+
+const PROTOTYPE_ITEMS = [
+  "Interactive Suburb Report",
+  "F&I journey mapping into Choose Your Deal",
+  "BetterBond Direct flow",
+];
+
+function ActionPointList({ items, color }: { items: string[]; color: string }) {
+  return (
+    <ul className="space-y-4">
+      {items.map((item) => (
+        <li key={item} className="flex items-start gap-4 text-base text-slate-700 leading-relaxed">
+          <span className="w-2 h-2 rounded-full mt-2.5 flex-shrink-0" style={{ backgroundColor: color }} />
+          {item}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function ActionPoints() {
+  return (
+    <section className={`${SECTION} bg-slate-50`}>
+      <div className={INNER}>
+        <SectionHeader
+          num="01"
+          kicker="Recap"
+          title="Action points from previous meeting."
+          subtitle="What we committed to last session — meetings to take, research to complete, and prototypes to build."
+          icon={<ClipboardList className="w-5 h-5" />}
+        />
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className={`${CARD} p-8 border-t-4 border-t-[#3DBFAD]`}>
+            <SubLabel icon={<Users className="w-5 h-5" />} label="Meetings" count={MEETINGS.length} />
+            <ActionPointList items={MEETINGS} color="#3DBFAD" />
           </div>
-          <p className="mt-6 text-xl sm:text-2xl text-slate-600 max-w-3xl leading-relaxed">
-            of South African residential property transacts every year.
-            BHG touches roughly <span className="text-[#0C2340] font-semibold">8%</span> of it today.
-            <span className="text-[#0C2340] font-semibold"> The other 92% is the prize.</span>
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {supports.map((s) => (
-            <div key={s.label} className="bg-white border border-slate-200 rounded-2xl p-6">
-              <div className="font-heading font-bold text-4xl text-[#0C2340] mb-2">{s.stat}</div>
-              <p className="text-sm text-slate-600 leading-snug mb-3">{s.label}</p>
-              <p className="text-[10px] uppercase tracking-widest text-slate-400">{s.source}</p>
-            </div>
-          ))}
-        </div>
+          <div className={`${CARD} p-8 border-t-4 border-t-[#0C2340]`}>
+            <SubLabel icon={<BarChart3 className="w-5 h-5" />} label="Research" count={RESEARCH_ITEMS.length} />
+            <ActionPointList items={RESEARCH_ITEMS} color="#0C2340" />
+          </div>
 
-        <p className="mt-10 text-xs text-slate-400 italic max-w-2xl">
-          Placeholder figures — sharpen before exco. The point is the frame: we're under-indexed on a huge, fragmented market.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// ─── Beat 2: The Lens ────────────────────────────────────────────────────────
-function TheLens() {
-  const criteria = [
-    {
-      letter: "A",
-      title: "Revenue per user",
-      question: "How much does one activated user actually earn us — upfront and recurring?",
-    },
-    {
-      letter: "B",
-      title: "Lead gen into BHG",
-      question: "Does this create qualified hand-offs into BetterBond, BetterSure, MortgageMax and the rest of the group?",
-    },
-    {
-      letter: "C",
-      title: "Speed to launch",
-      question: "Can we stand this up in one or two quarters using what BHG already owns?",
-    },
-    {
-      letter: "D",
-      title: "Strategic moat",
-      question: "What can we defend that a standalone startup or bank cannot replicate quickly?",
-    },
-  ];
-
-  return (
-    <section className="min-h-screen flex flex-col justify-center py-28 px-8 border-b border-slate-200 bg-[#f8fafc]">
-      <div className="max-w-6xl mx-auto w-full">
-        <BeatHeader num="02" kicker="The Lens" title="How we'll decide." icon={<Scale className="w-5 h-5" />} />
-
-        <p className="text-lg text-slate-600 max-w-3xl mb-12 leading-relaxed">
-          Before we look at any option, let's agree on the four questions every contender has to answer.
-          If we're aligned on the lens, the conclusion writes itself.
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-          {criteria.map((c) => (
-            <div key={c.letter} className="bg-white border border-slate-200 rounded-2xl p-8 hover:border-[#3DBFAD]/40 transition-colors">
-              <div className="flex items-start gap-5">
-                <div className="w-12 h-12 rounded-xl bg-[#0C2340] text-white font-heading font-bold text-xl flex items-center justify-center flex-shrink-0">
-                  {c.letter}
-                </div>
-                <div>
-                  <h3 className="font-heading font-bold text-xl text-[#0C2340] mb-2">{c.title}</h3>
-                  <p className="text-slate-600 leading-relaxed">{c.question}</p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-10 bg-[#3DBFAD]/5 border border-[#3DBFAD]/20 rounded-2xl p-6 max-w-3xl">
-          <p className="text-sm text-[#0C2340] leading-relaxed">
-            <span className="font-bold">Ask the room:</span> is this the right lens? Anything we're missing?
-            Get explicit nods before moving on.
-          </p>
+          <div className={`${CARD} p-8 border-t-4 border-t-amber-500`}>
+            <SubLabel icon={<Wrench className="w-5 h-5" />} label="Actions" count={PROTOTYPE_ITEMS.length} />
+            <ActionPointList items={PROTOTYPE_ITEMS} color="#f59e0b" />
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-// ─── Beat 3: The Contenders ──────────────────────────────────────────────────
-interface Contender {
-  name: string;
+// ─── Section 2: Feedback ────────────────────────────────────────────────────
+
+interface MeetingFeedback {
+  who: string;
+  feedback: string;
+  linkTo?: string;
+}
+
+const MEETING_FEEDBACK: MeetingFeedback[] = [
+  { who: "Jacques from Loom", feedback: "Intro meeting on Loom as property-data partner. BetterBond F&I integration agreed as first entry point, interactive suburb report as second hook. Loom brings AI condition scoring, valuation forecasting, and 24k+ users. MyHome to be a separate commercial business with Loom as key data partner. BetterID confirmed as authentication foundation.", linkTo: "/loom-meeting" },
+  { who: "Di Williams from BetterBond", feedback: "" },
+  { who: "Stephan Potgieter (BLOS)", feedback: "" },
+  { who: "Nathan from BetterID", feedback: "" },
+  { who: "Mary Lindemann", feedback: "" },
+  { who: "Marc du Plessis (LookSee — Standard Bank)", feedback: "Standard Bank uses Whizzoh as their home services partner. Solar education has been a major part of their GTM. Key data gap identified: no one is tracking how solar installations affect property value in SA." },
+  { who: "Denise — We Buy Cars", feedback: "" },
+  { who: "Focus group — Di and team (BetterBond Direct)", feedback: "" },
+];
+
+interface FeedbackCardData {
+  id: string;
+  title: string;
   icon: React.ReactNode;
-  color: string;
-  stage: string;
-  audience: string;
-  revenue: string;
-  bhgEdge: string;
-  risk: string;
+  summary: string;
+  accent: string;
+  linkTo?: string;
+  linkLabel?: string;
 }
 
-const CONTENDERS: Contender[] = [
+const RESEARCH_FEEDBACK: FeedbackCardData[] = [
   {
-    name: "Property Pass",
-    icon: <FileSearch className="w-6 h-6" />,
-    color: "#f59e0b",
-    stage: "Renters → Buyers → Owners",
-    audience: "Anyone thinking about property — widest possible top of funnel.",
-    revenue: "Freemium. Upsell into F&I products, Snappy Home, BetterID verification.",
-    bhgEdge: "Stacks data from BetterID, PropertyEngine, BetterBond pre-qualification in one profile — nobody else has all three.",
-    risk: "Broad scope makes it hard to launch. Needs a sharp v1 or it drifts.",
+    id: "landscape",
+    title: "Global Competitor Landscape",
+    icon: <Globe className="w-6 h-6" />,
+    accent: "#3DBFAD",
+    summary: "Mapped 19 companies across 5 categories — marketplaces & portals, iBuying, super-apps, insurance and home services. Key pattern: portals dominate search but stop short of the transaction. Super-apps (Loom, HomeLight) are the closest to what MyHome could become. iBuying has largely failed — thin margins on physical assets don't scale. The gap is clear: nobody owns the full journey from search through post-purchase services.",
+    linkTo: "/landscape",
+    linkLabel: "View full landscape",
   },
   {
-    name: "Suburb Report",
+    id: "sa-stats",
+    title: "SA Market Stats",
     icon: <BarChart3 className="w-6 h-6" />,
-    color: "#ef4444",
-    stage: "Owners (curious)",
-    audience: "Existing homeowners checking on their property value — largest addressable pool in SA.",
-    revenue: "Email capture → F&I re-engagement. Minimal direct revenue.",
-    bhgEdge: "Lightstone + Private Property listing data. Cheap to run, high traffic potential.",
-    risk: "Hard to monetise directly. Commodity — Lightstone and banks already do versions of this.",
+    accent: "#0C2340",
+    summary: "53% of South African households are owner-occupied vs 23% renting (Stats SA, 2022). ~250,000 bonds registered per year through the Deeds Office. ~35% of SA bond applications touch BetterBond. The average property transaction involves 6+ service providers with no single coordinating layer.",
+    linkTo: "/",
+    linkLabel: "View on BHG Journey",
   },
   {
-    name: "F&I (Choose My Deal)",
-    icon: <Briefcase className="w-6 h-6" />,
-    color: "#0C2340",
-    stage: "Buyers (pre-transfer)",
-    audience: "Bond applicants — narrow but extremely high intent.",
-    revenue: "R5–15k per bond origination + attached product commissions (insurance, warranty, services).",
-    bhgEdge: "BetterBond already sees ~35% of SA bond volume. BetterSure + Snappy Home give us the attach stack nobody can match.",
-    risk: "Regulated. Requires orchestration across 4+ BHG entities.",
-  },
-  {
-    name: "Doc Vault",
-    icon: <Vault className="w-6 h-6" />,
-    color: "#10b981",
-    stage: "Owners (passive)",
-    audience: "Anyone who owns a home and hates paperwork.",
-    revenue: "Free. Hook into the ecosystem — not a direct revenue play.",
-    bhgEdge: "Re-uses documents already flowing through BetterBond, conveyancing and BetterSure.",
-    risk: "Pure cost centre unless bundled. Hard to justify on its own.",
+    id: "personas",
+    title: "SA Personas",
+    icon: <Users className="w-6 h-6" />,
+    accent: "#8b5cf6",
+    summary: "Three core personas mapped: first-time buyers navigating complexity with limited knowledge, move-up buyers upgrading with equity and experience, and property investors optimising for yield. Each has distinct pain points, channels and product needs — but all share one gap: no single platform coordinates their journey.",
+    linkTo: "/",
+    linkLabel: "View personas",
   },
 ];
 
-function TheContenders() {
+const PROTOTYPE_FEEDBACK: FeedbackCardData[] = [
+  {
+    id: "report",
+    title: "Interactive Suburb Report",
+    icon: <FileSearch className="w-6 h-6" />,
+    accent: "#ef4444",
+    summary: "Built a homeowner-facing property report prototype — value trend, suburb stats, surrounding sales, active listings and premium locked sections. Designed as a top-of-funnel lead capture tool that creates a reason for homeowners to engage before they're actively transacting.",
+    linkTo: "/report",
+    linkLabel: "View report prototype",
+  },
+  {
+    id: "fi-deal",
+    title: "F&I Journey → Choose My Deal",
+    icon: <Briefcase className="w-6 h-6" />,
+    accent: "#0C2340",
+    summary: "Mapped the motor F&I process onto its residential property equivalent and built a buyer-facing deal configurator prototype. Bank offer comparison, loan term selection, and F&I add-ons (insurance, warranty, home services) with a live deal summary. Also mapped the We Buy Cars buyer flow into a 5-step MyHome handover.",
+    linkTo: "/deal",
+    linkLabel: "View deal prototype",
+  },
+  {
+    id: "bb-direct-flow",
+    title: "BetterBond Direct Flow",
+    icon: <BarChart3 className="w-6 h-6" />,
+    accent: "#3DBFAD",
+    summary: "Mapped the BB Direct lead funnel end-to-end — from 8 000 monthly inbound leads down to 158 granted bonds (2.0% conversion). Credit decline is the biggest leak at 50%, and only 5% of credit-passed leads submit an application. Surfaces two distinct entry points for MyHome: a credit-repair play on the drop-offs, and an application-lift play on the warm leads.",
+    linkTo: "/bb-direct-grants",
+    linkLabel: "View BB Direct flow",
+  },
+];
+
+function FeedbackCard({ card }: { card: FeedbackCardData }) {
   return (
-    <section className="py-28 px-8 border-b border-slate-200">
-      <div className="max-w-6xl mx-auto w-full">
-        <BeatHeader num="03" kicker="The Contenders" title="Four ways in." icon={<Users className="w-5 h-5" />} />
-
-        <p className="text-lg text-slate-600 max-w-3xl mb-14 leading-relaxed">
-          Same template for each one. Who it serves, where in the journey, how it makes money,
-          what BHG already owns that makes it unfair, and where it could fall over.
-        </p>
-
-        <div className="space-y-6">
-          {CONTENDERS.map((c, i) => (
-            <div key={c.name} className="bg-white border border-slate-200 rounded-3xl overflow-hidden">
-              <div className="flex items-center gap-5 p-8 border-b border-slate-100" style={{ backgroundColor: `${c.color}08` }}>
-                <div
-                  className="w-14 h-14 rounded-2xl flex items-center justify-center text-white flex-shrink-0"
-                  style={{ backgroundColor: c.color }}
-                >
-                  {c.icon}
-                </div>
-                <div>
-                  <div className="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Contender {String(i + 1).padStart(2, "0")}</div>
-                  <h3 className="font-heading font-bold text-2xl text-[#0C2340]">{c.name}</h3>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-5 gap-6 p-8">
-                <Field label="Stage" value={c.stage} />
-                <Field label="Audience" value={c.audience} />
-                <Field label="Revenue" value={c.revenue} />
-                <Field label="BHG edge" value={c.bhgEdge} />
-                <Field label="Risk" value={c.risk} />
-              </div>
-            </div>
-          ))}
-        </div>
+    <div className={`${CARD} p-8 sm:p-10 flex items-start gap-6 border-l-4`} style={{ borderLeftColor: card.accent }}>
+      <div
+        className="w-14 h-14 rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-lg"
+        style={{ backgroundColor: card.accent }}
+      >
+        {card.icon}
       </div>
-    </section>
-  );
-}
-
-function Field({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="text-[10px] uppercase tracking-widest text-slate-400 mb-2 font-semibold">{label}</div>
-      <p className="text-sm text-slate-700 leading-relaxed">{value}</p>
+      <div className="flex-1 min-w-0">
+        <h4 className="font-heading font-bold text-xl text-[#0C2340] mb-3">{card.title}</h4>
+        <p className="text-base text-slate-600 leading-[1.8]">{card.summary}</p>
+        {card.linkTo && (
+          <Link href={card.linkTo}>
+            <span className="inline-flex items-center gap-2 text-base font-bold text-[#3DBFAD] hover:text-[#0C2340] transition-colors cursor-pointer mt-5 group">
+              {card.linkLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
 
-// ─── Beat 4: Head-to-Head ────────────────────────────────────────────────────
-const SCORES: Record<string, Record<string, number>> = {
-  "Property Pass":       { "Revenue per user": 2, "Lead gen": 5, "Speed to launch": 2, "Strategic moat": 4 },
-  "Suburb Report":       { "Revenue per user": 1, "Lead gen": 4, "Speed to launch": 5, "Strategic moat": 2 },
-  "F&I (Choose My Deal)":{ "Revenue per user": 5, "Lead gen": 3, "Speed to launch": 3, "Strategic moat": 5 },
-  "Doc Vault":           { "Revenue per user": 1, "Lead gen": 2, "Speed to launch": 4, "Strategic moat": 2 },
-};
-
-const CRITERIA = ["Revenue per user", "Lead gen", "Speed to launch", "Strategic moat"];
-
-function HeadToHead() {
-  const totals = Object.entries(SCORES).map(([name, scores]) => ({
-    name,
-    total: Object.values(scores).reduce((a, b) => a + b, 0),
-    color: CONTENDERS.find((c) => c.name === name)?.color ?? "#64748b",
-  })).sort((a, b) => b.total - a.total);
-
+function Feedback() {
   return (
-    <section className="py-28 px-8 border-b border-slate-200 bg-[#f8fafc]">
-      <div className="max-w-6xl mx-auto w-full">
-        <BeatHeader num="04" kicker="Head-to-Head" title="Side by side, against the lens." icon={<Swords className="w-5 h-5" />} />
+    <section className={`${SECTION} bg-white`}>
+      <div className={INNER}>
+        <SectionHeader
+          num="02"
+          kicker="Feedback"
+          title="What we found."
+          subtitle="Outcomes from the meetings, research findings, and where the prototypes landed."
+          icon={<MessageSquare className="w-5 h-5" />}
+        />
 
-        <p className="text-lg text-slate-600 max-w-3xl mb-14 leading-relaxed">
-          Now we score each contender against the four criteria we agreed on.
-          No surprises — just the same lens applied four times.
-        </p>
-
-        <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden mb-10">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="text-left p-5 text-[11px] uppercase tracking-widest text-slate-500 font-semibold">Contender</th>
-                {CRITERIA.map((c) => (
-                  <th key={c} className="text-center p-5 text-[11px] uppercase tracking-widest text-slate-500 font-semibold">{c}</th>
-                ))}
-                <th className="text-center p-5 text-[11px] uppercase tracking-widest text-slate-500 font-semibold">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {totals.map((row, idx) => (
-                <tr key={row.name} className={`border-b border-slate-100 last:border-b-0 ${idx === 0 ? "bg-[#3DBFAD]/5" : ""}`}>
-                  <td className="p-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: row.color }} />
-                      <span className="font-heading font-bold text-[#0C2340]">{row.name}</span>
-                      {idx === 0 && <span className="text-[9px] uppercase tracking-widest text-[#3DBFAD] font-bold bg-[#3DBFAD]/10 px-2 py-0.5 rounded-full">Leader</span>}
-                    </div>
-                  </td>
-                  {CRITERIA.map((c) => {
-                    const score = SCORES[row.name][c];
-                    return (
-                      <td key={c} className="text-center p-5">
-                        <div className="inline-flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map((n) => (
-                            <div
-                              key={n}
-                              className={`w-2 h-6 rounded-sm ${n <= score ? "" : "bg-slate-100"}`}
-                              style={n <= score ? { backgroundColor: row.color } : undefined}
-                            />
-                          ))}
-                        </div>
-                      </td>
-                    );
-                  })}
-                  <td className="text-center p-5">
-                    <span className="font-heading font-bold text-2xl text-[#0C2340]">{row.total}</span>
-                    <span className="text-slate-400 text-sm">/20</span>
-                  </td>
+        {/* Meetings table */}
+        <div className="mb-20">
+          <SubLabel icon={<Users className="w-5 h-5" />} label="Meetings" count={MEETING_FEEDBACK.length} />
+          <div className={`${CARD} overflow-hidden border border-slate-200`}>
+            <table className="w-full">
+              <thead>
+                <tr className="bg-[#0C2340]">
+                  <th className="text-left px-8 py-5 text-sm uppercase tracking-widest text-white/70 font-semibold w-[300px]">Who</th>
+                  <th className="text-left px-8 py-5 text-sm uppercase tracking-widest text-white/70 font-semibold">Feedback</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="text-xs text-slate-400 italic">
-          Scores are a working hypothesis. Expect to adjust in the room — that's the point.
-        </p>
-      </div>
-    </section>
-  );
-}
-
-// ─── Beat 5: The Call ────────────────────────────────────────────────────────
-function TheCall() {
-  const doThis = [
-    "Launch F&I (Choose My Deal) as the primary entry point in Q1.",
-    "Run Suburb Report as a low-cost top-of-funnel feeder into F&I from day one.",
-    "Defer Property Pass and Doc Vault to Q3 — revisit after F&I is live.",
-  ];
-  const notThis = [
-    "Building Property Pass first. Too broad, too slow, no revenue for 6+ months.",
-    "Launching Doc Vault standalone. It's a hook, not a product.",
-    "Chasing all four in parallel. We don't have the bandwidth and exco knows it.",
-  ];
-  const success = [
-    "1,000 activated Choose My Deal sessions in first 90 days.",
-    "15% conversion from Suburb Report email → Choose My Deal session.",
-    "R3M+ attributable bond revenue through the funnel by end of Q1.",
-  ];
-
-  return (
-    <section className="py-28 px-8">
-      <div className="max-w-6xl mx-auto w-full">
-        <BeatHeader num="05" kicker="The Call" title="What we're recommending." icon={<Flag className="w-5 h-5" />} />
-
-        <div className="bg-[#0C2340] text-white rounded-3xl p-12 mb-10">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-[#3DBFAD] font-bold mb-4">Recommendation</div>
-          <h3 className="font-heading font-bold text-4xl leading-tight mb-5">
-            Start with F&I.<br />
-            Feed it with Suburb Report.
-          </h3>
-          <p className="text-lg text-white/70 leading-relaxed max-w-2xl">
-            Highest revenue per user, strongest moat, uses assets BHG already owns.
-            Suburb Report becomes the cheap, high-volume funnel that keeps it fed.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-          <div className="bg-white border border-[#3DBFAD]/30 rounded-2xl p-8">
-            <div className="flex items-center gap-2 mb-5 text-[#3DBFAD]">
-              <Check className="w-5 h-5" />
-              <span className="text-[11px] uppercase tracking-widest font-bold">We will</span>
-            </div>
-            <ul className="space-y-4">
-              {doThis.map((d) => (
-                <li key={d} className="text-slate-700 leading-relaxed flex gap-3">
-                  <span className="text-[#3DBFAD] font-bold">→</span>
-                  <span>{d}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="bg-white border border-slate-200 rounded-2xl p-8">
-            <div className="flex items-center gap-2 mb-5 text-slate-500">
-              <X className="w-5 h-5" />
-              <span className="text-[11px] uppercase tracking-widest font-bold">We will not</span>
-            </div>
-            <ul className="space-y-4">
-              {notThis.map((d) => (
-                <li key={d} className="text-slate-600 leading-relaxed flex gap-3">
-                  <span className="text-slate-400">·</span>
-                  <span>{d}</span>
-                </li>
-              ))}
-            </ul>
+              </thead>
+              <tbody>
+                {MEETING_FEEDBACK.map((m, i) => (
+                  <tr key={m.who} className={`border-b border-slate-100 last:border-b-0 ${i % 2 === 1 ? "bg-slate-50/60" : ""}`}>
+                    <td className="px-8 py-6 align-top">
+                      <span className="font-heading font-bold text-base text-[#0C2340]">{m.who}</span>
+                    </td>
+                    <td className="px-8 py-6 align-top">
+                      {m.feedback ? (
+                        <div>
+                          <span className="text-base text-slate-600 leading-[1.8]">{m.feedback}</span>
+                          {m.linkTo && (
+                            <Link href={m.linkTo}>
+                              <span className="inline-flex items-center gap-2 text-base font-bold text-[#3DBFAD] hover:text-[#0C2340] transition-colors cursor-pointer mt-3 group">
+                                View full notes <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                              </span>
+                            </Link>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-base text-slate-300">—</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
-        <div className="bg-[#3DBFAD]/5 border border-[#3DBFAD]/20 rounded-2xl p-8 mb-10">
-          <div className="text-[11px] uppercase tracking-widest text-[#3DBFAD] font-bold mb-4">90-day success looks like</div>
-          <ul className="space-y-3">
-            {success.map((s) => (
-              <li key={s} className="text-[#0C2340] leading-relaxed flex gap-3">
-                <span className="text-[#3DBFAD]">✓</span>
-                <span>{s}</span>
-              </li>
+        {/* Research feedback */}
+        <div className="mb-20">
+          <SubLabel icon={<BarChart3 className="w-5 h-5" />} label="Research" count={RESEARCH_FEEDBACK.length} />
+          <div className="space-y-5">
+            {RESEARCH_FEEDBACK.map((card) => (
+              <FeedbackCard key={card.id} card={card} />
             ))}
-          </ul>
+          </div>
         </div>
 
-        <div className="border-t border-slate-200 pt-10">
-          <div className="text-[11px] uppercase tracking-widest text-slate-400 font-bold mb-3">The ask</div>
-          <p className="font-heading font-bold text-2xl text-[#0C2340] leading-tight max-w-3xl">
-            Do we have exco approval to proceed with F&I as the primary entry point,
-            with Suburb Report as its feeder, starting Q1?
-          </p>
+        {/* Prototype feedback */}
+        <div>
+          <SubLabel icon={<Wrench className="w-5 h-5" />} label="Actions" count={PROTOTYPE_FEEDBACK.length} />
+          <div className="space-y-5">
+            {PROTOTYPE_FEEDBACK.map((card) => (
+              <FeedbackCard key={card.id} card={card} />
+            ))}
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+// ─── Page ───────────────────────────────────────────────────────────────────
+
 export default function Exco() {
   return (
     <div className="min-h-screen bg-white">
-      <AppHeader label="Exco · Entry Point Decision" />
+      <AppHeader label="Exco · Decision Deck" />
 
-      <ThePrize />
-      <TheLens />
-      <TheContenders />
-      <HeadToHead />
-      <TheCall />
+      <Hero />
+      <ActionPoints />
+      <Feedback />
 
       <AppFooter label="Draft for exco review" />
     </div>

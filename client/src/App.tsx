@@ -17,6 +17,9 @@ import Exco from "./pages/Exco";
 import Landscape from "./pages/Landscape";
 import BetterBondDirectGrants from "./pages/BetterBondDirectGrants";
 import BuyerFlow from "./pages/BuyerFlow";
+import StandardBankNotes from "./pages/StandardBankNotes";
+import LoomMeeting from "./pages/LoomMeeting";
+import BBDirectMeeting from "./pages/BBDirectMeeting";
 
 function Router() {
   return (
@@ -32,6 +35,9 @@ function Router() {
       <Route path={"/landscape"} component={Landscape} />
       <Route path={"/bb-direct-grants"} component={BetterBondDirectGrants} />
       <Route path={"/buyer-flow"} component={BuyerFlow} />
+      <Route path={"/standard-bank"} component={StandardBankNotes} />
+      <Route path={"/loom-meeting"} component={LoomMeeting} />
+      <Route path={"/bb-direct-meeting"} component={BBDirectMeeting} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
