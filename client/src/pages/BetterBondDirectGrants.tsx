@@ -255,6 +255,14 @@ export default function BetterBondDirectGrants() {
             </p>
             <h3 className="text-lg font-bold text-[#0C2340] mb-4">BetterBond Direct</h3>
 
+            <div className="mb-6 rounded-xl bg-gradient-to-br from-[#3DBFAD]/15 to-[#0C2340]/5 border-l-4 border-[#3DBFAD] p-5">
+              <p className="text-[15px] sm:text-base font-bold text-[#0C2340] leading-snug">
+                <span className="text-[#3DBFAD]">R1.5m+ bonds</span> are{" "}
+                <span className="text-[#3DBFAD]">30% of volume</span> but{" "}
+                <span className="text-[#3DBFAD]">59% of value</span>.
+              </p>
+            </div>
+
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
                 <p className="text-[11px] uppercase tracking-wide text-slate-500">Total granted business</p>
