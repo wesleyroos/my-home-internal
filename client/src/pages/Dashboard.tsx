@@ -3,7 +3,7 @@
  */
 
 import { Link } from "wouter";
-import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users } from "lucide-react";
+import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users, Presentation } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -29,6 +29,14 @@ const GROUPS: Group[] = [
     title: "Strategy & Research",
     blurb: "Internal thinking, competitive scans, and the narrative for the next exco session.",
     screens: [
+      {
+        route: "/lc-presentation",
+        label: "LC Presentation — 16 April",
+        description: "Two-section deck for the weekly Leadership Committee: vision image and status (what's been done, next steps).",
+        icon: <Presentation className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
+      },
       {
         route: "/",
         label: "BHG Journey",

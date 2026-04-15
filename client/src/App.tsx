@@ -20,6 +20,7 @@ import BuyerFlow from "./pages/BuyerFlow";
 import StandardBankNotes from "./pages/StandardBankNotes";
 import LoomMeeting from "./pages/LoomMeeting";
 import BBDirectMeeting from "./pages/BBDirectMeeting";
+import LCPresentation from "./pages/LCPresentation";
 
 function Router() {
   return (
@@ -38,6 +39,7 @@ function Router() {
       <Route path={"/standard-bank"} component={StandardBankNotes} />
       <Route path={"/loom-meeting"} component={LoomMeeting} />
       <Route path={"/bb-direct-meeting"} component={BBDirectMeeting} />
+      <Route path={"/lc-presentation"} component={LCPresentation} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
