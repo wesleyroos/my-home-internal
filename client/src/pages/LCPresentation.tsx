@@ -30,14 +30,15 @@ const DONE = [
     children: ["Suburb Report", "Home F&I Mapping"],
   },
   {
-    label: "Pressure-testing entry points",
+    label: "Pressure-testing possible entry points",
     children: ["BB Direct Focus Groups", "Standard Bank — LookSee", "We Buy Cars (F&I)"],
   },
 ];
 
 const NEXT = [
-  "Concept definition",
+  "Finalise concept",
   "Entry-point selection",
+  "Compliance and external stakeholder alignment",
   "MVP scoping",
 ];
 
