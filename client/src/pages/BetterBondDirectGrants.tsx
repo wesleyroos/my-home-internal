@@ -257,7 +257,7 @@ export default function BetterBondDirectGrants() {
 
             <div className="mb-6 rounded-xl bg-gradient-to-br from-[#3DBFAD]/15 to-[#0C2340]/5 border-l-4 border-[#3DBFAD] p-5">
               <p className="text-[15px] sm:text-base font-bold text-[#0C2340] leading-snug">
-                <span className="text-[#3DBFAD]">R1.5m+ bonds</span> are{" "}
+                <span className="text-[#3DBFAD]">Bond values of R1.5m and up</span>, are{" "}
                 <span className="text-[#3DBFAD]">30% of volume</span> but{" "}
                 <span className="text-[#3DBFAD]">59% of value</span>.
               </p>
@@ -423,210 +423,165 @@ export default function BetterBondDirectGrants() {
             />
           </div>
 
-          {/* Affordability headroom analysis */}
-          <div className="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-            <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">
-              BetterBond Direct · 01 Sept 25 – 31 March 26 · 7 months · OTP linked to Pre-Approval
-            </p>
-            <h3 className="text-lg font-bold text-[#0C2340] mb-5">
-              Affordability margin — the F&I opportunity
+          {/* Home Loan Funnel Dashboard — spreadsheet style */}
+          <div className="mt-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-8">
+            <h3 className="text-2xl font-bold text-[#0C2340] mb-1">
+              Home Loan Funnel Dashboard
             </h3>
-            <div className="mb-6 rounded-xl bg-gradient-to-br from-[#3DBFAD]/15 to-[#0C2340]/5 border-l-4 border-[#3DBFAD] p-5">
-              <p className="text-[15px] sm:text-base font-bold text-[#0C2340] leading-snug">
-                The typical buyer uses only{" "}
-                <span className="text-[#3DBFAD]">~70% of their Pre-Approval</span> — leaving{" "}
-                <span className="text-[#3DBFAD]">R235k (~30%)</span> of already-approved wallet
-                on the table.
-              </p>
-            </div>
-
-            {/* Top stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
-              {[
-                { k: "Deals analysed", v: "1 705", s: "Pre-Approval-linked OTPs" },
-                { k: "With margin", v: "75.4%", s: "1 274 deals · Pre-Approval > OTP" },
-                { k: "Median margin", v: "R235k", s: "of deals with margin" },
-                { k: "Median % unused", v: "30.2%", s: "of Pre-Approval affordability" },
-              ].map((m) => (
-                <div key={m.k} className="rounded-xl bg-[#3DBFAD]/10 border border-[#3DBFAD]/30 px-4 py-3">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">{m.k}</p>
-                  <p className="text-2xl font-bold text-[#0C2340] mt-0.5">{m.v}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">{m.s}</p>
-                </div>
-              ))}
-            </div>
-
-            {/* Stage conversion */}
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-3">
-              Stage conversion · Pre-Approval → Registration
+            <p className="text-[13px] text-slate-500 mb-8 italic">
+              Pre-approval → OTP → Submission → Grant → Registration
             </p>
-            <div className="mb-8 rounded-xl border border-slate-100 bg-slate-50/50 p-5">
-              {(() => {
-                const STAGES = [
-                  { label: "Pre-Approval issued", count: 1705, pct: 100.0, color: "#0C2340" },
-                  { label: "OTP received", count: 1690, pct: 99.1, color: "#1E3A5F" },
-                  { label: "Submitted to bank", count: 1574, pct: 92.3, color: "#3DBFAD" },
-                  { label: "Granted", count: 1291, pct: 75.7, color: "#10B981" },
-                  { label: "Registered", count: 667, pct: 39.1, color: "#6366F1" },
-                ];
-                return (
-                  <div className="space-y-2">
-                    {STAGES.map((s, i) => {
-                      const prev = i === 0 ? null : STAGES[i - 1];
-                      const stepPct = prev ? (s.count / prev.count) * 100 : null;
-                      return (
-                        <div key={s.label} className="flex items-center gap-4">
-                          <div className="w-40 flex-shrink-0">
-                            <p className="text-[12px] font-bold text-[#0C2340]">{s.label}</p>
-                            {stepPct !== null && (
-                              <p className="text-[10px] text-slate-500">
-                                {stepPct.toFixed(1)}% of prev
-                              </p>
-                            )}
-                          </div>
-                          <div className="flex-1">
-                            <div className="relative h-7 rounded-md bg-slate-100 overflow-hidden">
-                              <div
-                                className="absolute inset-y-0 left-0 flex items-center px-3 text-white text-[11px] font-bold"
-                                style={{ width: `${s.pct}%`, backgroundColor: s.color }}
-                              >
-                                {s.count.toLocaleString()}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="w-16 text-right tabular-nums text-[11px] font-semibold text-[#0C2340]">
-                            {s.pct.toFixed(1)}%
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })()}
-              <p className="text-[10px] text-slate-500 mt-4 italic">
-                Registration lag — many grants post-March haven't registered yet. Grant → Registered doesn't mean "lost".
+
+            {/* Section: Headline numbers */}
+            <div className="mb-8">
+              <p className="text-[14px] font-bold text-[#0C2340] mb-3">
+                Headline numbers (registered cohort)
               </p>
+              <table className="w-full border-collapse text-[12px]">
+                <thead>
+                  <tr className="bg-[#0C2340]">
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Avg pre-approval</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Avg registered</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Avg headroom</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Registered deals</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Avg shrinkage PA→OTP</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Median headroom</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="border border-slate-300 px-3 py-2 tabular-nums text-[#0C2340]">1,788,332.64</td>
+                    <td className="border border-slate-300 px-3 py-2 tabular-nums text-[#0C2340]">1,351,930.02</td>
+                    <td className="border border-slate-300 px-3 py-2 tabular-nums text-[#0C2340]">436,402.62</td>
+                    <td className="border border-slate-300 px-3 py-2 tabular-nums text-[#0C2340]">667</td>
+                    <td className="border border-slate-300 px-3 py-2 tabular-nums text-rose-600">−440,323.03</td>
+                    <td className="border border-slate-300 px-3 py-2 tabular-nums text-[#0C2340]">255,717.31</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            {/* Headroom distribution */}
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-500 mb-3">
-              Affordability margin distribution · Pre-Approval minus OTP
+            {/* Section: Average amount at each stage */}
+            <div className="mb-8">
+              <p className="text-[14px] font-bold text-[#0C2340] mb-3">
+                Average amount at each stage (registered cohort)
+              </p>
+              <table className="w-full border-collapse text-[12px]">
+                <thead>
+                  <tr className="bg-[#0C2340]">
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white w-[140px]">Stage</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white">Mean</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white">Median</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white">Min</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white">Max</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white w-[80px]">Count</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: "Pre-approval", mean: 1_788_332.64, median: 1_489_522.59, min:   147_357.99, max: 10_380_557.38, count: 667 },
+                    { label: "OTP",          mean: 1_348_066.28, median: 1_107_500.00, min:         1.00, max:  6_400_000.00, count: 666 },
+                    { label: "Submission",   mean: 1_332_006.38, median: 1_100_000.00, min:     1_310.00, max:  5_750_000.00, count: 667 },
+                    { label: "Grant",        mean: 1_351_900.69, median: 1_130_000.00, min:   100_000.00, max:  5_290_000.00, count: 667 },
+                    { label: "Registration", mean: 1_351_930.02, median: 1_130_000.00, min:   100_000.00, max:  5_290_000.00, count: 667 },
+                  ].map((s, i) => (
+                    <tr key={s.label} className={i % 2 === 1 ? "bg-slate-50" : ""}>
+                      <td className="border border-slate-300 px-3 py-2 font-bold text-[#0C2340]">{s.label}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">{s.mean.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">{s.median.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-slate-600">{s.min.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-slate-600">{s.max.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">{s.count}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Section: Change at each step */}
+            <div className="mb-8">
+              <p className="text-[14px] font-bold text-[#0C2340] mb-3">
+                Change at each step (registered cohort)
+              </p>
+              <table className="w-full border-collapse text-[12px]">
+                <thead>
+                  <tr className="bg-[#0C2340]">
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white w-[200px]">Step</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white w-[160px]">Avg change (R)</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white w-[120px]">Direction</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">What it means</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { step: "PA → OTP",              change: -440_323.03, dir: "drop", meaning: "Customer picks property below ceiling" },
+                    { step: "OTP → Submission",      change:  -15_313.64, dir: "drop", meaning: "Minor application tweak" },
+                    { step: "Submission → Grant",    change:  +19_894.31, dir: "gain", meaning: "Bank decision (often grants more)" },
+                    { step: "Grant → Registration",  change:      +29.33, dir: "gain", meaning: "Registered as granted" },
+                  ].map((r, i) => {
+                    const isDrop = r.dir === "drop";
+                    const num = r.change.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                    return (
+                      <tr key={r.step} className={i % 2 === 1 ? "bg-slate-50" : ""}>
+                        <td className="border border-slate-300 px-3 py-2 font-bold text-[#0C2340]">{r.step}</td>
+                        <td className={`border border-slate-300 px-3 py-2 text-right tabular-nums font-semibold ${isDrop ? "text-rose-600" : "text-emerald-600"}`}>
+                          {num}
+                        </td>
+                        <td className={`border border-slate-300 px-3 py-2 font-semibold ${isDrop ? "text-rose-600" : "text-emerald-600"}`}>
+                          {isDrop ? "▼ Drop" : "▲ Gain"}
+                        </td>
+                        <td className="border border-slate-300 px-3 py-2 text-slate-700">{r.meaning}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Section: Headroom distribution */}
+            <div className="mb-6">
+              <p className="text-[14px] font-bold text-[#0C2340] mb-3">
+                Headroom distribution: how much affordability is left over?
+              </p>
+              <table className="w-full border-collapse text-[12px]">
+                <thead>
+                  <tr className="bg-[#0C2340]">
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Headroom bucket</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white w-[110px]">Deal count</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-right font-bold text-white w-[110px]">% of cohort</th>
+                    <th className="border border-[#0C2340] px-3 py-2 text-left font-bold text-white">Product implication</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    { label: "Overshot (registered > PA)", count: 160, pct: 0.23988,   implication: "Risk-reducing add-ons only" },
+                    { label: "R0 – R250k",                  count: 168, pct: 0.251874,  implication: "Small-ticket bolt-ons" },
+                    { label: "R250k – R500k",               count: 112, pct: 0.167916,  implication: "Core F&I market" },
+                    { label: "R500k – R1M",                 count: 116, pct: 0.173913,  implication: "Core F&I market" },
+                    { label: "R1M – R2M",                   count:  75, pct: 0.112444,  implication: "High-value bolt-ons" },
+                    { label: "R2M+",                        count:  36, pct: 0.053973,  implication: "High-value, validate appetite" },
+                  ].map((b, i) => (
+                    <tr key={b.label} className={i % 2 === 1 ? "bg-slate-50" : ""}>
+                      <td className="border border-slate-300 px-3 py-2 font-bold text-[#0C2340]">{b.label}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">{b.count}</td>
+                      <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">{(b.pct * 100).toFixed(1)}%</td>
+                      <td className="border border-slate-300 px-3 py-2 text-slate-700">{b.implication}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-[#3DBFAD]/15 font-bold">
+                    <td className="border border-slate-300 px-3 py-2 text-[#0C2340]">Total</td>
+                    <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">667</td>
+                    <td className="border border-slate-300 px-3 py-2 text-right tabular-nums text-[#0C2340]">100.0%</td>
+                    <td className="border border-slate-300 px-3 py-2" />
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <p className="text-[11px] text-slate-500 italic pt-2">
+              Source: BetterBond Direct opportunities export · n = 1,705 opportunities; 667 reached registration.
+              All averages computed on the registered cohort.
             </p>
-            <div className="mb-8 rounded-xl border border-slate-100 bg-slate-50/50 p-5">
-              {(() => {
-                const BUCKETS = [
-                  { label: "Stretched (Pre-Approval < OTP)", count: 416, pct: 24.6, color: "#ef4444", note: "co-applicants · extra income" },
-                  { label: "R0 – 50k", count: 131, pct: 7.8, color: "#94a3b8", note: "too thin for F&I" },
-                  { label: "R50k – 150k", count: 182, pct: 10.8, color: "#3DBFAD", note: "light bundle" },
-                  { label: "R150k – 500k", count: 395, pct: 23.4, color: "#0C9488", note: "core F&I zone", highlight: true },
-                  { label: "R500k – 1m", count: 265, pct: 15.7, color: "#0C2340", note: "rich F&I zone" },
-                  { label: "R1m – 2m", count: 202, pct: 12.0, color: "#1E3A5F", note: "premium" },
-                  { label: "R2m+", count: 99, pct: 5.9, color: "#6366F1", note: "luxury headroom" },
-                ];
-                const max = Math.max(...BUCKETS.map((b) => b.pct));
-                return (
-                  <div className="space-y-2">
-                    {BUCKETS.map((b) => (
-                      <div key={b.label} className="flex items-center gap-4">
-                        <div className="w-44 flex-shrink-0">
-                          <p className={`text-[12px] font-bold ${b.highlight ? "text-[#3DBFAD]" : "text-[#0C2340]"}`}>
-                            {b.label}
-                          </p>
-                          <p className="text-[10px] text-slate-500">{b.note}</p>
-                        </div>
-                        <div className="flex-1">
-                          <div className="relative h-6 rounded-md bg-slate-100 overflow-hidden">
-                            <div
-                              className="absolute inset-y-0 left-0 flex items-center px-2 text-white text-[10px] font-bold"
-                              style={{ width: `${(b.pct / max) * 100}%`, backgroundColor: b.color }}
-                            >
-                              {b.count.toLocaleString()}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="w-16 text-right tabular-nums text-[11px] font-semibold text-[#0C2340]">
-                          {b.pct.toFixed(1)}%
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-              })()}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 pt-4 border-t border-slate-100">
-                <div className="rounded-lg bg-white border border-slate-100 px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">≥ R50k margin</p>
-                  <p className="text-lg font-bold text-[#0C2340]">1 143 · 67.6%</p>
-                  <p className="text-[10px] text-slate-500">"something fits"</p>
-                </div>
-                <div className="rounded-lg bg-[#3DBFAD]/10 border border-[#3DBFAD]/30 px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-wide text-[#0C2340]/70">≥ R150k margin</p>
-                  <p className="text-lg font-bold text-[#0C2340]">961 · 56.9%</p>
-                  <p className="text-[10px] text-slate-500">meaningful F&I bundle capacity</p>
-                </div>
-                <div className="rounded-lg bg-white border border-slate-100 px-3 py-2">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">≥ R500k margin</p>
-                  <p className="text-lg font-bold text-[#0C2340]">566 · 33.5%</p>
-                  <p className="text-[10px] text-slate-500">richer F&I attach</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Insights */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <InsightBlock
-                title="The headline"
-                accent
-                headline={{ value: "57%", label: "of deals have ≥ R150k unused affordability" }}
-                points={[
-                  "«961» deals over 7 months — already qualified, already in the book.",
-                  "Median «R235k» margin on the positive-margin cohort.",
-                  "MyHome's F&I bundle doesn't need new demand — it sits on existing capacity.",
-                ]}
-              />
-              <InsightBlock
-                title="The Pre-Approval isn't a ceiling"
-                headline={{ value: "24.6%", label: "bought above their Pre-Approval" }}
-                points={[
-                  "«416» deals where the OTP exceeded the Pre-Approval — deal restructured with co-applicants or additional income.",
-                  "Separate cohort — not F&I target. They're solving for qualification, not extras.",
-                ]}
-              />
-              <InsightBlock
-                title="Banks sweeten"
-                headline={{ value: "24.6%", label: "granted MORE than OTP" }}
-                points={[
-                  "«316» deals where the bank offered above the OTP amount.",
-                  "Evidence that there's real underwriting appetite beyond the buyer's self-selected price.",
-                  "Another pool of \"more money available\" to bundle against.",
-                ]}
-              />
-              <InsightBlock
-                title="Where to start"
-                headline={{ value: "R150k – R1m", label: "margin · 39% of all OTPs" }}
-                points={[
-                  "«660» deals land in the sweet spot — big enough to matter, common enough to scale.",
-                  "Median deal value in this band ≈ R1.1m — the bulk of BB Direct's grants sit here.",
-                ]}
-              />
-              <InsightBlock
-                title="The registration lag"
-                headline={{ value: "39%", label: "of Pre-Approvals have registered (so far)" }}
-                points={[
-                  "«667» of «1 705» registered through 31 Mar 26.",
-                  "Registration takes «60–90 days» — the grant → reg gap is timing, not failure.",
-                  "True registration rate of granted deals is likely closer to «80%» once the tail matures.",
-                ]}
-              />
-              <InsightBlock
-                title="What to bring to Di"
-                headline={{ value: "R235k × 961", label: "median margin × deals in zone" }}
-                points={[
-                  "The «R150k+» bucket × 7 months = «~137/month» deals with F&I-sized wallet.",
-                  "Even a «10% attach» at R15k avg = «~R205k/month» in F&I revenue from a single BB Direct pilot.",
-                  "Ask Di for segmentation by channel (Smart Service dominates — 76%).",
-                ]}
-              />
-            </div>
           </div>
         </div>
       </section>
