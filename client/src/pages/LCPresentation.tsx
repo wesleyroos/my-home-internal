@@ -4,12 +4,22 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+
+const LINER_PREFIX = "Capturing the full home lifecycle —";
+const LINER_SUFFIXES = [
+  "and every BHG moment in between.",
+  "one always-on relationship across every BHG moment.",
+  "turning BHG moments into a permanent relationship.",
+  "so BHG stays in the relationship, not just the transaction.",
+  "the always-on platform that keeps every South African close to BetterHome.",
+];
 
 const DONE = [
   {
     label: "Stakeholder alignment and data gathering",
-    children: ["Loom", "PropTech", "BLOS", "BetterBond Direct", "BetterSure", "Real Estate", "and more"],
+    children: ["BLOS", "BetterBond Direct", "BetterSure", "Real Estate Investments", "PropTech", "BetterID", "Loom", "and more"],
   },
   {
     label: "Market research",
@@ -37,6 +47,14 @@ export default function LCPresentation() {
   const containerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLElement | null)[]>([]);
   const [current, setCurrent] = useState(0);
+  const [linerIndex, setLinerIndex] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setLinerIndex((i) => (i + 1) % LINER_SUFFIXES.length);
+    }, 5000);
+    return () => clearInterval(id);
+  }, []);
 
   const goTo = (index: number) => {
     const clamped = Math.max(0, Math.min(TOTAL_SLIDES - 1, index));
@@ -129,10 +147,24 @@ export default function LCPresentation() {
             />
           </div>
 
-          {/* One-liner */}
-          <p className="text-white/85 text-2xl md:text-4xl lg:text-5xl font-light leading-tight max-w-5xl mx-auto mb-16">
-            One front door to everything a South African does with their home.
-          </p>
+          {/* One-liner — static prefix, cycling suffix */}
+          <div className="max-w-5xl mx-auto mb-16 text-white/85 text-2xl md:text-4xl lg:text-5xl font-light leading-tight text-center">
+            <span>{LINER_PREFIX} </span>
+            <span className="relative inline-block align-baseline min-h-[1.2em]">
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={linerIndex}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -12 }}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                  className="inline-block text-[#3DBFAD]"
+                >
+                  {LINER_SUFFIXES[linerIndex]}
+                </motion.span>
+              </AnimatePresence>
+            </span>
+          </div>
 
           {/* Project team */}
           <div className="inline-flex flex-col sm:flex-row items-center gap-6 sm:gap-10 pt-10 border-t border-white/15">
