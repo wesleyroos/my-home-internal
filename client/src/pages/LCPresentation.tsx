@@ -18,12 +18,12 @@ const LINER_SUFFIXES = [
 
 const DONE = [
   {
-    label: "Stakeholder alignment and data gathering",
-    children: ["BLOS", "BetterBond Direct", "BetterSure", "Real Estate Investments", "PropTech", "BetterID", "Loom", "and more"],
-  },
-  {
     label: "Market research",
     children: ["Global landscape", "Competitor research"],
+  },
+  {
+    label: "Stakeholder alignment and data gathering",
+    children: ["BLOS", "BetterBond Direct", "BetterSure", "Real Estate Investments", "PropTech", "BetterID", "Loom", "and more"],
   },
   {
     label: "Concept ideation and prototyping",
