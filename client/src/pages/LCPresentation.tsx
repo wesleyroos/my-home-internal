@@ -58,7 +58,10 @@ export default function LCPresentation() {
 
   const goTo = (index: number) => {
     const clamped = Math.max(0, Math.min(TOTAL_SLIDES - 1, index));
-    slideRefs.current[clamped]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const el = slideRefs.current[clamped];
+    const container = containerRef.current;
+    if (!el || !container) return;
+    container.scrollTo({ top: el.offsetTop, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -315,7 +318,7 @@ export default function LCPresentation() {
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white/90 backdrop-blur border border-[#0C2340]/10 rounded-full shadow-lg px-3 py-2">
         <button
           type="button"
-          onClick={() => goTo(current - 1)}
+          onClick={(e) => { e.currentTarget.blur(); goTo(current - 1); }}
           disabled={current === 0}
           aria-label="Previous slide"
           className="w-9 h-9 rounded-full flex items-center justify-center text-[#0C2340] hover:bg-[#0C2340]/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
@@ -345,7 +348,7 @@ export default function LCPresentation() {
 
         <button
           type="button"
-          onClick={() => goTo(current + 1)}
+          onClick={(e) => { e.currentTarget.blur(); goTo(current + 1); }}
           disabled={current === TOTAL_SLIDES - 1}
           aria-label="Next slide"
           className="w-9 h-9 rounded-full flex items-center justify-center text-white bg-[#0C2340] hover:bg-[#0C2340]/90 disabled:opacity-30 disabled:cursor-not-allowed transition"
