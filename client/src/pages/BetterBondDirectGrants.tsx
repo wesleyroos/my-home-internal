@@ -84,6 +84,8 @@ type FunnelStage = {
   color: string;
   note: string;
   drop: string | null;
+  annotation?: string;
+  tooltip?: string;
 };
 
 function LeadFunnel({
@@ -99,12 +101,28 @@ function LeadFunnel({
   stages: FunnelStage[];
   metrics: { k: string; v: string; s: string }[];
 }) {
-  const WIDTHS = [100, 72, 42, 28];
+  const MIN_W = 22;
+  const MAX_W = 100;
+  const steps = Math.max(stages.length - 1, 1);
+  const WIDTHS = stages.map((_, i) => MAX_W - ((MAX_W - MIN_W) / steps) * i);
   const H = 74;
   const GAP = 2;
   const VB_W = 560;
   const VB_H = stages.length * (H + GAP);
   const CX = VB_W / 2;
+  const TOP_OFFSET = 36;
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [leadsValue, setLeadsValue] = useState<number>(stages[0].value);
+
+  const baseValue = stages[0].value;
+  const effectiveValues = stages.map((s, i) =>
+    i === 0 ? leadsValue : Math.round((leadsValue * s.value) / baseValue)
+  );
+  const resolveAnnotation = (raw: string | undefined, i: number) => {
+    if (!raw) return undefined;
+    const diff = effectiveValues[0] - effectiveValues[i];
+    return raw.replace(/\{diff\}/g, diff.toLocaleString());
+  };
 
   return (
     <div className="flex flex-col">
@@ -112,10 +130,25 @@ function LeadFunnel({
         {kicker}
       </p>
       <h3 className="text-lg font-bold text-[#0C2340] mb-1">{title}</h3>
-      <p className="text-[13px] text-slate-600 mb-6 max-w-3xl">{description}</p>
+      <p className="text-[13px] text-slate-600 mb-4 max-w-3xl">{description}</p>
+
+      <div className="flex items-center gap-3 mb-5">
+        <label className="text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+          Monthly {stages[0].label.toLowerCase()}:
+        </label>
+        <input
+          type="number"
+          value={leadsValue}
+          onChange={(e) => setLeadsValue(Math.max(0, Number(e.target.value) || 0))}
+          className="w-28 px-2 py-1 border border-slate-300 rounded text-[13px] font-bold tabular-nums text-[#0C2340] focus:outline-none focus:border-[#3DBFAD]"
+        />
+        <span className="text-[11px] text-slate-500 italic">
+          Edit to scale the funnel — percentages stay fixed, counts recalculate.
+        </span>
+      </div>
 
       <div className="flex items-start gap-6">
-        <div className="flex-1 max-w-[560px]">
+        <div className="flex-1 max-w-[560px] pt-[36px] relative">
           <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="w-full h-auto">
             {stages.map((s, i) => {
               const topW = (WIDTHS[i] / 100) * VB_W;
@@ -128,19 +161,30 @@ function LeadFunnel({
                 `${CX + botW / 2},${y1}`,
                 `${CX - botW / 2},${y1}`,
               ].join(" ");
+              const effValue = effectiveValues[i];
+              const resolvedAnno = resolveAnnotation(s.annotation, i);
+              const valueLabel = resolvedAnno
+                ? `${effValue.toLocaleString()} (${resolvedAnno})`
+                : effValue.toLocaleString();
               return (
-                <g key={s.label}>
+                <g
+                  key={s.label}
+                  onMouseEnter={() => s.tooltip && setHoveredIdx(i)}
+                  onMouseLeave={() => setHoveredIdx(null)}
+                  style={{ cursor: s.tooltip ? "help" : "default" }}
+                >
                   <polygon points={points} fill={s.color} />
                   <text
                     x={CX}
                     y={y0 + H / 2 - 4}
                     textAnchor="middle"
                     fill="#ffffff"
-                    fontSize="22"
+                    fontSize={resolvedAnno ? "16" : "22"}
                     fontWeight="700"
                     fontFamily="Inter, system-ui"
+                    pointerEvents="none"
                   >
-                    {s.value.toLocaleString()}
+                    {valueLabel}
                   </text>
                   <text
                     x={CX}
@@ -150,6 +194,7 @@ function LeadFunnel({
                     fontSize="11"
                     opacity="0.8"
                     fontFamily="Inter, system-ui"
+                    pointerEvents="none"
                   >
                     {s.label.toUpperCase()}
                   </text>
@@ -157,33 +202,75 @@ function LeadFunnel({
               );
             })}
           </svg>
+
+          {hoveredIdx !== null && stages[hoveredIdx].tooltip && (
+            <div
+              className="absolute z-20 pointer-events-none bg-[#0C2340] text-white rounded-lg shadow-xl px-4 py-3 w-[300px]"
+              style={{
+                top: TOP_OFFSET + hoveredIdx * (H + GAP) + (H + GAP) / 2,
+                right: "calc(100% + 12px)",
+                transform: "translateY(-50%)",
+              }}
+            >
+              <div
+                className="absolute w-2 h-2 rotate-45 bg-[#0C2340]"
+                style={{ right: -4, top: "calc(50% - 4px)" }}
+              />
+              <p className="text-[12px] font-bold uppercase tracking-wide text-white/60 mb-1">
+                {stages[hoveredIdx].label}
+              </p>
+              <p className="text-[13px] leading-snug">
+                {stages[hoveredIdx].tooltip}
+              </p>
+            </div>
+          )}
         </div>
 
-        <div className="flex-shrink-0 w-64 space-y-1 pt-1">
-          {stages.map((s) => (
-            <div
-              key={s.label}
-              className="flex items-start gap-2"
-              style={{ minHeight: 70 }}
-            >
-              <div className="w-1 h-10 rounded-full mt-1 flex-shrink-0" style={{ backgroundColor: s.color }} />
-              <div>
-                <div className="flex items-center gap-2">
-                  <p className="text-[12px] font-bold text-[#0C2340]">{s.label}</p>
-                  {s.drop && (
-                    <span className="text-[10px] font-bold text-red-600 tabular-nums">
-                      {s.drop}
-                    </span>
-                  )}
-                </div>
-                <p className="text-[11px] text-slate-500 leading-snug">{s.note}</p>
-              </div>
-            </div>
-          ))}
+        <div className="flex-shrink-0 w-[360px]">
+          <table className="w-full border-collapse text-[13px]">
+            <thead>
+              <tr className="bg-[#0C2340]" style={{ height: 36 }}>
+                <th className="border border-[#0C2340] px-2 py-0 text-left font-bold text-white">Stage</th>
+                <th className="border border-[#0C2340] px-2 py-0 text-right font-bold text-white w-[60px]">Count</th>
+                <th className="border border-[#0C2340] px-2 py-0 text-right font-bold text-white w-[70px]">% of total</th>
+                <th className="border border-[#0C2340] px-2 py-0 text-right font-bold text-white w-[70px]">% of prev</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stages.map((s, i) => {
+                const effValue = effectiveValues[i];
+                const prevEff = i === 0 ? null : effectiveValues[i - 1];
+                const stepPct = prevEff ? (effValue / prevEff) * 100 : 100;
+                const totalPct = (effValue / effectiveValues[0]) * 100;
+                const prev = i === 0 ? null : stages[i - 1];
+                return (
+                  <tr key={s.label} className={i % 2 === 1 ? "bg-slate-50" : ""} style={{ height: H + GAP }}>
+                    <td
+                      className="border px-2 py-1.5 font-semibold text-white"
+                      style={{ backgroundColor: s.color, borderColor: s.color }}
+                    >
+                      {s.label}
+                    </td>
+                    <td className="border border-slate-300 px-2 py-1.5 text-right tabular-nums font-semibold text-[#0C2340]">
+                      {effValue.toLocaleString()}
+                    </td>
+                    <td className="border border-slate-300 px-2 py-1.5 text-right tabular-nums text-slate-700">
+                      {totalPct.toFixed(1)}%
+                    </td>
+                    <td className={`border border-slate-300 px-2 py-1.5 text-right tabular-nums ${
+                      prev ? (stepPct < 100 ? "text-rose-600 font-semibold" : "text-emerald-600 font-semibold") : "text-slate-400"
+                    }`}>
+                      {prev ? `${stepPct.toFixed(0)}%` : "—"}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-100">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 pt-5 border-t border-slate-100">
         {metrics.map((m) => (
           <div key={m.k} className="rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
             <p className="text-[10px] uppercase tracking-wide text-slate-500">{m.k}</p>
@@ -200,39 +287,59 @@ const FUNNELS = {
   preApproval: {
     tabLabel: "Pre-approval",
     kicker: "Pre-approval",
-    title: "Monthly lead funnel — 8 000 to 158",
+    title: "Monthly lead funnel — 8 000 to 197",
     description:
-      "How BB Direct turns raw leads into granted bonds. The 50% credit drop-off is the single biggest leak, but the step from credit-passed to application is where MyHome has the most room to lift conversion.",
+      "How BB Direct turns raw leads into registered bonds via the pre-approval route. The 50% credit drop-off is the biggest single leak, and the gap from Pre-approval issued to OTPs is the next big fall-off.",
     stages: [
-      { label: "Leads", value: 8000, color: "#0C2340", note: "Inbound monthly", drop: null as string | null },
-      { label: "Credit passed", value: 4000, color: "#1E3A5F", note: "poor credit · 4 000 drop off", drop: "−50%" },
-      { label: "Applications", value: 200, color: "#3DBFAD", note: "~5% of credit-passed apply · 3 800 drop off", drop: "−95%" },
-      { label: "Granted", value: 158, color: "#10B981", note: "~79% grant rate · 42 drop off", drop: "−21%" },
+      { label: "Leads",                value: 8000, color: "#0C2340", note: "Inbound monthly leads",                          drop: null as string | null,
+        tooltip: "Total inbound leads per month from BetterBond Direct's marketing channels — partner agents, web enquiries, and direct referrals." },
+      { label: "Go to Pre-approval",   value: 7440, color: "#1E3A5F", note: "560 never start PA · 93% continue",              drop: "−7%", annotation: "{diff} go straight to bond lead →",
+        tooltip: "Leads who enter the pre-approval process — consent to credit check, submit income docs. The 560 who don't go here skip straight to a bond application against a specific property." },
+      { label: "Credit passed",        value: 3720, color: "#2F5F7D", note: "50% fail credit check · 3 720 drop off",         drop: "−50%",
+        tooltip: "Leads who pass the credit bureau check. The other 50% fail on credit history, existing arrears, or insufficient affordability — this is the single biggest leak in the funnel." },
+      { label: "Pre-approval issued",  value: 1280, color: "#3DBFAD", note: "66% of credit-passed don't complete PA",         drop: "−66%",
+        tooltip: "Buyers issued a formal Pre-Approval certificate stating the bond amount banks would theoretically approve. 2 440 credit-passed leads drop off here — usually because they stall, lose interest, or fail a secondary affordability check." },
+      { label: "Offers (OTPs)",        value:  294, color: "#0C9488", note: "23% of PA issued turn into offers",              drop: "−77%",
+        tooltip: "Pre-approved buyers who sign an Offer to Purchase on an actual property. Most never find a suitable home in time, or the PA expires before they transact." },
+      { label: "Submitted to bank",    value:  273, color: "#6366F1", note: "93% of offers go to bank",                       drop: "−7%",
+        tooltip: "OTPs submitted to a bank for formal bond application. Nearly all PA-backed offers go to bank — the 7% drop is admin or customer withdrawal." },
+      { label: "Accepted by customer", value:  220, color: "#10B981", note: "80% accept the bank's grant",                    drop: "−19%",
+        tooltip: "Bank grants a bond and the customer formally accepts the quote. ~20% decline — usually due to cheaper finance elsewhere, a better competing offer, or the deal falling through." },
+      { label: "Registered",           value:  197, color: "#059669", note: "90% of accepted complete registration",          drop: "−10%",
+        tooltip: "Bond is registered at the Deeds Office and funds disbursed — the final outcome. The ~10% tail is timing lag (60–90 days post-grant) or late cancellations before registration." },
     ],
     metrics: [
-      { k: "End-to-end conversion", v: "2.0%", s: "158 ÷ 8 000 leads" },
-      { k: "Credit drop-off", v: "50%", s: "Biggest single leak" },
-      { k: "Apply rate (of credit-passed)", v: "5%", s: "200 ÷ 4 000" },
-      { k: "Grant rate (of applications)", v: "79%", s: "158 ÷ 200" },
+      { k: "End-to-end conversion",         v: "2.5%", s: "197 ÷ 8 000 leads" },
+      { k: "Credit pass rate",              v: "50%",  s: "3 720 ÷ 7 440 applicants" },
+      { k: "PA issue rate (of credit-passed)", v: "34%", s: "1 280 ÷ 3 720" },
+      { k: "Registration rate (of accepted)", v: "90%", s: "197 ÷ 220" },
     ],
   },
   straight: {
-    tabLabel: "Straight",
-    kicker: "Straight · Placeholder",
-    title: "Monthly straight funnel — TBD",
+    tabLabel: "Straight to bond",
+    kicker: "Straight to bond",
+    title: "Monthly straight-to-bond funnel — 8 000 to 39",
     description:
-      "Buyers who apply directly without going through pre-approval. Placeholder numbers until we get real data from BB Direct.",
+      "Same 8 000 lead pool as the pre-approval route. Only 7% (560) skip pre-approval and go straight to a bond. Narrower top of funnel, but meaningfully higher conversion per bond lead (7%).",
     stages: [
-      { label: "Applications", value: 500, color: "#0C2340", note: "Direct monthly submissions", drop: null as string | null },
-      { label: "Credit passed", value: 300, color: "#1E3A5F", note: "placeholder · 200 drop off", drop: "−40%" },
-      { label: "Offers", value: 240, color: "#3DBFAD", note: "placeholder · 60 drop off", drop: "−20%" },
-      { label: "Granted", value: 180, color: "#10B981", note: "placeholder · 60 drop off", drop: "−25%" },
+      { label: "Leads",                value: 8000, color: "#0C2340", note: "Same inbound lead pool as the pre-approval route",          drop: null as string | null,
+        tooltip: "The same 8 000 monthly inbound leads feeding the pre-approval route. Both funnels share this top-of-funnel pool." },
+      { label: "Go straight to bond",  value:  560, color: "#1E3A5F", note: "7% of leads skip pre-approval · 7 440 go to PA route",       drop: "−93%",
+        tooltip: "Leads who skip pre-approval entirely and submit a bond application tied to a specific property they've already decided on. Often agent-led or buyers with strong conviction." },
+      { label: "Offers (OTPs)",        value:  108, color: "#3DBFAD", note: "19% of bond leads turn into offers",                         drop: "−81%",
+        tooltip: "Straight-to-bond leads who sign an Offer to Purchase. Conversion is lower than the PA route because these buyers haven't been pre-vetted for affordability." },
+      { label: "Submitted to bank",    value:   81, color: "#6366F1", note: "75% of offers submitted",                                    drop: "−25%",
+        tooltip: "OTPs submitted to a bank for a formal bond decision. 25% of offers never make it to bank — usually because affordability gaps surface during document prep." },
+      { label: "Accepted by customer", value:   49, color: "#10B981", note: "60% accept · 32 decline (40% decline rate)",                 drop: "−40%",
+        tooltip: "Customer accepts the bank's grant. 40% decline — significantly higher than the PA route, because these buyers often discover their grant is less favourable than expected (lower LTV, higher rate)." },
+      { label: "Registered",           value:   39, color: "#059669", note: "80% of accepted complete registration",                      drop: "−20%",
+        tooltip: "Bond registered at the Deeds Office — the final outcome. 20% of accepted bonds don't complete, either due to timing lag or deal cancellation before registration." },
     ],
     metrics: [
-      { k: "End-to-end conversion", v: "36%", s: "placeholder" },
-      { k: "Credit drop-off", v: "40%", s: "placeholder" },
-      { k: "Offer rate", v: "80%", s: "placeholder" },
-      { k: "Grant rate (of offers)", v: "75%", s: "placeholder" },
+      { k: "End-to-end conversion",         v: "0.5%", s: "39 ÷ 8 000 leads" },
+      { k: "Conversion (of bond leads)",    v: "7.0%", s: "39 ÷ 560" },
+      { k: "Customer accept rate",          v: "60%",  s: "49 ÷ 81 submits" },
+      { k: "Registration rate (of accepted)", v: "80%", s: "39 ÷ 49" },
     ],
   },
 } as const;
