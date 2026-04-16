@@ -16,7 +16,13 @@ const LINER_SUFFIXES = [
   "the always-on platform that keeps every South African close to BetterHome.",
 ];
 
-const DONE = [
+type DoneItem = {
+  label: string;
+  children: string[];
+  secondaryChildren?: string[];
+};
+
+const DONE: DoneItem[] = [
   {
     label: "Market research",
     children: ["Global landscape", "Competitor research"],
@@ -24,6 +30,7 @@ const DONE = [
   {
     label: "Stakeholder alignment and data gathering",
     children: ["BLOS", "BetterBond Direct", "BetterSure", "Real Estate Investments", "PropTech", "BetterID", "Loom", "and more"],
+    secondaryChildren: ["We Buy Cars (F&I)", "Standard Bank — LookSee"],
   },
   {
     label: "Concept ideation and prototyping",
@@ -31,7 +38,7 @@ const DONE = [
   },
   {
     label: "Pressure-testing possible entry points",
-    children: ["BB Direct Focus Groups", "Standard Bank — LookSee", "We Buy Cars (F&I)"],
+    children: ["BetterBond Direct Focus Groups"],
   },
 ];
 
@@ -253,15 +260,40 @@ export default function LCPresentation() {
                       </span>
                     </div>
                     {item.children && (
-                      <div className="mt-3 ml-11 flex flex-wrap gap-2">
-                        {item.children.map((c) => (
-                          <span
-                            key={c}
-                            className="inline-flex items-center px-3 py-1.5 rounded-full bg-white border border-[#0C2340]/10 text-[#0C2340] text-sm font-medium shadow-sm"
-                          >
-                            {c}
-                          </span>
-                        ))}
+                      <div className="mt-3 ml-11">
+                        {item.secondaryChildren && (
+                          <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0C2340]/50 mb-2">
+                            Internal
+                          </div>
+                        )}
+                        <div className="flex flex-wrap gap-2">
+                          {item.children.map((c) => (
+                            <span
+                              key={c}
+                              className="inline-flex items-center px-3 py-1.5 rounded-full bg-white border border-[#0C2340]/10 text-[#0C2340] text-sm font-medium shadow-sm"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {item.secondaryChildren && (
+                      <div className="mt-3 ml-11">
+                        <div className="h-px bg-[#3DBFAD]/40 mb-3" />
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0C2340]/50 mb-2">
+                          External
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {item.secondaryChildren.map((c) => (
+                            <span
+                              key={c}
+                              className="inline-flex items-center px-3 py-1.5 rounded-full bg-white border border-[#0C2340]/10 text-[#0C2340] text-sm font-medium shadow-sm"
+                            >
+                              {c}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </li>

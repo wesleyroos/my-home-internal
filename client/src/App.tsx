@@ -21,6 +21,9 @@ import StandardBankNotes from "./pages/StandardBankNotes";
 import LoomMeeting from "./pages/LoomMeeting";
 import BBDirectMeeting from "./pages/BBDirectMeeting";
 import LCPresentation from "./pages/LCPresentation";
+import ExcoPresentation from "./pages/ExcoPresentation";
+import MarketStats from "./pages/MarketStats";
+import Personas from "./pages/Personas";
 
 function Router() {
   return (
@@ -40,6 +43,9 @@ function Router() {
       <Route path={"/loom-meeting"} component={LoomMeeting} />
       <Route path={"/bb-direct-meeting"} component={BBDirectMeeting} />
       <Route path={"/lc-presentation"} component={LCPresentation} />
+      <Route path={"/exco-presentation"} component={ExcoPresentation} />
+      <Route path={"/market-stats"} component={MarketStats} />
+      <Route path={"/personas"} component={Personas} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

@@ -160,7 +160,7 @@ const ADDONS: Addon[] = [
   {
     id: "water_tank",
     name: "Water Tank & Pump",
-    description: "5,000L JoJo tank, filtration and pressure pump (~R22,000) installed at handover. Keeps the taps running through outages and load-shedding.",
+    description: "5,000L JoJo tank, filtration and pressure pump (~R50,000) installed at handover. Keeps the taps running through outages and load-shedding.",
     kind: "capitalised",
     principal: 22000,
     icon: <Droplets className="w-4 h-4" />,
@@ -407,10 +407,13 @@ export default function ChooseMyDeal() {
               <span className="text-white text-[10px] font-bold">RB</span>
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-[#0C2340]">Rudy Botha</span>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                <span className="text-[10px] font-semibold text-emerald-600 uppercase tracking-wide">BetterID Verified</span>
+                <span className="inline-flex items-center gap-1.5">
+                  <img src="/betterid-logo.png" alt="BetterID" className="h-5 w-auto" />
+                  <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">Verified</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#3B82F6]" />
+                </span>
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
                 SA ID · 8804155012088 · Primary applicant
@@ -492,11 +495,36 @@ export default function ChooseMyDeal() {
           {/* Left */}
           <div className="space-y-8">
 
+            {/* Add-ons */}
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+              <div className="flex items-baseline gap-3 mb-1">
+                <h2 className="font-heading font-bold text-[#0C2340] text-lg">Add-Ons</h2>
+                <span className="text-muted-foreground text-xs">
+                  {activeAddons.length} of {ADDONS.length} selected
+                </span>
+              </div>
+              <p className="text-muted-foreground text-sm mb-5">
+                Bundled into your monthly commitment. Required products are included by your lender.
+              </p>
+              <div className="space-y-3">
+                {ADDONS.map((addon) => (
+                  <AddonCard
+                    key={addon.id}
+                    addon={addon}
+                    enabled={enabledAddons.includes(addon.id)}
+                    onToggle={() => !addon.required && toggleAddon(addon.id)}
+                    monthly={addonMonthlyMap[addon.id]}
+                    termMonths={term * 12}
+                  />
+                ))}
+              </div>
+            </div>
+
             {/* Bank selection */}
             <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
               <h2 className="font-heading font-bold text-[#0C2340] text-lg mb-1">Select Your Bank</h2>
               <p className="text-muted-foreground text-sm mb-5">
-                All four banks have approved your bond. Rates are variable, linked to prime ({PRIME}%).
+                Final offers from all four banks — rates reflect your selected add-ons and are variable, linked to prime ({PRIME}%).
               </p>
 
               {/* Term selector */}
@@ -532,31 +560,6 @@ export default function ChooseMyDeal() {
               <div className="mt-4 flex items-start gap-1.5 text-[11px] text-muted-foreground">
                 <Info className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
                 Variable rate — your monthly repayment adjusts whenever the prime lending rate changes.
-              </div>
-            </div>
-
-            {/* Add-ons */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <div className="flex items-baseline gap-3 mb-1">
-                <h2 className="font-heading font-bold text-[#0C2340] text-lg">Add-Ons</h2>
-                <span className="text-muted-foreground text-xs">
-                  {activeAddons.length} of {ADDONS.length} selected
-                </span>
-              </div>
-              <p className="text-muted-foreground text-sm mb-5">
-                Bundled into your monthly commitment. Required products are included by your lender.
-              </p>
-              <div className="space-y-3">
-                {ADDONS.map((addon) => (
-                  <AddonCard
-                    key={addon.id}
-                    addon={addon}
-                    enabled={enabledAddons.includes(addon.id)}
-                    onToggle={() => !addon.required && toggleAddon(addon.id)}
-                    monthly={addonMonthlyMap[addon.id]}
-                    termMonths={term * 12}
-                  />
-                ))}
               </div>
             </div>
           </div>

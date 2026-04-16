@@ -62,6 +62,22 @@ const GROUPS: Group[] = [
         accentText: "text-indigo-600",
       },
       {
+        route: "/market-stats",
+        label: "SA Market Stats",
+        description: "Standalone reference page of the SA property market stats — market, renter, and buyer groups — pulled from the BHG Journey.",
+        icon: <BarChart3 className="w-5 h-5" />,
+        accentBg: "bg-[#0C2340]/8",
+        accentText: "text-[#0C2340]",
+      },
+      {
+        route: "/personas",
+        label: "SA Personas",
+        description: "Three user journeys — Tom (renter), Amy (buyer), Eleanor (owner) — pulled from the BHG Journey into a standalone reference view.",
+        icon: <Users className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
+      },
+      {
         route: "/bb-direct-grants",
         label: "BetterBond Direct Grants",
         description: "Granted business by rand value bracket (Sept 25 – Feb 26). Volume, value, monthly average and distribution charts.",

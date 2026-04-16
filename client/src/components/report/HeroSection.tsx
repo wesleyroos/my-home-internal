@@ -59,7 +59,7 @@ export function HeroSection() {
           <div className="flex items-center justify-between">
             <img src={LOGO_FULL} alt="MyHome" className="h-7 sm:h-8 lg:h-9 brightness-0 invert" />
             <div className="flex items-center gap-4">
-              <span className="text-white/70 text-[10px] sm:text-xs font-medium">Property Report — March 2026</span>
+              <span className="text-white/70 text-[10px] sm:text-xs font-medium">Suburb Report — March 2026</span>
               <BackToDashboard light />
             </div>
           </div>
@@ -72,9 +72,6 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <p className="text-white/60 text-xs sm:text-sm font-medium mb-1 sm:mb-2">
-              Property report for {ownerProperty.ownerName}
-            </p>
             <h1 className="font-heading font-bold text-2xl sm:text-3xl lg:text-[42px] text-white leading-tight tracking-tight mb-2 sm:mb-3">
               {ownerProperty.address}
             </h1>
@@ -100,6 +97,12 @@ export function HeroSection() {
             <div className="flex flex-col gap-5">
               {/* Value */}
               <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-3 mb-3 sm:mb-4 pb-3 sm:pb-4 border-b border-[#0C2340]/8">
+                  <span className="w-8 h-px bg-[#3DBFAD]" />
+                  <p className="font-heading font-bold text-base sm:text-lg lg:text-xl text-[#0C2340] tracking-tight">
+                    Suburb report for <span className="text-[#3DBFAD]">{ownerProperty.ownerName}</span>
+                  </p>
+                </div>
                 <p className="text-[#5A7A9A] text-[10px] sm:text-xs uppercase tracking-widest font-semibold mb-1.5 sm:mb-2">
                   Estimated Property Value
                 </p>
