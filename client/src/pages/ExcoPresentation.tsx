@@ -301,24 +301,42 @@ export default function ExcoPresentation() {
         </div>
 
         <div className="relative w-full max-w-[1600px] text-center">
-          <div className="flex items-center justify-center gap-3 mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="flex items-center justify-center gap-3 mb-10"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               Better Home Group Exco · 17 April 2026
             </span>
             <span className="w-10 h-px bg-[#3DBFAD]" />
-          </div>
+          </motion.div>
 
-          <div className="flex items-center justify-center mb-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.75, ease: "easeOut", delay: 0.15 }}
+            className="flex items-center justify-center mb-10"
+          >
             <img
               src="https://d2xsxph8kpxj0f.cloudfront.net/310419663031491909/TspP3qLjTap5M6WtdxfZix/myhome-logo-full_208030e1.png"
               alt="MyHome"
               className="h-24 md:h-40 lg:h-52 w-auto"
               style={{ filter: "brightness(0) invert(1)" }}
             />
-          </div>
+          </motion.div>
 
-          <div className="max-w-5xl mx-auto mb-16 text-white/85 text-2xl md:text-4xl lg:text-5xl font-light leading-tight text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
+            className="max-w-5xl mx-auto mb-16 text-white/85 text-2xl md:text-4xl lg:text-5xl font-light leading-tight text-center"
+          >
             <span>{LINER_PREFIX} </span>
             <span className="relative inline-block align-baseline min-h-[1.2em]">
               <AnimatePresence mode="wait">
@@ -334,9 +352,15 @@ export default function ExcoPresentation() {
                 </motion.span>
               </AnimatePresence>
             </span>
-          </div>
+          </motion.div>
 
-          <div className="inline-flex flex-col sm:flex-row items-center gap-6 sm:gap-10 pt-10 border-t border-white/15">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.5 }}
+            className="inline-flex flex-col sm:flex-row items-center gap-6 sm:gap-10 pt-10 border-t border-white/15"
+          >
             <div className="text-left">
               <div className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#3DBFAD] mb-1.5">
                 Project Team
@@ -345,18 +369,22 @@ export default function ExcoPresentation() {
                 Wesley Roos &nbsp;·&nbsp; Tersia Bester
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Slide 2 — Ecosystem image */}
       <section
         ref={setSlideRef(1)}
-        className="snap-start min-h-screen w-full flex items-center justify-center bg-[#f0f5fa]"
+        className="snap-start min-h-screen w-full flex items-center justify-center bg-[#f0f5fa] overflow-hidden"
       >
-        <img
+        <motion.img
           src="/lc-vision.jpeg"
           alt="MyHome ecosystem"
+          initial={{ opacity: 0, scale: 1.04 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: false, amount: 0.3 }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
           className="w-full h-auto block"
         />
       </section>
@@ -380,23 +408,71 @@ export default function ExcoPresentation() {
         </div>
 
         <div className="relative w-full max-w-[1600px]">
-          <div className="flex items-center gap-3 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-8"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               01 · Recap
             </span>
-          </div>
-          <h2 className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+            className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight"
+          >
             Action points from previous meeting.
-          </h2>
-          <p className="text-slate-500 text-lg md:text-xl max-w-4xl mb-12">
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.25 }}
+            className="text-slate-500 text-lg md:text-xl max-w-4xl mb-12"
+          >
             What we committed to last session — meetings to take, research to complete, and prototypes to build.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <RecapCard label="Meetings" count={MEETINGS.length} color="#3DBFAD" icon={<Users className="w-5 h-5" />} items={MEETINGS} />
-            <RecapCard label="Research" count={RESEARCH_ITEMS.length} color="#0C2340" icon={<BarChart3 className="w-5 h-5" />} items={RESEARCH_ITEMS} />
-            <RecapCard label="Actions" count={PROTOTYPE_ITEMS.length} color="#f59e0b" icon={<Wrench className="w-5 h-5" />} items={PROTOTYPE_ITEMS} />
-          </div>
+          </motion.p>
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.2 }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.12, delayChildren: 0.35 } },
+            }}
+          >
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 24 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+              }}
+            >
+              <RecapCard label="Meetings" count={MEETINGS.length} color="#3DBFAD" icon={<Users className="w-5 h-5" />} items={MEETINGS} />
+            </motion.div>
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 24 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+              }}
+            >
+              <RecapCard label="Research" count={RESEARCH_ITEMS.length} color="#0C2340" icon={<BarChart3 className="w-5 h-5" />} items={RESEARCH_ITEMS} />
+            </motion.div>
+            <motion.div
+              variants={{
+                hidden: { opacity: 0, y: 24 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+              }}
+            >
+              <RecapCard label="Actions" count={PROTOTYPE_ITEMS.length} color="#f59e0b" icon={<Wrench className="w-5 h-5" />} items={PROTOTYPE_ITEMS} />
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
@@ -406,16 +482,34 @@ export default function ExcoPresentation() {
         className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-white overflow-hidden"
       >
         <div className="relative w-full max-w-[1400px]">
-          <div className="flex items-center gap-3 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-8"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               02 · Meetings
             </span>
-          </div>
-          <h2 className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+            className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight"
+          >
             Who we spoke to.
-          </h2>
-          <div className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
+          </motion.h2>
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.15 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+            className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-sm"
+          >
             <table className="w-full">
               <thead>
                 <tr className="bg-[#0C2340]">
@@ -423,9 +517,24 @@ export default function ExcoPresentation() {
                   <th className="text-left px-8 py-5 text-sm uppercase tracking-widest text-white/70 font-semibold">Feedback</th>
                 </tr>
               </thead>
-              <tbody>
+              <motion.tbody
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.1 }}
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.07, delayChildren: 0.35 } },
+                }}
+              >
                 {MEETING_FEEDBACK.map((m, i) => (
-                  <tr key={m.who} className={`border-b border-slate-100 last:border-b-0 ${i % 2 === 1 ? "bg-slate-50/60" : ""}`}>
+                  <motion.tr
+                    key={m.who}
+                    variants={{
+                      hidden: { opacity: 0, x: -14 },
+                      visible: { opacity: 1, x: 0, transition: { duration: 0.4, ease: "easeOut" } },
+                    }}
+                    className={`border-b border-slate-100 last:border-b-0 ${i % 2 === 1 ? "bg-slate-50/60" : ""}`}
+                  >
                     <td className="px-8 py-5 align-top">
                       <span className="font-heading font-bold text-base text-[#0C2340]">{m.who}</span>
                     </td>
@@ -443,11 +552,11 @@ export default function ExcoPresentation() {
                         <span className="text-base text-slate-300">—</span>
                       )}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
-              </tbody>
+              </motion.tbody>
             </table>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -457,20 +566,49 @@ export default function ExcoPresentation() {
         className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-slate-50 overflow-hidden"
       >
         <div className="relative w-full max-w-[1400px]">
-          <div className="flex items-center gap-3 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-8"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               03 · Research
             </span>
-          </div>
-          <h2 className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+            className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight"
+          >
             What the research says.
-          </h2>
-          <div className="space-y-5">
+          </motion.h2>
+          <motion.div
+            className="space-y-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.15 }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } },
+            }}
+          >
             {RESEARCH_FEEDBACK.map((card) => (
-              <FeedbackCard key={card.id} card={card} />
+              <motion.div
+                key={card.id}
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+                }}
+              >
+                <FeedbackCard card={card} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -480,20 +618,49 @@ export default function ExcoPresentation() {
         className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-white overflow-hidden"
       >
         <div className="relative w-full max-w-[1400px]">
-          <div className="flex items-center gap-3 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-8"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               04 · Prototypes
             </span>
-          </div>
-          <h2 className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+            className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-8 tracking-tight"
+          >
             What we built.
-          </h2>
-          <div className="space-y-5">
+          </motion.h2>
+          <motion.div
+            className="space-y-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.15 }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } },
+            }}
+          >
             {PROTOTYPE_FEEDBACK.map((card) => (
-              <FeedbackCard key={card.id} card={card} />
+              <motion.div
+                key={card.id}
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+                }}
+              >
+                <FeedbackCard card={card} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -515,19 +682,44 @@ export default function ExcoPresentation() {
           />
         </div>
         <div className="relative w-full max-w-[1200px]">
-          <div className="flex items-center gap-3 mb-8">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-8"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               05 · What's next
             </span>
-          </div>
-          <h2 className="font-heading font-bold text-white text-4xl md:text-5xl lg:text-6xl mb-12 tracking-tight">
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+            className="font-heading font-bold text-white text-4xl md:text-5xl lg:text-6xl mb-12 tracking-tight"
+          >
             Next up for the exco.
-          </h2>
-          <ul className="space-y-4">
+          </motion.h2>
+          <motion.ul
+            className="space-y-4"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.15 }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } },
+            }}
+          >
             {NEXT_STEPS.map((item, i) => (
-              <li
+              <motion.li
                 key={item.label}
+                variants={{
+                  hidden: { opacity: 0, x: 20 },
+                  visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
+                }}
                 className="group p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur hover:bg-white/10 hover:border-[#3DBFAD]/40 transition-all"
               >
                 <div className="flex items-center gap-4">
@@ -551,9 +743,9 @@ export default function ExcoPresentation() {
                     ))}
                   </div>
                 )}
-              </li>
+              </motion.li>
             ))}
-          </ul>
+          </motion.ul>
         </div>
       </section>
 
@@ -693,14 +885,30 @@ function RecapCard({
           {count}
         </span>
       </div>
-      <ul className="space-y-3">
+      <motion.ul
+        className="space-y-3"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: false, amount: 0.15 }}
+        variants={{
+          hidden: {},
+          visible: { transition: { staggerChildren: 0.06, delayChildren: 0.15 } },
+        }}
+      >
         {items.map((item) => (
-          <li key={item} className="flex items-start gap-3 text-[15px] text-slate-700 leading-relaxed">
+          <motion.li
+            key={item}
+            variants={{
+              hidden: { opacity: 0, x: -8 },
+              visible: { opacity: 1, x: 0, transition: { duration: 0.35, ease: "easeOut" } },
+            }}
+            className="flex items-start gap-3 text-[15px] text-slate-700 leading-relaxed"
+          >
             <span className="w-2 h-2 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: color }} />
             {item}
-          </li>
+          </motion.li>
         ))}
-      </ul>
+      </motion.ul>
     </div>
   );
 }
