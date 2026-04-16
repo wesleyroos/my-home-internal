@@ -46,6 +46,7 @@ const NEXT = [
   "Finalise concept",
   "Entry-point selection",
   "Compliance and external stakeholder alignment",
+  "Introduce concept to great team",
   "MVP scoping",
 ];
 

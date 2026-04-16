@@ -159,7 +159,7 @@ const NEXT_STEPS: NextStep[] = [
   },
   {
     label: "Scoping the build",
-    pills: ["Roadmap planning", "Team structure & delivery model"],
+    pills: ["Roadmap planning", "Team structure & delivery model", "Introduce concept to greater team"],
   },
 ];
 
