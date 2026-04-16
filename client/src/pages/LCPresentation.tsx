@@ -57,6 +57,9 @@ export default function LCPresentation() {
   const [current, setCurrent] = useState(0);
   const [linerIndex, setLinerIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoveringControlsRef = useRef(false);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -71,6 +74,34 @@ export default function LCPresentation() {
     document.addEventListener("fullscreenchange", onFsChange);
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
+
+  // Auto-hide controls in fullscreen after inactivity
+  useEffect(() => {
+    if (!isFullscreen) {
+      setControlsVisible(true);
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+      return;
+    }
+
+    const showAndScheduleHide = () => {
+      setControlsVisible(true);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (hoveringControlsRef.current) return;
+      hideTimerRef.current = setTimeout(() => setControlsVisible(false), 2000);
+    };
+
+    showAndScheduleHide();
+    const events: Array<keyof WindowEventMap> = ["mousemove", "touchstart"];
+    events.forEach((ev) => window.addEventListener(ev, showAndScheduleHide));
+    return () => {
+      events.forEach((ev) => window.removeEventListener(ev, showAndScheduleHide));
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    };
+  }, [isFullscreen]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -455,8 +486,29 @@ export default function LCPresentation() {
         </div>
       </section>
 
-      {/* Presentation controls */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white/90 backdrop-blur border border-[#0C2340]/10 rounded-full shadow-lg px-3 py-2">
+      {/* Presentation controls — auto-hide in fullscreen */}
+      <motion.div
+        animate={{ opacity: controlsVisible ? 1 : 0, y: controlsVisible ? 0 : 12 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        onMouseEnter={() => {
+          hoveringControlsRef.current = true;
+          if (hideTimerRef.current) {
+            clearTimeout(hideTimerRef.current);
+            hideTimerRef.current = null;
+          }
+          setControlsVisible(true);
+        }}
+        onMouseLeave={() => {
+          hoveringControlsRef.current = false;
+          if (isFullscreen) {
+            if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+            hideTimerRef.current = setTimeout(() => setControlsVisible(false), 2000);
+          }
+        }}
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white/90 backdrop-blur border border-[#0C2340]/10 rounded-full shadow-lg px-3 py-2 ${
+          controlsVisible ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
         <button
           type="button"
           onClick={(e) => { e.currentTarget.blur(); goTo(current - 1); }}
@@ -508,7 +560,7 @@ export default function LCPresentation() {
         >
           {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
         </button>
-      </div>
+      </motion.div>
     </div>
   );
 }
