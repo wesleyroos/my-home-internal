@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowRight, ChevronLeft, ChevronRight, Maximize, Minimize,
   Users, BarChart3, Wrench, Globe, Briefcase, FileSearch,
+  Landmark, Wallet, Clock, Sparkles, HelpCircle,
 } from "lucide-react";
 
 const LINER_PREFIX = "Capturing the full home lifecycle —";
@@ -147,7 +148,7 @@ type NextStep = {
 const NEXT_STEPS: NextStep[] = [
   {
     label: "Confirmation of entry point — BetterBond Direct",
-    pills: ["Confirmation of which value-adds to start with"],
+    pills: ["Which value-adds to start with"],
   },
   {
     label: "Compliance & bank alignment",
@@ -163,7 +164,60 @@ const NEXT_STEPS: NextStep[] = [
   },
 ];
 
-const TOTAL_SLIDES = 8;
+interface DiscussionPoint {
+  id: string;
+  number: string;
+  label: string;
+  question: string;
+  description: string;
+  accent: string;
+  icon: React.ReactNode;
+  linkTo?: string;
+  linkLabel?: string;
+}
+
+const DISCUSSION_POINTS: DiscussionPoint[] = [
+  {
+    id: "bank-bundling",
+    number: "01",
+    label: "Bank bundling & NCA compliance",
+    question: "What will the banks actually include in the bond — and how do we stay compliant?",
+    description: "Engage each bank on bundling appetite and get NCA compliance counsel in parallel so we're not designing around a product that can't be sold.",
+    accent: "#3DBFAD",
+    icon: <Landmark className="w-5 h-5" />,
+  },
+  {
+    id: "share-of-pocket",
+    number: "02",
+    label: "Share of consumer pocket",
+    question: "How much un-utilised but pre-approved share of pocket can we actually unlock?",
+    description: "Investigate the gap between what customers are pre-approved for and what they draw — that delta is the ceiling for add-ons, bundling and cross-sell.",
+    accent: "#6366f1",
+    icon: <Wallet className="w-5 h-5" />,
+    linkTo: "/bb-direct-grants",
+    linkLabel: "View BB Direct grants",
+  },
+  {
+    id: "interim-launch",
+    number: "03",
+    label: "How do we launch in the interim?",
+    question: "Bank alignment takes time — what do we do in the meantime?",
+    description: "Can we bridge customers via a personal loan or alternative credit product to fund add-ons before the bank-integrated path is live, so we're not waiting on approvals to get to market?",
+    accent: "#f59e0b",
+    icon: <Clock className="w-5 h-5" />,
+  },
+  {
+    id: "brand",
+    number: "04",
+    label: "The MyHome name",
+    question: "Piggyback on BetterHome, or go industry-agnostic?",
+    description: "\"MyHome\" carries legacy baggage — banks and most incumbents have tried it and none really worked. BetterHome gives us an established brand to ride on; a standalone, industry-agnostic name gives us neutrality but needs serious GTM funding.",
+    accent: "#ef4444",
+    icon: <Sparkles className="w-5 h-5" />,
+  },
+];
+
+const TOTAL_SLIDES = 9;
 
 export default function ExcoPresentation() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -664,9 +718,118 @@ export default function ExcoPresentation() {
         </div>
       </section>
 
-      {/* Slide 7 — What's next */}
+      {/* Slide 7 — Discussion points */}
       <section
         ref={setSlideRef(6)}
+        className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-gradient-to-br from-[#f7f9fc] via-white to-[#f6fbfa] overflow-hidden"
+      >
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-[#3DBFAD]/10 blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-[600px] h-[600px] rounded-full bg-[#0C2340]/5 blur-3xl" />
+          <div
+            className="absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage:
+                "linear-gradient(#0C2340 1px, transparent 1px), linear-gradient(90deg, #0C2340 1px, transparent 1px)",
+              backgroundSize: "48px 48px",
+            }}
+          />
+        </div>
+
+        <div className="relative w-full max-w-[1400px]">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-6"
+          >
+            <span className="w-10 h-px bg-[#3DBFAD]" />
+            <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
+              05 · Discussion
+            </span>
+          </motion.div>
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.65, ease: "easeOut", delay: 0.1 }}
+            className="font-heading font-bold text-[#0C2340] text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight"
+          >
+            Open for discussion.
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+            className="text-slate-500 text-lg md:text-xl max-w-3xl mb-10"
+          >
+            Four questions we need the exco's view on before we finalise the path to MVP.
+          </motion.p>
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 gap-5"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: false, amount: 0.15 }}
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
+            }}
+          >
+            {DISCUSSION_POINTS.map((d) => (
+              <motion.div
+                key={d.id}
+                variants={{
+                  hidden: { opacity: 0, y: 24 },
+                  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
+                }}
+                className="bg-white rounded-2xl shadow-sm p-6 md:p-7 border-l-4 flex gap-5"
+                style={{ borderLeftColor: d.accent }}
+              >
+                <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                  <div
+                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md"
+                    style={{ backgroundColor: d.accent }}
+                  >
+                    {d.icon}
+                  </div>
+                  <span className="font-heading font-bold text-[11px] tracking-widest text-slate-400">
+                    {d.number}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-heading font-bold text-lg md:text-xl text-[#0C2340] mb-2 leading-tight">
+                    {d.label}
+                  </h4>
+                  <p
+                    className="text-[14px] font-semibold mb-2 leading-snug"
+                    style={{ color: d.accent }}
+                  >
+                    {d.question}
+                  </p>
+                  <p className="text-[14px] text-slate-600 leading-[1.55]">{d.description}</p>
+                  {d.linkTo && (
+                    <a
+                      href={d.linkTo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-[13px] font-bold mt-3 group transition-colors"
+                      style={{ color: d.accent }}
+                    >
+                      {d.linkLabel ?? "Open"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </a>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Slide 8 — What's next */}
+      <section
+        ref={setSlideRef(7)}
         className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-gradient-to-br from-[#0C2340] via-[#0C2340] to-[#163a5e] overflow-hidden"
       >
         <div className="absolute inset-0 pointer-events-none">
@@ -691,7 +854,7 @@ export default function ExcoPresentation() {
           >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
-              05 · What's next
+              06 · What's next
             </span>
           </motion.div>
           <motion.h2
@@ -749,9 +912,9 @@ export default function ExcoPresentation() {
         </div>
       </section>
 
-      {/* Slide 8 — Thank you */}
+      {/* Slide 9 — Thank you */}
       <section
-        ref={setSlideRef(7)}
+        ref={setSlideRef(8)}
         className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-[#0C2340] overflow-hidden"
       >
         {/* Background image */}
