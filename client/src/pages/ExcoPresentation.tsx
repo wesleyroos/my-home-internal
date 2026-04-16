@@ -6,7 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  ArrowRight, ChevronLeft, ChevronRight,
+  ArrowRight, ChevronLeft, ChevronRight, Maximize, Minimize,
   Users, BarChart3, Wrench, Globe, Briefcase, FileSearch,
 } from "lucide-react";
 
@@ -21,6 +21,7 @@ const LINER_SUFFIXES = [
 
 const MEETINGS = [
   "Jacques Rossouw (Loom)",
+  "Jacques Rossouw (Real Estate)",
   "Di Williams (BetterBond Direct)",
   "Stephan Potgieter (BLOS)",
   "Nathan Kettles (BetterID)",
@@ -51,6 +52,7 @@ interface MeetingFeedback {
 
 const MEETING_FEEDBACK: MeetingFeedback[] = [
   { who: "Jacques Rossouw (Loom)", feedback: "Introduced the MyHome concept and scoped possible data access opportunities.", linkTo: "/loom-meeting" },
+  { who: "Jacques Rossouw (Real Estate)", feedback: "Introduced the MyHome concept and explored the agency network as a possible distribution channel." },
   { who: "Di Williams (BetterBond Direct)", feedback: "Unpacked BetterBond Direct's moving parts and started defining the sales funnel." },
   { who: "Stephan Potgieter (BLOS)", feedback: "Explored bank bundling into bonds and started unpacking NCA compliance." },
   { who: "Nathan Kettles (BetterID)", feedback: "BetterID demo — grasped its strategic role as the identity foundation." },
@@ -65,6 +67,7 @@ interface FeedbackCardData {
   title: string;
   icon: React.ReactNode;
   summary: string;
+  pills?: string[];
   accent: string;
   linkTo?: string;
   linkLabel?: string;
@@ -76,7 +79,8 @@ const RESEARCH_FEEDBACK: FeedbackCardData[] = [
     title: "Global Competitor Landscape",
     icon: <Globe className="w-6 h-6" />,
     accent: "#3DBFAD",
-    summary: "Mapped 19 companies across 5 categories — marketplaces & portals, iBuying, super-apps, insurance and home services. Portals dominate search but stop short of the transaction. Super-apps (Loom, HomeLight) are the closest to what MyHome could become. The gap: nobody owns the full journey from search through post-purchase services.",
+    summary: "19 companies across 5 categories — nobody owns the full journey.",
+    pills: ["Marketplaces & portals", "iBuying", "Integrated platforms", "Homeowner retention", "Digital finance & mortgages"],
     linkTo: "/landscape",
     linkLabel: "View full landscape",
   },
@@ -85,7 +89,8 @@ const RESEARCH_FEEDBACK: FeedbackCardData[] = [
     title: "SA Market Stats",
     icon: <BarChart3 className="w-6 h-6" />,
     accent: "#0C2340",
-    summary: "53% of SA households are owner-occupied vs 23% renting (Stats SA, 2022). ~250,000 bonds registered per year through the Deeds Office. ~35% of SA bond applications touch BetterBond. The average property transaction involves 6+ service providers with no single coordinating layer.",
+    summary: "Owner-heavy, bond-routed, and fragmented across service providers.",
+    pills: ["53% owners / 23% renters", "~250k bonds/yr", "~35% via BetterBond", "6+ providers per deal"],
     linkTo: "/market-stats",
     linkLabel: "View all market stats",
   },
@@ -94,7 +99,8 @@ const RESEARCH_FEEDBACK: FeedbackCardData[] = [
     title: "SA Personas",
     icon: <Users className="w-6 h-6" />,
     accent: "#8b5cf6",
-    summary: "Three core personas: first-time buyers navigating complexity with limited knowledge, move-up buyers upgrading with equity and experience, and property investors optimising for yield. All share one gap — no single platform coordinates their journey.",
+    summary: "Three customer journeys and the service-provider ecosystem they plug into.",
+    pills: ["Tom — Renter", "Amy — Buyer", "Eleanor — Owner", "Service provider ecosystem"],
     linkTo: "/personas",
     linkLabel: "View all personas",
   },
@@ -106,7 +112,8 @@ const PROTOTYPE_FEEDBACK: FeedbackCardData[] = [
     title: "Interactive Suburb Report",
     icon: <FileSearch className="w-6 h-6" />,
     accent: "#ef4444",
-    summary: "A homeowner-facing property report — value trend, suburb stats, surrounding sales, active listings, and premium locked sections. Designed as a top-of-funnel lead capture tool that creates a reason for homeowners to engage before they're actively transacting.",
+    summary: "A homeowner-facing report — a reason to engage before they're transacting.",
+    pills: ["Value trend", "Suburb stats", "Surrounding sales", "Active listings", "Premium locked sections", "Top-of-funnel lead capture"],
     linkTo: "/report",
     linkLabel: "View report prototype",
   },
@@ -115,7 +122,8 @@ const PROTOTYPE_FEEDBACK: FeedbackCardData[] = [
     title: "BetterBond Direct Flow",
     icon: <BarChart3 className="w-6 h-6" />,
     accent: "#3DBFAD",
-    summary: "BB Direct lead funnel mapped end-to-end — from 8 000 monthly inbound leads down to 158 granted bonds. Credit decline is the biggest leak at 50%, and only 14% of leads end up with a PA issued. Surfaces two entry points for MyHome: a credit-repair play on the drop-offs, and an application-lift play on the warm leads.",
+    summary: "BB Direct funnel mapped end-to-end — two entry points surface for MyHome.",
+    pills: ["8 000 leads → 158 bonds", "50% credit decline", "14% PA issued", "Credit-repair play", "Application-lift play"],
     linkTo: "/bb-direct-grants",
     linkLabel: "View BB Direct flow",
   },
@@ -124,7 +132,8 @@ const PROTOTYPE_FEEDBACK: FeedbackCardData[] = [
     title: "F&I Journey → Choose My Deal",
     icon: <Briefcase className="w-6 h-6" />,
     accent: "#0C2340",
-    summary: "Motor F&I process mapped onto its residential property equivalent — a buyer-facing deal configurator with bank offer comparison, loan term selection, and F&I add-ons (insurance, warranty, home services) with a live deal summary. Also maps the We Buy Cars buyer flow into a 5-step MyHome handover.",
+    summary: "Motor F&I mapped onto property — a buyer-facing deal configurator.",
+    pills: ["Bank offer comparison", "Loan term selector", "Insurance & warranty add-ons", "Home services", "Live deal summary", "5-step handover"],
     linkTo: "/deal",
     linkLabel: "View deal prototype",
   },
@@ -141,12 +150,12 @@ const NEXT_STEPS: NextStep[] = [
     pills: ["Confirmation of which value-adds to start with"],
   },
   {
-    label: "Compliance and external stakeholder alignment",
-    pills: ["Standard Bank", "Nedbank", "Investec", "Absa", "NCA compliance advice"],
+    label: "Compliance & bank alignment",
+    pills: ["Bank bundling negotiations", "NCA compliance", "Bond roll-in mechanics"],
   },
   {
     label: "Upcoming meetings",
-    pills: ["Fritz (Head of AI, BHG)", "Nolene — NCA compliance", "Nedbank — Avo"],
+    pills: ["Fritz (Head of AI, BHG)", "Nolene — NCA compliance", "Nedbank — Avo", "Standard Bank", "Investec"],
   },
   {
     label: "Scoping the build",
@@ -161,6 +170,52 @@ export default function ExcoPresentation() {
   const slideRefs = useRef<(HTMLElement | null)[]>([]);
   const [current, setCurrent] = useState(0);
   const [linerIndex, setLinerIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const hoveringControlsRef = useRef(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
+
+  // Auto-hide controls in fullscreen after inactivity
+  useEffect(() => {
+    if (!isFullscreen) {
+      setControlsVisible(true);
+      if (hideTimerRef.current) {
+        clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+      return;
+    }
+
+    const showAndScheduleHide = () => {
+      setControlsVisible(true);
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      if (hoveringControlsRef.current) return;
+      hideTimerRef.current = setTimeout(() => setControlsVisible(false), 2000);
+    };
+
+    showAndScheduleHide();
+    const events: Array<keyof WindowEventMap> = ["mousemove", "touchstart"];
+    events.forEach((ev) => window.addEventListener(ev, showAndScheduleHide));
+    return () => {
+      events.forEach((ev) => window.removeEventListener(ev, showAndScheduleHide));
+      if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    };
+  }, [isFullscreen]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -191,6 +246,9 @@ export default function ExcoPresentation() {
       } else if (e.key === "End") {
         e.preventDefault();
         goTo(TOTAL_SLIDES - 1);
+      } else if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -535,48 +593,81 @@ export default function ExcoPresentation() {
         </div>
       </section>
 
-      {/* Presentation controls */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 bg-white/90 backdrop-blur border border-[#0C2340]/10 rounded-full shadow-lg px-3 py-2">
-        <button
-          type="button"
-          onClick={(e) => { e.currentTarget.blur(); goTo(current - 1); }}
-          disabled={current === 0}
-          aria-label="Previous slide"
-          className="w-9 h-9 rounded-full flex items-center justify-center text-[#0C2340] hover:bg-[#0C2340]/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
+      {/* Presentation controls — auto-hide in fullscreen */}
+      <motion.div
+        animate={{ opacity: controlsVisible ? 1 : 0, y: controlsVisible ? 0 : 12 }}
+        transition={{ duration: 0.25, ease: "easeOut" }}
+        onMouseEnter={() => {
+          hoveringControlsRef.current = true;
+          if (hideTimerRef.current) {
+            clearTimeout(hideTimerRef.current);
+            hideTimerRef.current = null;
+          }
+          setControlsVisible(true);
+        }}
+        onMouseLeave={() => {
+          hoveringControlsRef.current = false;
+          if (isFullscreen) {
+            if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
+            hideTimerRef.current = setTimeout(() => setControlsVisible(false), 2000);
+          }
+        }}
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-white/90 backdrop-blur border border-[#0C2340]/10 rounded-full shadow-lg px-3 py-2 ${
+          controlsVisible ? "pointer-events-auto" : "pointer-events-none"
+        }`}
+      >
+          <button
+            type="button"
+            onClick={(e) => { e.currentTarget.blur(); goTo(current - 1); }}
+            disabled={current === 0}
+            aria-label="Previous slide"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-[#0C2340] hover:bg-[#0C2340]/5 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
 
-        <div className="flex items-center gap-2 px-2">
-          {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => goTo(i)}
-              aria-label={`Go to slide ${i + 1}`}
-              className={`transition-all rounded-full ${
-                i === current
-                  ? "w-8 h-2 bg-[#3DBFAD]"
-                  : "w-2 h-2 bg-[#0C2340]/25 hover:bg-[#0C2340]/50"
-              }`}
-            />
-          ))}
-        </div>
+          <div className="flex items-center gap-2 px-2">
+            {Array.from({ length: TOTAL_SLIDES }).map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => goTo(i)}
+                aria-label={`Go to slide ${i + 1}`}
+                className={`transition-all rounded-full ${
+                  i === current
+                    ? "w-8 h-2 bg-[#3DBFAD]"
+                    : "w-2 h-2 bg-[#0C2340]/25 hover:bg-[#0C2340]/50"
+                }`}
+              />
+            ))}
+          </div>
 
-        <span className="text-[11px] font-mono text-[#0C2340]/60 px-1 tabular-nums">
-          {String(current + 1).padStart(2, "0")} / {String(TOTAL_SLIDES).padStart(2, "0")}
-        </span>
+          <span className="text-[11px] font-mono text-[#0C2340]/60 px-1 tabular-nums">
+            {String(current + 1).padStart(2, "0")} / {String(TOTAL_SLIDES).padStart(2, "0")}
+          </span>
 
-        <button
-          type="button"
-          onClick={(e) => { e.currentTarget.blur(); goTo(current + 1); }}
-          disabled={current === TOTAL_SLIDES - 1}
-          aria-label="Next slide"
-          className="w-9 h-9 rounded-full flex items-center justify-center text-white bg-[#0C2340] hover:bg-[#0C2340]/90 disabled:opacity-30 disabled:cursor-not-allowed transition"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+          <button
+            type="button"
+            onClick={(e) => { e.currentTarget.blur(); goTo(current + 1); }}
+            disabled={current === TOTAL_SLIDES - 1}
+            aria-label="Next slide"
+            className="w-9 h-9 rounded-full flex items-center justify-center text-white bg-[#0C2340] hover:bg-[#0C2340]/90 disabled:opacity-30 disabled:cursor-not-allowed transition"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+
+          <span className="w-px h-5 bg-[#0C2340]/10 mx-1" />
+
+          <button
+            type="button"
+            onClick={(e) => { e.currentTarget.blur(); toggleFullscreen(); }}
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+            title={isFullscreen ? "Exit fullscreen (F)" : "Enter fullscreen (F)"}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-[#0C2340] hover:bg-[#0C2340]/5 transition"
+          >
+            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+          </button>
+      </motion.div>
     </div>
   );
 }
@@ -627,8 +718,25 @@ function FeedbackCard({ card }: { card: FeedbackCardData }) {
         {card.icon}
       </div>
       <div className="flex-1 min-w-0">
-        <h4 className="font-heading font-bold text-xl text-[#0C2340] mb-3">{card.title}</h4>
-        <p className="text-[15px] text-slate-600 leading-[1.7]">{card.summary}</p>
+        <h4 className="font-heading font-bold text-xl text-[#0C2340] mb-2">{card.title}</h4>
+        <p className="text-[17px] text-slate-600 leading-[1.5] mb-4">{card.summary}</p>
+        {card.pills && card.pills.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {card.pills.map((p) => (
+              <span
+                key={p}
+                className="inline-flex items-center px-3 py-1.5 rounded-full text-[13px] font-semibold"
+                style={{
+                  backgroundColor: `${card.accent}12`,
+                  color: card.accent,
+                  border: `1px solid ${card.accent}30`,
+                }}
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        )}
         {card.linkTo && (
           <a href={card.linkTo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-base font-bold text-[#3DBFAD] hover:text-[#0C2340] transition-colors cursor-pointer mt-4 group">
             {card.linkLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
