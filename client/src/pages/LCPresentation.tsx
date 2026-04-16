@@ -5,7 +5,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ArrowRight, ChevronLeft, ChevronRight, Maximize, Minimize } from "lucide-react";
 
 const LINER_PREFIX = "Capturing the full home lifecycle —";
 const LINER_SUFFIXES = [
@@ -25,7 +25,7 @@ type DoneItem = {
 const DONE: DoneItem[] = [
   {
     label: "Market research",
-    children: ["Global landscape", "Competitor research"],
+    children: ["Global landscape", "Competitor research", "Persona identification"],
   },
   {
     label: "Stakeholder alignment and data gathering",
@@ -49,13 +49,28 @@ const NEXT = [
   "MVP scoping",
 ];
 
-const TOTAL_SLIDES = 3;
+const TOTAL_SLIDES = 4;
 
 export default function LCPresentation() {
   const containerRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLElement | null)[]>([]);
   const [current, setCurrent] = useState(0);
   const [linerIndex, setLinerIndex] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen?.().catch(() => {});
+    } else {
+      document.exitFullscreen?.().catch(() => {});
+    }
+  };
+
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onFsChange);
+    return () => document.removeEventListener("fullscreenchange", onFsChange);
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -86,6 +101,9 @@ export default function LCPresentation() {
       } else if (e.key === "End") {
         e.preventDefault();
         goTo(TOTAL_SLIDES - 1);
+      } else if (e.key === "f" || e.key === "F") {
+        e.preventDefault();
+        toggleFullscreen();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -224,17 +242,29 @@ export default function LCPresentation() {
 
         <div className="relative w-full max-w-[1600px]">
           {/* Kicker */}
-          <div className="flex items-center gap-3 mb-12 md:mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: -12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.3 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center gap-3 mb-12 md:mb-16"
+          >
             <span className="w-10 h-px bg-[#3DBFAD]" />
             <span className="text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.3em]">
               Project Status · 16 April 2026
             </span>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-10 md:gap-16 items-start">
             {/* Done column */}
             <div>
-              <div className="flex items-baseline gap-4 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+                className="flex items-baseline gap-4 mb-8"
+              >
                 <span className="font-heading font-bold text-[#3DBFAD] text-6xl md:text-7xl leading-none">
                   01
                 </span>
@@ -246,11 +276,26 @@ export default function LCPresentation() {
                     What's been done
                   </h2>
                 </div>
-              </div>
+              </motion.div>
 
-              <ul className="space-y-5">
+              <motion.ul
+                className="space-y-5"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.2 }}
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.25 } },
+                }}
+              >
                 {DONE.map((item) => (
-                  <li key={item.label}>
+                  <motion.li
+                    key={item.label}
+                    variants={{
+                      hidden: { opacity: 0, y: 14 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } },
+                    }}
+                  >
                     <div className="flex items-start gap-4">
                       <span className="mt-1 w-7 h-7 rounded-full bg-[#3DBFAD]/15 flex items-center justify-center flex-shrink-0">
                         <Check className="w-4 h-4 text-[#3DBFAD]" strokeWidth={3} />
@@ -296,23 +341,35 @@ export default function LCPresentation() {
                         </div>
                       </div>
                     )}
-                  </li>
+                  </motion.li>
                 ))}
-              </ul>
+              </motion.ul>
             </div>
 
             {/* Divider */}
-            <div className="hidden md:flex flex-col items-center justify-center self-stretch">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: false, amount: 0.3 }}
+              transition={{ duration: 0.6, ease: "easeOut", delay: 0.35 }}
+              className="hidden md:flex flex-col items-center justify-center self-stretch"
+            >
               <div className="w-px flex-1 bg-gradient-to-b from-transparent via-[#0C2340]/20 to-transparent" />
               <div className="my-4 w-10 h-10 rounded-full bg-white border border-[#0C2340]/10 shadow-sm flex items-center justify-center">
                 <ArrowRight className="w-4 h-4 text-[#3DBFAD]" />
               </div>
               <div className="w-px flex-1 bg-gradient-to-b from-transparent via-[#0C2340]/20 to-transparent" />
-            </div>
+            </motion.div>
 
             {/* Next column */}
             <div>
-              <div className="flex items-baseline gap-4 mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.3 }}
+                transition={{ duration: 0.6, ease: "easeOut", delay: 0.15 }}
+                className="flex items-baseline gap-4 mb-8"
+              >
                 <span className="font-heading font-bold text-[#0C2340] text-6xl md:text-7xl leading-none">
                   02
                 </span>
@@ -324,12 +381,25 @@ export default function LCPresentation() {
                     Next steps
                   </h2>
                 </div>
-              </div>
+              </motion.div>
 
-              <ul className="space-y-4">
+              <motion.ul
+                className="space-y-4"
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: false, amount: 0.2 }}
+                variants={{
+                  hidden: {},
+                  visible: { transition: { staggerChildren: 0.1, delayChildren: 0.3 } },
+                }}
+              >
                 {NEXT.map((item, i) => (
-                  <li
+                  <motion.li
                     key={item}
+                    variants={{
+                      hidden: { opacity: 0, x: 16 },
+                      visible: { opacity: 1, x: 0, transition: { duration: 0.45, ease: "easeOut" } },
+                    }}
                     className="group flex items-center gap-4 p-5 rounded-2xl bg-white border border-[#0C2340]/10 shadow-sm hover:shadow-md hover:border-[#3DBFAD]/40 transition-all"
                   >
                     <span className="font-mono text-xs text-[#3DBFAD] font-bold tracking-wider">
@@ -339,11 +409,49 @@ export default function LCPresentation() {
                       {item}
                     </span>
                     <ArrowRight className="w-5 h-5 text-[#0C2340]/30 group-hover:text-[#3DBFAD] group-hover:translate-x-1 transition-all" />
-                  </li>
+                  </motion.li>
                 ))}
-              </ul>
+              </motion.ul>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Slide 4 — Questions */}
+      <section
+        ref={setSlideRef(3)}
+        className="relative snap-start min-h-screen w-full flex items-center justify-center px-6 sm:px-12 py-16 bg-[#0C2340] overflow-hidden"
+      >
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-60 -right-60 w-[800px] h-[800px] rounded-full bg-[#3DBFAD]/15 blur-3xl" />
+          <div className="absolute -bottom-60 -left-60 w-[800px] h-[800px] rounded-full bg-[#3DBFAD]/10 blur-3xl" />
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              backgroundImage:
+                "linear-gradient(#ffffff 1px, transparent 1px), linear-gradient(90deg, #ffffff 1px, transparent 1px)",
+              backgroundSize: "64px 64px",
+            }}
+          />
+        </div>
+
+        <div className="relative w-full max-w-[1600px] text-center -translate-y-10 md:-translate-y-16">
+          <div className="flex items-center justify-center mb-12">
+            <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-[#3DBFAD] text-xs md:text-sm font-semibold uppercase tracking-[0.35em] shadow-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#3DBFAD]" />
+              Open floor
+            </span>
+          </div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false, amount: 0.5 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="font-heading font-bold text-white leading-[0.9] tracking-tight text-6xl sm:text-7xl md:text-8xl lg:text-[160px]"
+          >
+            Questions<span className="text-[#3DBFAD]">?</span>
+          </motion.h2>
         </div>
       </section>
 
@@ -387,6 +495,18 @@ export default function LCPresentation() {
           className="w-9 h-9 rounded-full flex items-center justify-center text-white bg-[#0C2340] hover:bg-[#0C2340]/90 disabled:opacity-30 disabled:cursor-not-allowed transition"
         >
           <ChevronRight className="w-5 h-5" />
+        </button>
+
+        <span className="w-px h-5 bg-[#0C2340]/10 mx-1" />
+
+        <button
+          type="button"
+          onClick={(e) => { e.currentTarget.blur(); toggleFullscreen(); }}
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+          title={isFullscreen ? "Exit fullscreen (F)" : "Enter fullscreen (F)"}
+          className="w-9 h-9 rounded-full flex items-center justify-center text-[#0C2340] hover:bg-[#0C2340]/5 transition"
+        >
+          {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
         </button>
       </div>
     </div>

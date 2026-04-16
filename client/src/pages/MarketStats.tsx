@@ -42,6 +42,7 @@ const MARKET_STAT_GROUPS = [
       { stat: "~60%", color: "#0C2340", label: "of bonds submitted via a **bond originator**", source: "ooba / BetterBond market commentary, 2024" },
       { stat: "4–5", color: "#6366f1", label: "banks an originator **submits to simultaneously**", source: "ooba oobarometer, 2024" },
       { stat: "~90 days", color: "#6366f1", label: "from **offer to registration**", source: "SA conveyancing commentary" },
+      { stat: "~7 yrs", color: "#3DBFAD", label: "average **time in home** before selling or upgrading", source: "Industry estimate" },
     ],
   },
 ];
