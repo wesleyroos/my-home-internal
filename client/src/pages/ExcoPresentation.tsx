@@ -72,6 +72,7 @@ interface FeedbackCardData {
   accent: string;
   linkTo?: string;
   linkLabel?: string;
+  links?: { href: string; label: string }[];
 }
 
 const RESEARCH_FEEDBACK: FeedbackCardData[] = [
@@ -115,8 +116,10 @@ const PROTOTYPE_FEEDBACK: FeedbackCardData[] = [
     accent: "#ef4444",
     summary: "A homeowner-facing report — a reason to engage before they're transacting.",
     pills: ["Value trend", "Suburb stats", "Surrounding sales", "Active listings", "Premium locked sections", "Top-of-funnel lead capture"],
-    linkTo: "/report",
-    linkLabel: "View report prototype",
+    links: [
+      { href: "/email", label: "View email mockup" },
+      { href: "/report", label: "View report prototype" },
+    ],
   },
   {
     id: "bb-direct-flow",
@@ -784,42 +787,41 @@ export default function ExcoPresentation() {
                   hidden: { opacity: 0, y: 24 },
                   visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: "easeOut" } },
                 }}
-                className="bg-white rounded-2xl shadow-sm p-6 md:p-7 border-l-4 flex gap-5"
-                style={{ borderLeftColor: d.accent }}
+                className="flex flex-col gap-2"
               >
-                <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 px-1">
+                  <span className="font-mono text-xs font-bold tracking-wider text-slate-400">{d.number}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest" style={{ color: d.accent }}>
+                    {d.label}
+                  </span>
+                </div>
+                <div
+                  className="bg-white rounded-xl shadow-sm p-5 md:p-6 border-l-4 flex items-start gap-4"
+                  style={{ borderLeftColor: d.accent }}
+                >
                   <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md"
+                    className="w-10 h-10 rounded-xl flex items-center justify-center text-white flex-shrink-0 shadow-sm mt-0.5"
                     style={{ backgroundColor: d.accent }}
                   >
                     {d.icon}
                   </div>
-                  <span className="font-heading font-bold text-[11px] tracking-widest text-slate-400">
-                    {d.number}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-heading font-bold text-lg md:text-xl text-[#0C2340] mb-2 leading-tight">
-                    {d.label}
-                  </h4>
-                  <p
-                    className="text-[14px] font-semibold mb-2 leading-snug"
-                    style={{ color: d.accent }}
-                  >
-                    {d.question}
-                  </p>
-                  <p className="text-[14px] text-slate-600 leading-[1.55]">{d.description}</p>
-                  {d.linkTo && (
-                    <a
-                      href={d.linkTo}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-[13px] font-bold mt-3 group transition-colors"
-                      style={{ color: d.accent }}
-                    >
-                      {d.linkLabel ?? "Open"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </a>
-                  )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-heading font-bold text-lg md:text-xl text-[#0C2340] mb-2 leading-snug">
+                      {d.question}
+                    </h4>
+                    <p className="text-[15px] text-slate-500 leading-[1.6]">{d.description}</p>
+                    {d.linkTo && (
+                      <a
+                        href={d.linkTo}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-[13px] font-bold mt-3 group transition-colors"
+                        style={{ color: d.accent }}
+                      >
+                        {d.linkLabel ?? "Open"} <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </a>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -1108,11 +1110,19 @@ function FeedbackCard({ card }: { card: FeedbackCardData }) {
             ))}
           </div>
         )}
-        {card.linkTo && (
+        {card.links && card.links.length > 0 ? (
+          <div className="flex flex-wrap gap-4 mt-4">
+            {card.links.map((l) => (
+              <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-base font-bold text-[#3DBFAD] hover:text-[#0C2340] transition-colors cursor-pointer group">
+                {l.label} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
+            ))}
+          </div>
+        ) : card.linkTo ? (
           <a href={card.linkTo} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-base font-bold text-[#3DBFAD] hover:text-[#0C2340] transition-colors cursor-pointer mt-4 group">
             {card.linkLabel} <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </a>
-        )}
+        ) : null}
       </div>
     </div>
   );
