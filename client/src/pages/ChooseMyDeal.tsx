@@ -2,13 +2,14 @@
  * ChooseMyDeal — Buyer-facing bond deal configurator
  */
 
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import confetti from "canvas-confetti";
 import {
   MapPin, Bed, Bath, Car, Maximize2,
   Shield, Wrench, HeartPulse, TrendingDown,
   BadgeCheck, Zap, CircleDollarSign, FileText,
-  Check, ChevronRight, Info, Lock,
+  Check, ChevronRight, Info, Lock, Send,
   CheckCircle2, Sparkles, TrendingUp, Pencil, Truck,
   Sparkle, Sun, Droplets,
 } from "lucide-react";
@@ -73,7 +74,6 @@ const ADDONS: Addon[] = [
     kind: "recurring",
     monthly: 338,
     icon: <HeartPulse className="w-4 h-4" />,
-    required: true,
     recommended: true,
   },
   {
@@ -134,9 +134,9 @@ const ADDONS: Addon[] = [
   {
     id: "conveyancing",
     name: "Conveyancing Bundle",
-    description: "Transfer attorney fees (~R50,000) negotiated at a reduced rate and rolled into your bond — spread over your loan term instead of paid upfront at registration.",
+    description: "Transfer and bond registration attorney fees (~R38,000) negotiated at a reduced rate and rolled into your bond — spread over your loan term instead of paid upfront at registration.",
     kind: "capitalised",
-    principal: 50000,
+    principal: 38000,
     icon: <FileText className="w-4 h-4" />,
     highlight: "Roll into bond",
   },
@@ -160,7 +160,7 @@ const ADDONS: Addon[] = [
   {
     id: "water_tank",
     name: "Water Tank & Pump",
-    description: "5,000L JoJo tank, filtration and pressure pump (~R50,000) installed at handover. Keeps the taps running through outages and load-shedding.",
+    description: "5,000L JoJo tank, filtration and pressure pump (~R22,000) installed at handover. Keeps the taps running through outages and load-shedding.",
     kind: "capitalised",
     principal: 22000,
     icon: <Droplets className="w-4 h-4" />,
@@ -274,7 +274,10 @@ function AddonCard({
   monthly: number;
   termMonths: number;
 }) {
-  const total = monthly * termMonths;
+  const isCapitalised = addon.kind === "capitalised" && addon.principal;
+  const isCleaning = addon.id === "cleaning";
+  const displayAmount = isCapitalised ? addon.principal! : isCleaning ? monthly : monthly * termMonths;
+  const displayLabel = isCleaning ? "/mo" : "total";
   return (
     <div
       className={`rounded-xl border p-4 transition-colors duration-200 ${
@@ -307,7 +310,7 @@ function AddonCard({
 
         <div className="flex flex-col items-end gap-2 flex-shrink-0 ml-2">
           <span className={`text-sm font-bold font-heading ${enabled ? "text-[#0C2340]" : "text-slate-400"}`}>
-            {fmtRand(total)}<span className="text-[10px] font-normal text-slate-400"> total</span>
+            {fmtRand(displayAmount)}<span className="text-[10px] font-normal text-slate-400"> {displayLabel}</span>
           </span>
           {addon.required ? (
             <div className="w-9 h-5 rounded-full bg-[#3DBFAD]/10 flex items-center justify-center">
@@ -332,8 +335,10 @@ export default function ChooseMyDeal() {
   const [selectedBank, setSelectedBank] = useState("nedbank");
   const [term, setTerm] = useState(20);
   const [enabledAddons, setEnabledAddons] = useState<string[]>(
-    ADDONS.filter((a) => a.required || a.recommended).map((a) => a.id)
+    ADDONS.filter((a) => a.required).map((a) => a.id)
   );
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [submitting, setSubmitting] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [depositAmount, setDepositAmount] = useState(DEFAULT_DEPOSIT);
   const [depositEditing, setDepositEditing] = useState(false);
@@ -384,6 +389,30 @@ export default function ChooseMyDeal() {
     );
   }
 
+  const fireConfetti = useCallback(() => {
+    const end = Date.now() + 2500;
+    const colors = ["#3DBFAD", "#0C2340", "#f59e0b", "#6366f1"];
+    (function frame() {
+      confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors });
+      confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors });
+      if (Date.now() < end) requestAnimationFrame(frame);
+    })();
+  }, []);
+
+  function handleConfirm() {
+    setConfirmed(true);
+    fireConfetti();
+  }
+
+  function handleSubmitToBanks() {
+    setSubmitting(true);
+    setTimeout(() => {
+      setSubmitting(false);
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }, 4200);
+  }
+
   return (
     <div className="min-h-screen bg-white">
 
@@ -392,65 +421,75 @@ export default function ChooseMyDeal() {
       {/* Page title */}
       <div className="border-b border-border bg-white">
         <div className="container py-8">
-          <div className="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-md mb-4">
+          <div className="inline-flex items-center gap-1.5 bg-[#3DBFAD]/10 text-[#3DBFAD] text-xs font-semibold px-2.5 py-1 rounded-md mb-4">
             <CheckCircle2 className="w-3 h-3" />
-            Bond Approval Received
+            OTP Received
           </div>
           <h1 className="font-heading font-bold text-2xl sm:text-3xl text-[#0C2340] mb-1">
             Choose My Deal
           </h1>
           <p className="text-slate-400 text-sm max-w-lg mb-4">
-            Your bond application has been approved by multiple banks. Select your preferred offer and customise your add-ons.
+            {step === 1 && "Configure your add-ons, then submit to banks for final offers."}
+            {step === 2 && "All four banks have returned their offers. Select your preferred bank."}
+            {step === 3 && "Review your full deal summary and confirm."}
           </p>
-          <div className="inline-flex items-center gap-3 bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 shadow-sm">
-            <div className="w-7 h-7 rounded-full bg-[#0C2340] flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-[10px] font-bold">RB</span>
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-[#0C2340]">Rudi Botha</span>
-                <span className="inline-flex items-center gap-1.5">
-                  <img src="/betterid-logo.png" alt="BetterID" className="h-5 w-auto" />
-                  <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">Verified</span>
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#3B82F6]" />
-                </span>
-              </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
-                SA ID · 8804155012088 · Primary applicant
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
       <div className="container py-8">
 
-        {/* Property card */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden mb-8">
-          <div className="flex flex-col sm:flex-row">
-            <div className="sm:w-52 h-36 sm:h-auto flex-shrink-0 relative overflow-hidden">
-              <img src={PROPERTY_IMG} alt={ownerProperty.address} className="absolute inset-0 w-full h-full object-cover" />
+        {/* Combined profile + property card */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4 mb-8">
+          {/* Applicant profile */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 flex flex-col items-center justify-center text-center">
+            <div className="w-12 h-12 rounded-full bg-[#0C2340] flex items-center justify-center mb-3">
+              <span className="text-white text-sm font-bold">RB</span>
             </div>
-            <div className="flex-1 p-5 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-              <div>
-                <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
-                  <MapPin className="w-3 h-3" />
-                  {ownerProperty.suburb}, {ownerProperty.city}
+            <span className="font-heading font-bold text-[#0C2340] text-base mb-1">Rudi Botha</span>
+            <div className="flex items-center gap-1.5 mb-2">
+              <img src="/betterid-logo.png" alt="BetterID" className="h-4 w-auto" />
+              <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">Verified</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-[#3B82F6]" />
+            </div>
+            <div className="text-[11px] text-slate-400">
+              SA ID · 8804155012088
+            </div>
+            <div className="text-[10px] text-slate-400 mt-0.5">
+              Primary applicant
+            </div>
+          </div>
+
+          {/* Property card */}
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="flex flex-col sm:flex-row">
+              <div className="sm:w-44 h-36 sm:h-auto flex-shrink-0 relative overflow-hidden">
+                <img src={PROPERTY_IMG} alt={ownerProperty.address} className="absolute inset-0 w-full h-full object-cover" />
+              </div>
+              <div className="flex-1 p-5">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div>
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs mb-1">
+                      <MapPin className="w-3 h-3" />
+                      {ownerProperty.suburb}, {ownerProperty.city}
+                    </div>
+                    <h2 className="font-heading font-bold text-[#0C2340] text-lg leading-snug">
+                      {ownerProperty.address}
+                    </h2>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Purchase price</div>
+                    <div className="font-heading font-bold text-[#0C2340] text-xl">{fmtRand(PURCHASE_PRICE)}</div>
+                  </div>
                 </div>
-                <h2 className="font-heading font-bold text-[#0C2340] text-lg leading-snug">
-                  {ownerProperty.address}
-                </h2>
-                <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
+
+                <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mb-3 pb-3 border-b border-slate-100">
                   <span className="flex items-center gap-1"><Bed className="w-3 h-3" />{ownerProperty.bedrooms} bed</span>
                   <span className="flex items-center gap-1"><Bath className="w-3 h-3" />{ownerProperty.bathrooms} bath</span>
                   <span className="flex items-center gap-1"><Car className="w-3 h-3" />{ownerProperty.garages} garage</span>
                   <span className="flex items-center gap-1"><Maximize2 className="w-3 h-3" />{ownerProperty.buildingSize}m²</span>
                 </div>
-              </div>
-              <div className="sm:text-right flex-shrink-0">
-                <div className="text-xs text-muted-foreground uppercase tracking-wider mb-0.5">Purchase price</div>
-                <div className="font-heading font-bold text-[#0C2340] text-2xl">{fmtRand(PURCHASE_PRICE)}</div>
-                <div className="flex items-center justify-end gap-1.5 mt-1">
+
+                <div className="flex items-center gap-1.5">
                   <span className="text-xs text-muted-foreground">Deposit</span>
                   <div
                     className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 border transition-colors cursor-text ${
@@ -472,201 +511,397 @@ export default function ChooseMyDeal() {
                     />
                     {!depositEditing && <Pencil className="w-2.5 h-2.5 text-slate-400" />}
                   </div>
-                  <span className="text-xs text-muted-foreground">({depositPct}%) · Bond {fmtRand(bondAmount)}</span>
-                </div>
-                <div className={`mt-1.5 inline-flex items-center gap-1.5 text-[11px] font-medium px-2 py-0.5 rounded-md transition-colors ${
-                  enabledAddons.includes("conveyancing")
-                    ? "bg-[#3DBFAD]/10 text-[#1a9d8e]"
-                    : "bg-slate-100 text-slate-400"
-                }`}>
-                  <FileText className="w-3 h-3 flex-shrink-0" />
-                  {enabledAddons.includes("conveyancing")
-                    ? `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing rolled in · effective bond ${fmtRand(bondAmount + CONVEYANCING_AMOUNT)}`
-                    : `+ ${fmtRand(CONVEYANCING_AMOUNT)} conveyancing fees — roll into bond?`}
+                  <span className="text-xs text-muted-foreground">({depositPct}%)</span>
+                  <span className="text-xs text-muted-foreground">· Bond {fmtRand(bondAmount)}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-
-          {/* Left */}
-          <div className="space-y-8">
-
-            {/* Add-ons */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <div className="flex items-baseline gap-3 mb-1">
-                <h2 className="font-heading font-bold text-[#0C2340] text-lg">Add-Ons</h2>
-                <span className="text-muted-foreground text-xs">
-                  {activeAddons.length} of {ADDONS.length} selected
+        {/* Stepper indicator */}
+        <div className="flex items-center gap-0 mb-8">
+          {[
+            { num: 1, label: "Add-ons" },
+            { num: 2, label: "Bank offers" },
+            { num: 3, label: "Confirm" },
+          ].map((s, i) => (
+            <div key={s.num} className="flex items-center flex-1 last:flex-none">
+              <button
+                onClick={() => s.num <= step && setStep(s.num as 1 | 2 | 3)}
+                className={`flex items-center gap-2.5 transition-all ${s.num <= step ? "cursor-pointer" : "cursor-default"}`}
+              >
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-heading font-bold transition-all ${
+                  s.num === step
+                    ? "bg-[#0C2340] text-white shadow-md"
+                    : s.num < step
+                      ? "bg-[#3DBFAD] text-white"
+                      : "bg-slate-100 text-slate-400"
+                }`}>
+                  {s.num < step ? <Check className="w-4 h-4" /> : s.num}
+                </div>
+                <span className={`text-sm font-semibold hidden sm:inline ${
+                  s.num === step ? "text-[#0C2340]" : s.num < step ? "text-[#3DBFAD]" : "text-slate-400"
+                }`}>
+                  {s.label}
                 </span>
-              </div>
-              <p className="text-muted-foreground text-sm mb-5">
-                Bundled into your monthly commitment. Required products are included by your lender.
-              </p>
-              <div className="space-y-3">
-                {ADDONS.map((addon) => (
-                  <AddonCard
-                    key={addon.id}
-                    addon={addon}
-                    enabled={enabledAddons.includes(addon.id)}
-                    onToggle={() => !addon.required && toggleAddon(addon.id)}
-                    monthly={addonMonthlyMap[addon.id]}
-                    termMonths={term * 12}
-                  />
-                ))}
-              </div>
+              </button>
+              {i < 2 && (
+                <div className={`flex-1 h-px mx-4 transition-colors ${
+                  s.num < step ? "bg-[#3DBFAD]" : "bg-slate-200"
+                }`} />
+              )}
             </div>
+          ))}
+        </div>
 
-            {/* Bank selection */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-              <h2 className="font-heading font-bold text-[#0C2340] text-lg mb-1">Select Your Bank</h2>
-              <p className="text-muted-foreground text-sm mb-5">
-                Final offers from all four banks — rates reflect your selected add-ons and are variable, linked to prime ({PRIME}%).
-              </p>
+        {/* Step content + sidebar */}
+        <div className={step < 3 ? "grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6" : ""}>
 
-              {/* Term selector */}
-              <div className="flex items-center gap-2 mb-6 flex-wrap">
-                <span className="text-sm font-medium text-slate-600 mr-1">Loan term:</span>
-                {TERMS.map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setTerm(t)}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                      term === t
-                        ? "bg-[#0C2340] text-white border-[#0C2340]"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
-                    }`}
-                  >
-                    {t} yrs
-                  </button>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
-                {BANKS.map((b) => (
-                  <BankCard
-                    key={b.id}
-                    bank={b}
-                    selected={selectedBank === b.id}
-                    monthly={bankMonthlyMap[b.id]}
-                    onSelect={() => setSelectedBank(b.id)}
-                  />
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-start gap-1.5 text-[11px] text-muted-foreground">
-                <Info className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
-                Variable rate — your monthly repayment adjusts whenever the prime lending rate changes.
-              </div>
-            </div>
-          </div>
-
-          {/* Right — sticky summary */}
-          <div>
-            <div className="sticky top-[64px]">
-            <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-
-              {/* Summary header */}
-              <div className="bg-[#0C2340] px-5 py-5">
-                <div className="text-xs text-white/50 uppercase tracking-wider mb-1">Total monthly</div>
-                <div className="font-heading font-bold text-white text-3xl">
-                  {fmtRand(totalMonthly)}
-                  <span className="text-white/50 text-sm font-normal">/mo</span>
-                </div>
-                <div className="flex items-center gap-1 mt-1.5">
-                  <TrendingUp className="w-3 h-3 text-[#3DBFAD]" />
-                  <span className="text-xs text-white/50">
-                    {((totalMonthly / PURCHASE_PRICE) * 100).toFixed(2)}% of purchase price per month
-                  </span>
-                </div>
-              </div>
-
-              <div className="p-5 space-y-5">
-
-                {/* Bond breakdown */}
-                <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Bond</div>
-                  <div className="space-y-2">
-                    {[
-                      { label: "Bank",       value: bank.name },
-                      { label: "Rate",       value: `${effectiveRate.toFixed(2)}% p.a.` },
-                      { label: "Term",       value: `${term} years` },
-                      { label: "Bond",       value: fmtRand(bondAmount) },
-                    ].map((row) => (
-                      <div key={row.label} className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">{row.label}</span>
-                        <span className="font-medium text-[#0C2340]">{row.value}</span>
-                      </div>
+          {/* Left — step content */}
+          <AnimatePresence mode="wait">
+            {/* Step 1 — Add-ons */}
+            {step === 1 && (
+              <motion.div
+                key="step-1"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                  <div className="flex items-baseline gap-3 mb-1">
+                    <h2 className="font-heading font-bold text-[#0C2340] text-lg">Configure Add-Ons</h2>
+                    <span className="text-muted-foreground text-xs">
+                      {activeAddons.length} of {ADDONS.length} selected
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground text-sm mb-5">
+                    Select the products you'd like bundled into your bond. Required products are included by your lender.
+                  </p>
+                  <div className="space-y-3">
+                    {ADDONS.map((addon) => (
+                      <AddonCard
+                        key={addon.id}
+                        addon={addon}
+                        enabled={enabledAddons.includes(addon.id)}
+                        onToggle={() => !addon.required && toggleAddon(addon.id)}
+                        monthly={addonMonthlyMap[addon.id]}
+                        termMonths={term * 12}
+                      />
                     ))}
-                    <div className="flex justify-between text-sm pt-2 border-t border-border">
-                      <span className="text-muted-foreground">Monthly repayment</span>
-                      <span className="font-bold text-[#0C2340]">{fmtRand(monthlyBond)}</span>
-                    </div>
                   </div>
                 </div>
 
-                {/* Add-ons breakdown */}
-                {activeAddons.length > 0 && (
+              </motion.div>
+            )}
+
+            {/* Step 2 — Bank offers */}
+            {step === 2 && (
+              <motion.div
+                key="step-2"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+                  <h2 className="font-heading font-bold text-[#0C2340] text-lg mb-1">Select Your Bank</h2>
+                  <p className="text-muted-foreground text-sm mb-5">
+                    All four banks have returned offers reflecting your add-ons. Rates are variable, linked to prime ({PRIME}%).
+                  </p>
+
+                  {/* Term selector */}
+                  <div className="flex items-center gap-2 mb-6 flex-wrap">
+                    <span className="text-sm font-medium text-slate-600 mr-1">Loan term:</span>
+                    {TERMS.map((t) => (
+                      <button
+                        key={t}
+                        onClick={() => setTerm(t)}
+                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                          term === t
+                            ? "bg-[#0C2340] text-white border-[#0C2340]"
+                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-300"
+                        }`}
+                      >
+                        {t} yrs
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="grid grid-cols-2 xl:grid-cols-4 gap-3">
+                    {BANKS.map((b) => (
+                      <BankCard
+                        key={b.id}
+                        bank={b}
+                        selected={selectedBank === b.id}
+                        monthly={bankMonthlyMap[b.id]}
+                        onSelect={() => setSelectedBank(b.id)}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="mt-4 flex items-start gap-1.5 text-[11px] text-muted-foreground">
+                    <Info className="w-3.5 h-3.5 flex-shrink-0 mt-px" />
+                    Variable rate — your monthly repayment adjusts whenever the prime lending rate changes.
+                  </div>
+                </div>
+
+                {/* Step 2 footer */}
+                <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-100">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="text-sm font-semibold text-slate-500 hover:text-[#0C2340] transition-colors flex items-center gap-1.5"
+                  >
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                    Back to add-ons
+                  </button>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setStep(3)}
+                    className="bg-[#0C2340] hover:bg-[#0C2340]/90 text-white font-heading font-bold py-3 px-8 rounded-xl text-sm transition-colors flex items-center gap-2"
+                  >
+                    Review my deal
+                    <ChevronRight className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 3 — Confirm */}
+            {step === 3 && (
+              <motion.div
+                key="step-3"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+              >
+                <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+                  {/* Summary header */}
+                  <div className="bg-[#0C2340] px-6 py-6">
+                    <div className="text-xs text-white/50 uppercase tracking-wider mb-1">Total monthly</div>
+                    <div className="font-heading font-bold text-white text-4xl">
+                      {fmtRand(totalMonthly)}
+                      <span className="text-white/50 text-sm font-normal">/mo</span>
+                    </div>
+                    <div className="flex items-center gap-1 mt-2">
+                      <TrendingUp className="w-3 h-3 text-[#3DBFAD]" />
+                      <span className="text-xs text-white/50">
+                        {((totalMonthly / PURCHASE_PRICE) * 100).toFixed(2)}% of purchase price per month
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="p-6 space-y-6">
+                    {/* Bond breakdown */}
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Bond</div>
+                      <div className="space-y-2.5">
+                        {[
+                          { label: "Bank",       value: bank.name },
+                          { label: "Rate",       value: `${effectiveRate.toFixed(2)}% p.a.` },
+                          { label: "Term",       value: `${term} years` },
+                          { label: "Bond amount",value: fmtRand(bondAmount) },
+                        ].map((row) => (
+                          <div key={row.label} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{row.label}</span>
+                            <span className="font-medium text-[#0C2340]">{row.value}</span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between text-sm pt-2.5 border-t border-border">
+                          <span className="text-muted-foreground">Monthly repayment</span>
+                          <span className="font-bold text-[#0C2340]">{fmtRand(monthlyBond)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Add-ons breakdown */}
+                    {activeAddons.length > 0 && (
+                      <div>
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Add-Ons</div>
+                        <div className="space-y-2.5">
+                          {activeAddons.map((a) => (
+                            <div key={a.id} className="flex justify-between text-sm">
+                              <span className="text-muted-foreground truncate pr-2">{a.name}</span>
+                              <span className="text-[#0C2340] flex-shrink-0">{fmtRand(addonMonthlyMap[a.id])}</span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between text-sm pt-2.5 border-t border-border">
+                            <span className="text-muted-foreground">Add-ons total</span>
+                            <span className="font-bold text-[#0C2340]">{fmtRand(addonTotal)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Total row */}
+                    <div className="rounded-xl bg-[#f0f5fa] border border-border p-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-[#0C2340]">Total monthly</span>
+                        <span className="font-heading font-bold text-[#0C2340] text-xl">{fmtRand(totalMonthly)}</span>
+                      </div>
+                    </div>
+
+                    {/* CTA */}
+                    <AnimatePresence mode="wait">
+                      {confirmed ? (
+                        <motion.div
+                          key="confirmed"
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="rounded-xl bg-emerald-50 border border-emerald-200 p-5 text-center"
+                        >
+                          <CheckCircle2 className="w-7 h-7 text-emerald-600 mx-auto mb-2" />
+                          <p className="font-heading font-bold text-emerald-800 text-base">Deal confirmed!</p>
+                          <p className="text-emerald-600 text-sm mt-1">A consultant will be in touch within 24 hours.</p>
+                        </motion.div>
+                      ) : (
+                        <motion.button
+                          key="cta"
+                          whileTap={{ scale: 0.98 }}
+                          onClick={handleConfirm}
+                          className="w-full bg-[#3DBFAD] hover:bg-[#35a899] text-white font-heading font-bold py-4 rounded-xl text-base transition-colors"
+                        >
+                          Confirm My Deal
+                        </motion.button>
+                      )}
+                    </AnimatePresence>
+
+                    <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
+                      By confirming you agree to be contacted by a bond consultant. No commitment required.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 footer */}
+                <div className="flex items-center mt-6 pt-6 border-t border-slate-100">
+                  <button
+                    onClick={() => setStep(2)}
+                    className="text-sm font-semibold text-slate-500 hover:text-[#0C2340] transition-colors flex items-center gap-1.5"
+                  >
+                    <ChevronRight className="w-4 h-4 rotate-180" />
+                    Back to bank offers
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Right — sticky live sidebar (steps 1-2 only) */}
+          {step < 3 && <div>
+            <div className="sticky top-[64px]">
+              <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+                {/* Header */}
+                <div className="bg-[#0C2340] px-5 py-5">
+                  <div className="text-xs text-white/50 uppercase tracking-wider mb-1">
+                    {step >= 2 ? "Total monthly" : "Add-ons selected"}
+                  </div>
+                  <div className="font-heading font-bold text-white text-3xl">
+                    {fmtRand(step >= 2 ? totalMonthly : addonTotal)}
+                    <span className="text-white/50 text-sm font-normal">/mo</span>
+                  </div>
+                  {step >= 2 && (
+                    <div className="flex items-center gap-1 mt-1.5">
+                      <TrendingUp className="w-3 h-3 text-[#3DBFAD]" />
+                      <span className="text-xs text-white/50">
+                        {((totalMonthly / PURCHASE_PRICE) * 100).toFixed(2)}% of purchase price per month
+                      </span>
+                    </div>
+                  )}
+                  {step === 1 && (
+                    <div className="flex items-center gap-1 mt-1.5">
+                      <Info className="w-3 h-3 text-[#3DBFAD]" />
+                      <span className="text-xs text-white/50">Bank offers will appear in step 2</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-5 space-y-5">
+                  {/* Property info */}
                   <div>
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Add-Ons</div>
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Property</div>
                     <div className="space-y-2">
-                      {activeAddons.map((a) => (
-                        <div key={a.id} className="flex justify-between text-sm">
-                          <span className="text-muted-foreground truncate pr-2">{a.name}</span>
-                          <span className="text-[#0C2340] flex-shrink-0">{fmtRand(addonMonthlyMap[a.id])}</span>
+                      {[
+                        { label: "Purchase price", value: fmtRand(PURCHASE_PRICE) },
+                        { label: "Deposit",        value: `${fmtRand(depositAmount)} (${depositPct}%)` },
+                        { label: "Bond amount",    value: fmtRand(bondAmount) },
+                      ].map((row) => (
+                        <div key={row.label} className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">{row.label}</span>
+                          <span className="font-medium text-[#0C2340]">{row.value}</span>
                         </div>
                       ))}
-                      <div className="flex justify-between text-sm pt-2 border-t border-border">
-                        <span className="text-muted-foreground">Add-ons total</span>
-                        <span className="font-bold text-[#0C2340]">{fmtRand(addonTotal)}</span>
-                      </div>
                     </div>
                   </div>
-                )}
 
-                {/* Total row */}
-                <div className="rounded-xl bg-[#f0f5fa] border border-border p-3.5">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-semibold text-[#0C2340]">Total monthly</span>
-                    <span className="font-heading font-bold text-[#0C2340] text-lg">{fmtRand(totalMonthly)}</span>
-                  </div>
-                </div>
+                  {/* Bond breakdown — only steps 2+ */}
+                  {step >= 2 && (
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Bond</div>
+                      <div className="space-y-2">
+                        {[
+                          { label: "Bank", value: bank.name },
+                          { label: "Rate", value: `${effectiveRate.toFixed(2)}% p.a.` },
+                          { label: "Term", value: `${term} years` },
+                        ].map((row) => (
+                          <div key={row.label} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{row.label}</span>
+                            <span className="font-medium text-[#0C2340]">{row.value}</span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between text-sm pt-2 border-t border-border">
+                          <span className="text-muted-foreground">Monthly repayment</span>
+                          <span className="font-bold text-[#0C2340]">{fmtRand(monthlyBond)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                {/* CTA */}
-                <AnimatePresence mode="wait">
-                  {confirmed ? (
-                    <motion.div
-                      key="confirmed"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-center"
-                    >
-                      <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto mb-1.5" />
-                      <p className="font-heading font-bold text-emerald-800 text-sm">Deal confirmed!</p>
-                      <p className="text-emerald-600 text-xs mt-0.5">A consultant will be in touch within 24 hours.</p>
-                    </motion.div>
-                  ) : (
+                  {/* Add-ons breakdown */}
+                  {activeAddons.length > 0 && (
+                    <div>
+                      <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2.5">Add-Ons</div>
+                      <div className="space-y-2">
+                        {activeAddons.map((a) => (
+                          <div key={a.id} className="flex justify-between text-sm">
+                            <span className="text-muted-foreground truncate pr-2">{a.name}</span>
+                            <span className="text-[#0C2340] flex-shrink-0">{fmtRand(addonMonthlyMap[a.id])}</span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between text-sm pt-2 border-t border-border">
+                          <span className="text-muted-foreground">Add-ons total</span>
+                          <span className="font-bold text-[#0C2340]">{fmtRand(addonTotal)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Total row — steps 2+ */}
+                  {step >= 2 && (
+                    <div className="rounded-xl bg-[#f0f5fa] border border-border p-3.5">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-semibold text-[#0C2340]">Total monthly</span>
+                        <span className="font-heading font-bold text-[#0C2340] text-lg">{fmtRand(totalMonthly)}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Submit CTA — step 1 only */}
+                  {step === 1 && (
                     <motion.button
-                      key="cta"
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setConfirmed(true)}
-                      className="w-full bg-[#3DBFAD] hover:bg-[#35a899] text-white font-heading font-bold py-3.5 rounded-xl text-sm transition-colors"
+                      onClick={handleSubmitToBanks}
+                      className="w-full bg-[#0C2340] hover:bg-[#0C2340]/90 text-white font-heading font-bold py-3.5 rounded-xl text-sm transition-colors flex items-center justify-center gap-2"
                     >
-                      Confirm My Deal
+                      <Send className="w-4 h-4" />
+                      Submit to banks
                     </motion.button>
                   )}
-                </AnimatePresence>
-
-                <p className="text-[10px] text-muted-foreground text-center leading-relaxed">
-                  By confirming you agree to be contacted by a bond consultant. No commitment required.
-                </p>
+                </div>
               </div>
             </div>
-            </div>
-          </div>
+          </div>}
 
         </div>
 
@@ -709,6 +944,85 @@ export default function ChooseMyDeal() {
         </div>
 
       </div>
+      {/* Full-screen bank submission overlay */}
+      <AnimatePresence>
+        {submitting && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 z-[100] bg-[#0C2340]/60 backdrop-blur-sm flex items-center justify-center"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 16 }}
+              transition={{ duration: 0.35, ease: "easeOut" }}
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-6 p-8"
+            >
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#0C2340]/5 border border-[#0C2340]/10 text-[#0C2340] text-xs font-semibold uppercase tracking-widest mb-3">
+                  <Send className="w-3 h-3" />
+                  Multi-bank submission
+                </div>
+                <h2 className="font-heading font-bold text-[#0C2340] text-2xl">
+                  Submitting your deal...
+                </h2>
+              </div>
+
+              <div className="space-y-5">
+                {BANKS.map((b, i) => {
+                  const delay = i * 0.75;
+                  return (
+                    <motion.div
+                      key={b.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay, duration: 0.3, ease: "easeOut" }}
+                    >
+                      <div className="flex items-center gap-3 mb-2.5">
+                        <div className="w-10 h-10 bg-white border border-slate-100 rounded-xl flex items-center justify-center flex-shrink-0 p-1.5">
+                          <img src={b.id === "standard" ? "/banks/standard-bank-icon.png" : b.logo} alt={b.name} className="max-h-full max-w-full object-contain" />
+                        </div>
+                        <span className="text-[#0C2340] text-sm font-semibold flex-1">{b.name}</span>
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: delay + 0.55, duration: 0.25, ease: "backOut" }}
+                        >
+                          <CheckCircle2 className="w-5 h-5 text-[#3DBFAD]" />
+                        </motion.div>
+                      </div>
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-[#3DBFAD] to-[#3DBFAD]/70 rounded-full"
+                          initial={{ width: "0%" }}
+                          animate={{ width: "100%" }}
+                          transition={{ delay, duration: 0.55, ease: "easeInOut" }}
+                        />
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 3.3, duration: 0.4 }}
+                className="mt-8 text-center"
+              >
+                <div className="inline-flex items-center gap-2 text-[#3DBFAD] font-heading font-bold text-lg">
+                  <CheckCircle2 className="w-5 h-5" />
+                  All offers received
+                </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AppFooter label="Buyer-facing prototype" />
     </div>
   );
