@@ -408,7 +408,7 @@ export default function ChooseMyDeal() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-[#0C2340]">Rudy Botha</span>
+                <span className="text-sm font-semibold text-[#0C2340]">Rudi Botha</span>
                 <span className="inline-flex items-center gap-1.5">
                   <img src="/betterid-logo.png" alt="BetterID" className="h-5 w-auto" />
                   <span className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide">Verified</span>
