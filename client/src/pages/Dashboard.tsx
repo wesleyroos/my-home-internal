@@ -3,7 +3,7 @@
  */
 
 import { Link } from "wouter";
-import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users, Presentation } from "lucide-react";
+import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users, Presentation, ClipboardList } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -124,6 +124,30 @@ const GROUPS: Group[] = [
         icon: <Users className="w-5 h-5" />,
         accentBg: "bg-[#0C2340]/8",
         accentText: "text-[#0C2340]",
+      },
+      {
+        route: "/zoopla-myhome",
+        label: "Zoopla My Home",
+        description: "Competitor breakdown — Zoopla's homeowner dashboard. Valuation, market potential, agent recommendations, sales history. Flagged by Charl.",
+        icon: <Globe className="w-5 h-5" />,
+        accentBg: "bg-indigo-50",
+        accentText: "text-indigo-600",
+      },
+      {
+        route: "/connells-lloyds",
+        label: "Connells + Lloyds (UK)",
+        description: "Research reference — fully digital homebuying service launched by Connells, Lloyds Bank, and LMS using the NPTN. Shared by Rudi.",
+        icon: <Globe className="w-5 h-5" />,
+        accentBg: "bg-indigo-50",
+        accentText: "text-indigo-600",
+      },
+      {
+        route: "/exco-meeting",
+        label: "Exco Follow-up — 17 April",
+        description: "Follow-up session with Tersia and Charl. Key decisions on naming, bank affordability, F&I model, and suburb report product definition.",
+        icon: <ClipboardList className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
       },
     ],
   },

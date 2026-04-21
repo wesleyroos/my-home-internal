@@ -22,6 +22,9 @@ import LoomMeeting from "./pages/LoomMeeting";
 import BBDirectMeeting from "./pages/BBDirectMeeting";
 import LCPresentation from "./pages/LCPresentation";
 import ExcoPresentation from "./pages/ExcoPresentation";
+import ExcoMeeting from "./pages/ExcoMeeting";
+import ConnellsLloyds from "./pages/ConnellsLloyds";
+import ZooplaMyHome from "./pages/ZooplaMyHome";
 import MarketStats from "./pages/MarketStats";
 import Personas from "./pages/Personas";
 
@@ -44,6 +47,9 @@ function Router() {
       <Route path={"/bb-direct-meeting"} component={BBDirectMeeting} />
       <Route path={"/lc-presentation"} component={LCPresentation} />
       <Route path={"/exco-presentation"} component={ExcoPresentation} />
+      <Route path={"/exco-meeting"} component={ExcoMeeting} />
+      <Route path={"/connells-lloyds"} component={ConnellsLloyds} />
+      <Route path={"/zoopla-myhome"} component={ZooplaMyHome} />
       <Route path={"/market-stats"} component={MarketStats} />
       <Route path={"/personas"} component={Personas} />
       <Route path={"/404"} component={NotFound} />
