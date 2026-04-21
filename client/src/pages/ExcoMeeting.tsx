@@ -7,7 +7,10 @@ import { useState, useEffect, useRef } from "react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
-const STORAGE_KEY = "exco-meeting-17apr";
+const STORAGE_KEY = "exco-meeting-17apr-v3";
+
+// Clear stale keys on load
+try { localStorage.removeItem("exco-meeting-17apr"); localStorage.removeItem("exco-meeting-17apr-v2"); } catch {}
 
 interface MeetingData {
   checked: boolean[];
@@ -20,7 +23,7 @@ interface MeetingData {
 }
 
 const DEFAULT_DATA: MeetingData = {
-  checked: new Array(11).fill(false),
+  checked: new Array(8).fill(false),
   decisions: [
     "This is a consumer-facing product — confirmed.",
     "Working name: BetterBond Home. It sits inside BetterBond for now. Define the elephant before naming it.",
@@ -28,17 +31,14 @@ const DEFAULT_DATA: MeetingData = {
     "Insurance should be an aggregator view (like Hippo) — show BetterSure alongside third-party insurers, not a single add-on toggle.",
   ],
   actions: [
-    { owner: "Wesley", text: "Meet with Colette (Head of Marketing, BHG) — define MyHome narrative and positioning before settling on a name. Also review Zoopla's \"My Home\" product (flagged by Charl)." },
-    { owner: "Wesley", text: "Suburb report user interviews — three groups: (1) owners inside the group, (2) owners outside the group with no industry knowledge, (3) renters / upcoming first-time buyers. Define personas and what each wants to see." },
-    { owner: "Wesley / Tersia", text: "Meet with Nolene (NCA compliance) and Mary (bank agreements) on bank bundling. Mary to review the bank agreement and send through — Wesley to go through it." },
-    { owner: "Wesley / Charl", text: "Map out the full bank affordability framework. Our median-based analysis of 667 deals wasn't accurate — banks factor in cash flow, asset value, and individual risk. Core principle: if loss-given-default improves, banks lend more." },
-    { owner: "Wesley / Charl / Tersia", text: "Approach a \"friendly bank\" to test which products we can bundle. Renovations and closing costs are top candidates. Need input on which bank." },
-    { owner: "Wesley", text: "Pull one full Loom transaction end-to-end — not just bond registration. Jacques (Loom) connecting Wesley with Fran for this. [IN PROGRESS]" },
-    { owner: "Wesley / Tersia", text: "Define closable closing-cost add-ons: transfer cost, transfer duty, bond registration cost (may already be amortised — TBC)." },
-    { owner: "Wesley", text: "Explore Builders Warehouse / Cashbuild renovation voucher (~R100k credit). Quick-start play — no bank bundling approval needed." },
-    { owner: "Wesley", text: "Get eyes on the Choose My Deal dashboard created by Jacques Oberholzer." },
-    { owner: "Wesley", text: "Set up next follow-up session with Rudi and Charl — reached out to Yolande (exec PA) to get it in the diary. Target: May. [IN PROGRESS]" },
-    { owner: "Wesley", text: "Set up NCA compliance session with Nolene — go via Stephan to arrange. Not urgent but needs to be in the diary. [IN PROGRESS]" },
+    { owner: "Wesley", text: "Meet with Colette (Head of Marketing, BHG) — define MyHome narrative and positioning before settling on a name. Also review Zoopla's \"My Home\" product (flagged by Charl). [ON HOLD — waiting for clarity and alignment]" },
+    { owner: "Wesley", text: "Suburb report user interviews — three groups: (1) owners inside the group, (2) owners outside the group with no industry knowledge, (3) renters / upcoming first-time buyers. Define personas and what each wants to see. [NEXT — need to figure out approach and who to speak to]" },
+    { owner: "Wesley / Tersia", text: "Meet with Nolene (NCA compliance) and Mary (bank agreements) on bank bundling. Mary to review the bank agreement and send through — Wesley to go through it. [TODO — need to reach out to Stephan]" },
+    { owner: "Wesley / Charl", text: "Map out the full bank affordability framework. Our median-based analysis of 667 deals wasn't accurate — banks factor in cash flow, asset value, and individual risk. Core principle: if loss-given-default improves, banks lend more. [AFTER alignment session with Rudi + Charl]" },
+    { owner: "Wesley", text: "Pull one full Loom transaction end-to-end — not just bond registration. Meeting scheduled with Fran from Loom, Thursday 23 April. [SCHEDULED]" },
+    { owner: "Wesley / Tersia", text: "Define closable closing-cost add-ons: transfer cost, transfer duty, bond registration cost (may already be amortised — TBC). [TODO]" },
+    { owner: "Wesley", text: "Get eyes on the Choose My Deal dashboard created by Jacques Oberholzer. [TODO — need to reach out to Jacques again]" },
+    { owner: "Wesley", text: "Set up next follow-up session with Rudi and Charl — in contact with Yolande (exec PA). Target: May. [IN PROGRESS]" },
   ],
   framework: {
     intro: "Banks determine loan amounts using three factors:",
