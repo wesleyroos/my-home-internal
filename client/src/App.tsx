@@ -25,6 +25,8 @@ import ExcoPresentation from "./pages/ExcoPresentation";
 import ExcoMeeting from "./pages/ExcoMeeting";
 import ConnellsLloyds from "./pages/ConnellsLloyds";
 import ZooplaMyHome from "./pages/ZooplaMyHome";
+import SuburbReportSurvey from "./pages/SuburbReportSurvey";
+import BankAgreements from "./pages/BankAgreements";
 import MarketStats from "./pages/MarketStats";
 import Personas from "./pages/Personas";
 
@@ -50,6 +52,8 @@ function Router() {
       <Route path={"/exco-meeting"} component={ExcoMeeting} />
       <Route path={"/connells-lloyds"} component={ConnellsLloyds} />
       <Route path={"/zoopla-myhome"} component={ZooplaMyHome} />
+      <Route path={"/suburb-report-survey"} component={SuburbReportSurvey} />
+      <Route path={"/bank-agreements"} component={BankAgreements} />
       <Route path={"/market-stats"} component={MarketStats} />
       <Route path={"/personas"} component={Personas} />
       <Route path={"/404"} component={NotFound} />

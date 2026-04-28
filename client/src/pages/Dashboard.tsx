@@ -4,7 +4,7 @@
 
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
-import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users, Presentation, ClipboardList, LayoutGrid, List, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Home, Mail, GitCompare, Handshake, ArrowRight, Vault, Map, Flag, Globe, BarChart3, Workflow, StickyNote, Database, Users, Presentation, ClipboardList, LayoutGrid, List, ArrowUpDown, ArrowUp, ArrowDown, FileQuestion } from "lucide-react";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -165,6 +165,24 @@ const GROUPS: Group[] = [
         accentBg: "bg-[#0C2340]/8",
         accentText: "text-[#0C2340]",
         added: "12 Apr 2026",
+      },
+      {
+        route: "/bank-agreements",
+        label: "Bank Agreements Review",
+        description: "Review of all 4 bank origination agreements — what can be bundled into the bond.",
+        icon: <Flag className="w-5 h-5" />,
+        accentBg: "bg-[#0C2340]/8",
+        accentText: "text-[#0C2340]",
+        added: "28 Apr 2026",
+      },
+      {
+        route: "/suburb-report-survey",
+        label: "Suburb Report Survey",
+        description: "User research — interview questions for three segments on what they want in a suburb report.",
+        icon: <FileQuestion className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
+        added: "28 Apr 2026",
       },
       {
         route: "/exco-meeting",
