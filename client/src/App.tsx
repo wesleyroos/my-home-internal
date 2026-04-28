@@ -27,6 +27,7 @@ import ConnellsLloyds from "./pages/ConnellsLloyds";
 import ZooplaMyHome from "./pages/ZooplaMyHome";
 import SuburbReportSurvey from "./pages/SuburbReportSurvey";
 import BankAgreements from "./pages/BankAgreements";
+import SurveyAdmin from "./pages/SurveyAdmin";
 import MarketStats from "./pages/MarketStats";
 import Personas from "./pages/Personas";
 
@@ -54,6 +55,7 @@ function Router() {
       <Route path={"/zoopla-myhome"} component={ZooplaMyHome} />
       <Route path={"/suburb-report-survey"} component={SuburbReportSurvey} />
       <Route path={"/bank-agreements"} component={BankAgreements} />
+      <Route path={"/survey-admin"} component={SurveyAdmin} />
       <Route path={"/market-stats"} component={MarketStats} />
       <Route path={"/personas"} component={Personas} />
       <Route path={"/404"} component={NotFound} />

@@ -37,6 +37,31 @@ async function startServer() {
 
   app.use(express.json());
 
+  // ─── Basic auth for everything except public routes ──────────────────────
+  const AUTH_USER = process.env.AUTH_USER || "myhome";
+  const AUTH_PASS = process.env.AUTH_PASS || "betterbond2026";
+
+  const PUBLIC_PATHS = ["/suburb-report-survey", "/api/survey"];
+
+  app.use((req, res, next) => {
+    // Skip auth for public paths
+    if (PUBLIC_PATHS.some((p) => req.path.startsWith(p))) return next();
+    // Skip auth for static assets (fonts, images, JS, CSS)
+    if (/\.(js|css|png|jpg|jpeg|svg|webp|woff2?|ico|map)$/i.test(req.path)) return next();
+
+    const auth = req.headers.authorization;
+    if (auth) {
+      const [scheme, encoded] = auth.split(" ");
+      if (scheme === "Basic" && encoded) {
+        const [user, pass] = Buffer.from(encoded, "base64").toString().split(":");
+        if (user === AUTH_USER && pass === AUTH_PASS) return next();
+      }
+    }
+
+    res.set("WWW-Authenticate", 'Basic realm="MyHome Internal"');
+    res.status(401).send("Authentication required");
+  });
+
   // Survey API
   app.post("/api/survey", async (req, res) => {
     try {

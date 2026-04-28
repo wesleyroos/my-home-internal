@@ -176,6 +176,15 @@ const GROUPS: Group[] = [
         added: "28 Apr 2026",
       },
       {
+        route: "/survey-admin",
+        label: "Survey Responses",
+        description: "Admin view of all suburb report survey responses.",
+        icon: <ClipboardList className="w-5 h-5" />,
+        accentBg: "bg-[#0C2340]/8",
+        accentText: "text-[#0C2340]",
+        added: "28 Apr 2026",
+      },
+      {
         route: "/suburb-report-survey",
         label: "Suburb Report Survey",
         description: "User research — interview questions for three segments on what they want in a suburb report.",
