@@ -147,9 +147,9 @@ export default function SuburbReportSurvey() {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="h-[100dvh] bg-white flex flex-col overflow-hidden">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 py-2.5 flex-shrink-0">
+      <div className="flex items-center justify-between px-5 py-2 flex-shrink-0">
         <img src={LOGO} alt="MyHome" className="h-4 opacity-60" />
         {step >= 0 && (
           <span className="text-xs font-mono text-slate-400 tabular-nums">
@@ -170,7 +170,7 @@ export default function SuburbReportSurvey() {
       )}
 
       {/* Content area */}
-      <div className="flex-1 flex items-start justify-center px-5 pt-4 sm:pt-8 pb-4">
+      <div className="flex-1 overflow-y-auto px-5 pt-3 sm:pt-6 pb-4">
         <div className="w-full max-w-lg">
           <AnimatePresence mode="wait">
             {/* Segment picker */}
@@ -262,17 +262,18 @@ export default function SuburbReportSurvey() {
                 )}
 
                 {currentQuestion.type === "ranking" && (
-                  <Reorder.Group axis="y" values={ranking} onReorder={setRanking} className="space-y-1.5 max-h-[50vh] overflow-y-auto">
+                  <Reorder.Group axis="y" values={ranking} onReorder={setRanking} className="space-y-1.5">
                     {ranking.map((item, i) => (
                       <Reorder.Item
                         key={item}
                         value={item}
-                        className="flex items-center gap-2 bg-white rounded-xl px-3.5 py-2.5 border border-slate-200 cursor-grab active:cursor-grabbing active:shadow-md active:border-[#3DBFAD] active:z-10 transition-shadow touch-none select-none"
+                        className="flex items-center gap-2 bg-white rounded-xl px-3 py-2 border border-slate-200 cursor-grab active:cursor-grabbing active:shadow-md active:border-[#3DBFAD] active:z-10 transition-shadow select-none"
                         whileDrag={{ scale: 1.02, boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}
+                        dragListener={true}
                       >
                         <GripVertical className="w-4 h-4 text-slate-300 flex-shrink-0" />
                         <span className="text-xs font-bold text-[#3DBFAD] w-5 text-center">{i + 1}</span>
-                        <span className="text-sm text-[#0C2340] flex-1">{item}</span>
+                        <span className="text-[13px] text-[#0C2340] flex-1">{item}</span>
                       </Reorder.Item>
                     ))}
                   </Reorder.Group>
@@ -295,7 +296,7 @@ export default function SuburbReportSurvey() {
 
       {/* Bottom nav */}
       {step >= 0 && (
-        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-2.5 border-t border-slate-100 flex-shrink-0">
           <button
             onClick={goPrev}
             className="flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-[#0C2340] transition-colors"
