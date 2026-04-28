@@ -8,6 +8,24 @@ import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 import { RefreshCw, ChevronDown, ChevronUp, Users, Building2, Home, Search } from "lucide-react";
 
+const QUESTION_LABELS: Record<string, string> = {
+  top3: "Top 3 things you'd want to know about a suburb?",
+  ranking: "Ranking of importance",
+  searched: "Ever searched for suburb info online? What and where?",
+  open_it: "What would make you open a free suburb report?",
+  come_back: "What would make you come back to check again?",
+  share: "Would you share this? With who and why?",
+  gated: "Willing to give email / create account for more detail?",
+  wish: "One thing about a suburb you wish you could easily find out?",
+  insider_influence: "Data points that influence a decision vs nice-to-know?",
+  insider_missing: "What's missing from existing tools (Lightstone, Property24, Loom)?",
+  homeowner_value: "Do you know what your property is worth? Where did you check?",
+  homeowner_interest: "Interested in a suburb report even if not planning to sell?",
+  renter_challenge: "Biggest challenge figuring out which suburb to live in?",
+  renter_influence: "Would a suburb report influence where you rent or buy?",
+  renter_stage: "At what stage of your search would this be most useful?",
+};
+
 interface SurveyResponse {
   id: number;
   segment: string;
@@ -136,7 +154,7 @@ export default function SurveyAdmin() {
                     <div className="border-t border-slate-100 px-4 py-4 space-y-4 bg-slate-50/50">
                       {Object.entries(r.answers).map(([key, value]) => (
                         <div key={key}>
-                          <p className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1">{key.replace(/_/g, " ")}</p>
+                          <p className="text-[12px] font-semibold text-slate-500 mb-1">{QUESTION_LABELS[key] ?? key}</p>
                           <p className="text-sm text-[#0C2340]">{value}</p>
                         </div>
                       ))}

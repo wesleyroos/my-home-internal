@@ -4,8 +4,9 @@
  */
 
 import { useState, useRef, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Building2, Home, Search, ChevronUp, ChevronDown, ArrowRight, ArrowLeft, Send, CheckCircle2, Loader2, Mic, MicOff } from "lucide-react";
+import { motion, AnimatePresence, Reorder } from "framer-motion";
+import { Building2, Home, Search, GripVertical, ArrowRight, ArrowLeft, Send, CheckCircle2, Loader2, Mic, MicOff } from "lucide-react";
+import confetti from "canvas-confetti";
 
 type Segment = "insider" | "homeowner" | "renter" | null;
 
@@ -68,19 +69,24 @@ export default function SuburbReportSurvey() {
 
   const setAnswer = (id: string, value: string) => setAnswers((prev) => ({ ...prev, [id]: value }));
 
-  const moveRanking = (from: number, to: number) => {
-    if (to < 0 || to >= ranking.length) return;
-    const updated = [...ranking];
-    const [item] = updated.splice(from, 1);
-    updated.splice(to, 0, item);
-    setRanking(updated);
-  };
-
   const visibleQuestions = QUESTIONS.filter((q) => segment && q.segments.includes(segment));
   const totalSteps = visibleQuestions.length;
   const currentQuestion = step >= 0 && step < totalSteps ? visibleQuestions[step] : null;
+  const [showError, setShowError] = useState(false);
+
+  const isCurrentAnswered = (): boolean => {
+    if (!currentQuestion) return true;
+    if (currentQuestion.type === "ranking") return true; // ranking is always "answered" (it has a default order)
+    const val = answers[currentQuestion.id];
+    return !!val && val.trim().length > 0;
+  };
 
   const goNext = () => {
+    if (!isCurrentAnswered()) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 2000);
+      return;
+    }
     if (step < totalSteps - 1) { setDirection(1); setStep(step + 1); }
   };
   const goPrev = () => {
@@ -95,6 +101,11 @@ export default function SuburbReportSurvey() {
   };
 
   const handleSubmit = async () => {
+    if (!isCurrentAnswered()) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 2000);
+      return;
+    }
     setSubmitting(true);
     try {
       await fetch("/api/survey", {
@@ -103,6 +114,13 @@ export default function SuburbReportSurvey() {
         body: JSON.stringify({ segment, answers, ranking }),
       });
       setSubmitted(true);
+      const end = Date.now() + 2500;
+      const colors = ["#3DBFAD", "#0C2340", "#f59e0b", "#6366f1"];
+      (function frame() {
+        confetti({ particleCount: 3, angle: 60, spread: 55, origin: { x: 0, y: 0.7 }, colors });
+        confetti({ particleCount: 3, angle: 120, spread: 55, origin: { x: 1, y: 0.7 }, colors });
+        if (Date.now() < end) requestAnimationFrame(frame);
+      })();
     } catch (err) {
       console.error(err);
       alert("Something went wrong. Please try again.");
@@ -131,8 +149,8 @@ export default function SuburbReportSurvey() {
   return (
     <div className="min-h-screen bg-white flex flex-col">
       {/* Top bar */}
-      <div className="flex items-center justify-between px-5 py-4 flex-shrink-0">
-        <img src={LOGO} alt="MyHome" className="h-5 opacity-60" />
+      <div className="flex items-center justify-between px-5 py-2.5 flex-shrink-0">
+        <img src={LOGO} alt="MyHome" className="h-4 opacity-60" />
         {step >= 0 && (
           <span className="text-xs font-mono text-slate-400 tabular-nums">
             {step + 1} / {totalSteps}
@@ -152,7 +170,7 @@ export default function SuburbReportSurvey() {
       )}
 
       {/* Content area */}
-      <div className="flex-1 flex items-center justify-center px-5 py-8">
+      <div className="flex-1 flex items-start justify-center px-5 pt-4 sm:pt-8 pb-4">
         <div className="w-full max-w-lg">
           <AnimatePresence mode="wait">
             {/* Segment picker */}
@@ -244,22 +262,30 @@ export default function SuburbReportSurvey() {
                 )}
 
                 {currentQuestion.type === "ranking" && (
-                  <div className="space-y-1.5 max-h-[50vh] overflow-y-auto">
+                  <Reorder.Group axis="y" values={ranking} onReorder={setRanking} className="space-y-1.5 max-h-[50vh] overflow-y-auto">
                     {ranking.map((item, i) => (
-                      <div key={item} className="flex items-center gap-2 bg-slate-50 rounded-xl px-3.5 py-2.5 border border-slate-100">
+                      <Reorder.Item
+                        key={item}
+                        value={item}
+                        className="flex items-center gap-2 bg-white rounded-xl px-3.5 py-2.5 border border-slate-200 cursor-grab active:cursor-grabbing active:shadow-md active:border-[#3DBFAD] active:z-10 transition-shadow touch-none select-none"
+                        whileDrag={{ scale: 1.02, boxShadow: "0 4px 16px rgba(0,0,0,0.1)" }}
+                      >
+                        <GripVertical className="w-4 h-4 text-slate-300 flex-shrink-0" />
                         <span className="text-xs font-bold text-[#3DBFAD] w-5 text-center">{i + 1}</span>
                         <span className="text-sm text-[#0C2340] flex-1">{item}</span>
-                        <div className="flex flex-col gap-0.5">
-                          <button onClick={() => moveRanking(i, i - 1)} disabled={i === 0} className="text-slate-400 hover:text-[#0C2340] disabled:opacity-20 transition-colors p-0.5">
-                            <ChevronUp className="w-4 h-4" />
-                          </button>
-                          <button onClick={() => moveRanking(i, i + 1)} disabled={i === ranking.length - 1} className="text-slate-400 hover:text-[#0C2340] disabled:opacity-20 transition-colors p-0.5">
-                            <ChevronDown className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
+                      </Reorder.Item>
                     ))}
-                  </div>
+                  </Reorder.Group>
+                )}
+
+                {showError && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-[#ef4444] font-medium mt-3"
+                  >
+                    Please answer this question to continue.
+                  </motion.p>
                 )}
               </motion.div>
             )}
@@ -269,7 +295,7 @@ export default function SuburbReportSurvey() {
 
       {/* Bottom nav */}
       {step >= 0 && (
-        <div className="flex items-center justify-between px-5 py-5 border-t border-slate-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-3 border-t border-slate-100 flex-shrink-0">
           <button
             onClick={goPrev}
             className="flex items-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-[#0C2340] transition-colors"
@@ -325,59 +351,110 @@ function VoiceTextarea({
   placeholder?: string;
   onEnter?: () => void;
 }) {
-  const [listening, setListening] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [transcript, setTranscript] = useState("");
   const recognitionRef = useRef<any>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animFrameRef = useRef<number>(0);
+  const [bars, setBars] = useState<number[]>(new Array(24).fill(4));
 
   const supportsVoice = typeof window !== "undefined" && !!(window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  const toggleListening = useCallback(() => {
-    if (listening) {
-      recognitionRef.current?.stop();
-      setListening(false);
-      return;
-    }
-
+  const startRecording = useCallback(async () => {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return;
 
+    setTranscript("");
+    setRecording(true);
+
+    // Audio analyser for visualisation
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const ctx = new AudioContext();
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 64;
+      source.connect(analyser);
+      analyserRef.current = analyser;
+
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      const tick = () => {
+        analyser.getByteFrequencyData(dataArray);
+        const slice = Array.from(dataArray).slice(0, 24).map((v) => Math.max(4, (v / 255) * 40));
+        setBars(slice);
+        animFrameRef.current = requestAnimationFrame(tick);
+      };
+      tick();
+
+      // Clean up stream on stop
+      (analyserRef as any)._stream = stream;
+      (analyserRef as any)._ctx = ctx;
+    } catch {}
+
+    // Speech recognition
     const recognition = new SR();
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-ZA";
     recognitionRef.current = recognition;
 
-    let finalTranscript = value;
+    let final = "";
 
     recognition.onresult = (event: any) => {
       let interim = "";
       for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
         if (event.results[i].isFinal) {
-          finalTranscript += (finalTranscript ? " " : "") + transcript;
-          onChange(finalTranscript);
+          final += (final ? " " : "") + event.results[i][0].transcript;
         } else {
-          interim += transcript;
+          interim += event.results[i][0].transcript;
         }
       }
-      // Show interim results while speaking
-      if (interim) {
-        onChange(finalTranscript + (finalTranscript ? " " : "") + interim);
-      }
+      setTranscript(final + (interim ? (final ? " " : "") + interim : ""));
     };
 
-    recognition.onend = () => {
-      setListening(false);
-      recognitionRef.current = null;
-    };
-
-    recognition.onerror = () => {
-      setListening(false);
-      recognitionRef.current = null;
-    };
-
+    recognition.onend = () => {};
+    recognition.onerror = () => {};
     recognition.start();
-    setListening(true);
-  }, [listening, value, onChange]);
+  }, []);
+
+  const stopRecording = useCallback(() => {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    cancelAnimationFrame(animFrameRef.current);
+    setBars(new Array(24).fill(4));
+
+    // Clean up audio
+    if (analyserRef.current) {
+      try {
+        (analyserRef as any)._stream?.getTracks().forEach((t: any) => t.stop());
+        (analyserRef as any)._ctx?.close();
+      } catch {}
+      analyserRef.current = null;
+    }
+
+    // Apply transcript
+    if (transcript.trim()) {
+      onChange(value ? value + " " + transcript.trim() : transcript.trim());
+    }
+    setTranscript("");
+    setRecording(false);
+  }, [transcript, value, onChange]);
+
+  const cancelRecording = useCallback(() => {
+    recognitionRef.current?.stop();
+    recognitionRef.current = null;
+    cancelAnimationFrame(animFrameRef.current);
+    setBars(new Array(24).fill(4));
+    if (analyserRef.current) {
+      try {
+        (analyserRef as any)._stream?.getTracks().forEach((t: any) => t.stop());
+        (analyserRef as any)._ctx?.close();
+      } catch {}
+      analyserRef.current = null;
+    }
+    setTranscript("");
+    setRecording(false);
+  }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -387,30 +464,94 @@ function VoiceTextarea({
   };
 
   return (
-    <div className="relative">
-      <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        rows={4}
-        autoFocus
-        className="w-full border-0 border-b-2 border-slate-200 focus:border-[#3DBFAD] bg-transparent text-base text-[#0C2340] placeholder:text-slate-300 outline-none transition-colors resize-none py-2 pr-12"
-      />
-      {supportsVoice && (
-        <button
-          onClick={toggleListening}
-          type="button"
-          className={`absolute bottom-3 right-1 w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-            listening
-              ? "bg-[#ef4444] text-white shadow-md shadow-[#ef4444]/30 animate-pulse"
-              : "bg-slate-100 text-slate-400 hover:bg-[#3DBFAD]/10 hover:text-[#3DBFAD]"
-          }`}
-          title={listening ? "Stop recording" : "Start voice input"}
-        >
-          {listening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-        </button>
-      )}
-    </div>
+    <>
+      <div className="relative">
+        <textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          rows={4}
+          autoFocus
+          className="w-full border-0 border-b-2 border-slate-200 focus:border-[#3DBFAD] bg-transparent text-base text-[#0C2340] placeholder:text-slate-300 outline-none transition-colors resize-none py-2 pr-12"
+        />
+        {supportsVoice && !recording && (
+          <button
+            onClick={startRecording}
+            type="button"
+            className="absolute bottom-3 right-1 w-9 h-9 rounded-full flex items-center justify-center bg-slate-100 text-slate-400 hover:bg-[#3DBFAD]/10 hover:text-[#3DBFAD] transition-all"
+            title="Voice input"
+          >
+            <Mic className="w-4 h-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Full-screen recording overlay */}
+      <AnimatePresence>
+        {recording && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] bg-white flex flex-col items-center justify-center px-6"
+          >
+            {/* Listening label */}
+            <motion.p
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm font-semibold text-slate-400 uppercase tracking-widest mb-8"
+            >
+              Listening...
+            </motion.p>
+
+            {/* Sound bars */}
+            <div className="flex items-center gap-[3px] h-16 mb-8">
+              {bars.map((h, i) => (
+                <motion.div
+                  key={i}
+                  animate={{ height: h }}
+                  transition={{ duration: 0.08, ease: "easeOut" }}
+                  className="w-[3px] rounded-full bg-[#3DBFAD]"
+                  style={{ minHeight: 4 }}
+                />
+              ))}
+            </div>
+
+            {/* Live transcript preview */}
+            {transcript && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-base text-[#0C2340] text-center max-w-md mb-8 leading-relaxed"
+              >
+                {transcript}
+              </motion.p>
+            )}
+
+            {/* Controls */}
+            <div className="flex items-center gap-4">
+              <button
+                onClick={cancelRecording}
+                className="w-12 h-12 rounded-full border-2 border-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 hover:border-slate-300 transition-colors"
+                title="Cancel"
+              >
+                <MicOff className="w-5 h-5" />
+              </button>
+              <button
+                onClick={stopRecording}
+                className="w-16 h-16 rounded-full bg-[#3DBFAD] text-white flex items-center justify-center shadow-lg shadow-[#3DBFAD]/30 hover:bg-[#35a899] transition-colors"
+                title="Done"
+              >
+                <CheckCircle2 className="w-7 h-7" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400 mt-6">Tap the checkmark when you're done speaking</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

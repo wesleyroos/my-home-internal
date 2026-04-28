@@ -98,6 +98,20 @@ async function startServer() {
 
   app.use(express.static(staticPath));
 
+  // Survey-specific OG tags for WhatsApp / social previews
+  app.get("/suburb-report-survey", (_req, res) => {
+    const indexPath = path.join(staticPath, "index.html");
+    import("fs").then(({ readFileSync }) => {
+      let html = readFileSync(indexPath, "utf-8");
+      html = html
+        .replace(/<meta property="og:title"[^>]*>/, '<meta property="og:title" content="Suburb Report Survey — MyHome" />')
+        .replace(/<meta property="og:description"[^>]*>/, '<meta property="og:description" content="Help us understand what you\'d want to see in a suburb report. Takes about 5 minutes." />')
+        .replace(/<title>[^<]*<\/title>/, "<title>Suburb Report Survey — MyHome</title>");
+      res.set("Content-Type", "text/html");
+      res.send(html);
+    }).catch(() => res.sendFile(indexPath));
+  });
+
   // Handle client-side routing - serve index.html for all routes
   app.get("*", (_req, res) => {
     res.sendFile(path.join(staticPath, "index.html"));
