@@ -33,29 +33,38 @@ const RANKING_ITEMS = [
 
 interface Question {
   id: string;
-  type: "open" | "ranking" | "yesno";
+  type: "open" | "ranking" | "yesno" | "email";
   question: string;
   segments: Segment[];
   placeholder?: string;
   subtitle?: string;
+  showIf?: (answers: Record<string, string>) => boolean;
 }
 
 const QUESTIONS: Question[] = [
+  // Core — what do people want?
   { id: "top3", type: "open", question: "If you were looking at a suburb to live in, what are the top 3 things you'd want to know?", segments: ["insider", "homeowner", "renter"], placeholder: "e.g. safety, schools, property prices..." },
-  { id: "ranking", type: "ranking", question: "Rank these in order of importance to you.", subtitle: "Move items up or down to reorder.", segments: ["insider", "homeowner", "renter"] },
+  { id: "expect", type: "open", question: "If you received a report about a suburb, what sections or information would you expect to see in it?", segments: ["insider", "homeowner", "renter"], placeholder: "What would the report contain?" },
+  { id: "ranking", type: "ranking", question: "Rank these in order of importance to you.", subtitle: "Drag to reorder.", segments: ["insider", "homeowner", "renter"] },
+  { id: "never_seen", type: "open", question: "Is there anything you'd want in a suburb report that you've never seen offered before?", segments: ["insider", "homeowner", "renter"], placeholder: "What's missing from everything out there?" },
   { id: "searched", type: "open", question: "Have you ever searched for information about a suburb online?", subtitle: "What did you search for and where did you look?", segments: ["insider", "homeowner", "renter"], placeholder: "e.g. Googled crime stats, checked Property24..." },
-  { id: "open_it", type: "open", question: "If a free suburb report existed, what would make you actually open it and read it?", segments: ["insider", "homeowner", "renter"], placeholder: "What would grab your attention?" },
-  { id: "come_back", type: "open", question: "What would make you come back to check it again?", subtitle: "Monthly, quarterly, never?", segments: ["insider", "homeowner", "renter"], placeholder: "e.g. property value updates, new listings..." },
-  { id: "share", type: "open", question: "Would you share this with someone?", subtitle: "Who and why?", segments: ["insider", "homeowner", "renter"], placeholder: "e.g. partner, estate agent, friend looking to buy..." },
-  { id: "gated", type: "yesno", question: "Would you be willing to give your email or create an account to access a more detailed report?", segments: ["insider", "homeowner", "renter"] },
   { id: "wish", type: "open", question: "What's the one thing about a suburb that you wish you could easily find out but can't?", segments: ["insider", "homeowner", "renter"], placeholder: "The gap — what's missing today?" },
+
+  // Gated + email capture
+  { id: "gated", type: "yesno", question: "Would you be willing to give your email to access a more detailed report?", segments: ["insider", "homeowner", "renter"] },
+  { id: "email", type: "email", question: "Great — what's your email address?", subtitle: "We'll only use this to send you the report.", segments: ["insider", "homeowner", "renter"], placeholder: "your@email.com", showIf: (a) => a.gated === "Yes" },
+
+  // Insider-specific
   { id: "insider_influence", type: "open", question: "Which data points would actually influence a property decision vs which are just \"nice to know\"?", segments: ["insider"], placeholder: "What moves the needle?" },
   { id: "insider_missing", type: "open", question: "What's missing from existing tools you use?", subtitle: "Lightstone, Property24, Loom, etc.", segments: ["insider"], placeholder: "Gaps in current tools..." },
+
+  // Homeowner-specific
   { id: "homeowner_value", type: "open", question: "Do you know what your property is currently worth?", subtitle: "Where did you check?", segments: ["homeowner"], placeholder: "e.g. no idea, checked Property24, asked an agent..." },
   { id: "homeowner_interest", type: "yesno", question: "Would you be interested in a report about your own suburb, even if you're not planning to sell?", segments: ["homeowner"] },
+
+  // Renter-specific
   { id: "renter_challenge", type: "open", question: "What's the biggest challenge in figuring out which suburb to live in?", segments: ["renter"], placeholder: "e.g. too many options, can't find reliable info..." },
   { id: "renter_influence", type: "yesno", question: "Would a suburb report influence where you decide to rent or buy?", segments: ["renter"] },
-  { id: "renter_stage", type: "open", question: "At what stage of your search would this be most useful?", subtitle: "Browsing, shortlisting, or deciding?", segments: ["renter"], placeholder: "When would you reach for this?" },
 ];
 
 export default function SuburbReportSurvey() {
@@ -69,7 +78,11 @@ export default function SuburbReportSurvey() {
 
   const setAnswer = (id: string, value: string) => setAnswers((prev) => ({ ...prev, [id]: value }));
 
-  const visibleQuestions = QUESTIONS.filter((q) => segment && q.segments.includes(segment));
+  const visibleQuestions = QUESTIONS.filter((q) => {
+    if (!segment || !q.segments.includes(segment)) return false;
+    if (q.showIf && !q.showIf(answers)) return false;
+    return true;
+  });
   const totalSteps = visibleQuestions.length;
   const currentQuestion = step >= 0 && step < totalSteps ? visibleQuestions[step] : null;
   const [showError, setShowError] = useState(false);
@@ -170,7 +183,7 @@ export default function SuburbReportSurvey() {
       )}
 
       {/* Content area */}
-      <div className="flex-1 overflow-y-auto px-5 pt-3 sm:pt-6 pb-4">
+      <div className="flex-1 overflow-y-auto px-5 pt-3 sm:pt-6 pb-4 flex justify-center">
         <div className="w-full max-w-lg">
           <AnimatePresence mode="wait">
             {/* Segment picker */}
@@ -259,6 +272,18 @@ export default function SuburbReportSurvey() {
                       </button>
                     ))}
                   </div>
+                )}
+
+                {currentQuestion.type === "email" && (
+                  <input
+                    type="email"
+                    value={answers[currentQuestion.id] ?? ""}
+                    onChange={(e) => setAnswer(currentQuestion.id, e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); step < totalSteps - 1 ? goNext() : handleSubmit(); } }}
+                    placeholder={currentQuestion.placeholder}
+                    autoFocus
+                    className="w-full border-0 border-b-2 border-slate-200 focus:border-[#3DBFAD] bg-transparent text-base text-[#0C2340] placeholder:text-slate-300 outline-none transition-colors py-2"
+                  />
                 )}
 
                 {currentQuestion.type === "ranking" && (

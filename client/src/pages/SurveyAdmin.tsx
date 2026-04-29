@@ -10,20 +10,19 @@ import { RefreshCw, ChevronDown, ChevronUp, Users, Building2, Home, Search } fro
 
 const QUESTION_LABELS: Record<string, string> = {
   top3: "Top 3 things you'd want to know about a suburb?",
+  expect: "What sections/information would you expect to see in a suburb report?",
   ranking: "Ranking of importance",
+  never_seen: "Anything you'd want in a suburb report that you've never seen offered?",
   searched: "Ever searched for suburb info online? What and where?",
-  open_it: "What would make you open a free suburb report?",
-  come_back: "What would make you come back to check again?",
-  share: "Would you share this? With who and why?",
-  gated: "Willing to give email / create account for more detail?",
   wish: "One thing about a suburb you wish you could easily find out?",
+  gated: "Willing to give email for a more detailed report?",
+  email: "Email address",
   insider_influence: "Data points that influence a decision vs nice-to-know?",
   insider_missing: "What's missing from existing tools (Lightstone, Property24, Loom)?",
   homeowner_value: "Do you know what your property is worth? Where did you check?",
   homeowner_interest: "Interested in a suburb report even if not planning to sell?",
   renter_challenge: "Biggest challenge figuring out which suburb to live in?",
   renter_influence: "Would a suburb report influence where you rent or buy?",
-  renter_stage: "At what stage of your search would this be most useful?",
 };
 
 interface SurveyResponse {
