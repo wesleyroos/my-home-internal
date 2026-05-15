@@ -30,6 +30,9 @@ import BankAgreements from "./pages/BankAgreements";
 import SurveyAdmin from "./pages/SurveyAdmin";
 import MarketStats from "./pages/MarketStats";
 import Personas from "./pages/Personas";
+import BuyerJourney from "./pages/BuyerJourney";
+import BuyerJourneyPresentation from "./pages/BuyerJourneyPresentation";
+import CashBuyerJourneyPresentation from "./pages/CashBuyerJourneyPresentation";
 
 function Router() {
   return (
@@ -58,6 +61,9 @@ function Router() {
       <Route path={"/survey-admin"} component={SurveyAdmin} />
       <Route path={"/market-stats"} component={MarketStats} />
       <Route path={"/personas"} component={Personas} />
+      <Route path={"/buyer-journey"} component={BuyerJourney} />
+      <Route path={"/buyer-journey-presentation"} component={BuyerJourneyPresentation} />
+      <Route path={"/cash-buyer-journey-presentation"} component={CashBuyerJourneyPresentation} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
