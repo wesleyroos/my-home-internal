@@ -235,6 +235,83 @@ export const activeListings = [
   },
 ];
 
+/**
+ * 10-year suburb median trend, split by property segment.
+ * Quarterly points (Q1, Q2, Q3, Q4) from 2016 to 2026.
+ * Freehold and Sectional Scheme behave very differently — this mirrors
+ * the Lightstone-style segmented view that agents expect to see.
+ */
+export const suburbSegmentHistory = [
+  { period: "Q1 2016", year: 2016, freehold: 1_120_000, sectional: 720_000 },
+  { period: "Q3 2016", year: 2016, freehold: 1_145_000, sectional: 735_000 },
+  { period: "Q1 2017", year: 2017, freehold: 1_175_000, sectional: 755_000 },
+  { period: "Q3 2017", year: 2017, freehold: 1_195_000, sectional: 770_000 },
+  { period: "Q1 2018", year: 2018, freehold: 1_205_000, sectional: 780_000 },
+  { period: "Q3 2018", year: 2018, freehold: 1_185_000, sectional: 775_000 },
+  { period: "Q1 2019", year: 2019, freehold: 1_165_000, sectional: 765_000 },
+  { period: "Q3 2019", year: 2019, freehold: 1_180_000, sectional: 770_000 },
+  { period: "Q1 2020", year: 2020, freehold: 1_170_000, sectional: 760_000 },
+  { period: "Q3 2020", year: 2020, freehold: 1_195_000, sectional: 770_000 },
+  { period: "Q1 2021", year: 2021, freehold: 1_265_000, sectional: 805_000 },
+  { period: "Q3 2021", year: 2021, freehold: 1_320_000, sectional: 835_000 },
+  { period: "Q1 2022", year: 2022, freehold: 1_365_000, sectional: 855_000 },
+  { period: "Q3 2022", year: 2022, freehold: 1_385_000, sectional: 865_000 },
+  { period: "Q1 2023", year: 2023, freehold: 1_400_000, sectional: 870_000 },
+  { period: "Q3 2023", year: 2023, freehold: 1_410_000, sectional: 875_000 },
+  { period: "Q1 2024", year: 2024, freehold: 1_440_000, sectional: 895_000 },
+  { period: "Q3 2024", year: 2024, freehold: 1_485_000, sectional: 925_000 },
+  { period: "Q1 2025", year: 2025, freehold: 1_510_000, sectional: 945_000 },
+  { period: "Q3 2025", year: 2025, freehold: 1_540_000, sectional: 960_000 },
+  { period: "Q1 2026", year: 2026, freehold: 1_565_000, sectional: 975_000 },
+];
+
+/**
+ * Suburb ranking — how Fourways stacks up nationally and against neighbours.
+ * Modelled on Lightstone's "Suburb Ranking" page.
+ */
+export const suburbRanking = {
+  nationalRank: 412,
+  nationalTotal: 6_684,
+  nationalPercentile: 6, // top 6%
+  provincialRank: 38,
+  provincialTotal: 1_204,
+  medianValuation: 1_520_000,
+  nearestSuburbs: [
+    { name: "Lonehill",       rank: 287, medianValuation: 1_820_000 },
+    { name: "Dainfern",       rank: 142, medianValuation: 2_950_000 },
+    { name: "Bryanston",      rank: 188, medianValuation: 2_240_000 },
+    { name: "Sandton Central", rank: 224, medianValuation: 2_050_000 },
+  ],
+};
+
+/**
+ * Distribution of how long current owners have held their properties.
+ * Strong "stable ownership" signal — buyers stay put, suburb is a long-term hold.
+ */
+export const periodOfOwnership = [
+  { band: "> 11 years",  pct: 54, color: "#0C2340" },
+  { band: "8 – 10 years", pct: 18, color: "#1E3A5A" },
+  { band: "5 – 7 years",  pct: 14, color: "#3DBFAD" },
+  { band: "< 5 years",   pct: 14, color: "#A8DCD3" },
+];
+
+/**
+ * Report-level metadata for trust / audit signalling.
+ * Lightstone-style report ID + named data provenance.
+ */
+export const reportMeta = {
+  reportId: "MH-2026-03-14JC-7F4A2E",
+  generatedOn: "2026-03-18",
+  dataSources: [
+    "Deeds Office registrations",
+    "Loom Property aggregate data",
+    "Private Property active listings",
+    "MyHome valuation model v3.2",
+  ],
+  preparedFor: "Rudi Botha",
+  preparedBy: "MyHome · Better Home Group",
+};
+
 export const suburbStats = {
   medianPrice: 1_520_000,
   medianPriceChange: 6.8, // % year-on-year

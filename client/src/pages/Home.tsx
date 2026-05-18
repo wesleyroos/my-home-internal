@@ -1,11 +1,13 @@
 import { HeroSection } from "@/components/report/HeroSection";
 import { ValueTrendSection } from "@/components/report/ValueTrendSection";
 import { SuburbStatsSection } from "@/components/report/SuburbStatsSection";
+import { MarketDetailSection } from "@/components/report/MarketDetailSection";
 import { LivingInSuburbSection } from "@/components/report/LivingInSuburbSection";
 import { SurroundingSalesSection } from "@/components/report/SurroundingSalesSection";
 import { ActiveListingsSection } from "@/components/report/ActiveListingsSection";
 import { PremiumSections } from "@/components/report/PremiumSections";
 import { InsightsSection } from "@/components/report/InsightsSection";
+import { ReportMeta } from "@/components/report/ReportMeta";
 import { AppHeader } from "@/components/AppHeader";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -22,6 +24,13 @@ export default function Home() {
       </div>
 
       <SuburbStatsSection />
+
+      {/* Market Detail — Lightstone-style depth: ranking, ownership, segment trend */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-white via-[#f9fbfc] to-white">
+        <div className="absolute -top-40 -left-40 w-[500px] h-[500px] rounded-full bg-[#0C2340]/4 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -right-40 w-[400px] h-[400px] rounded-full bg-[#3DBFAD]/5 blur-3xl pointer-events-none" />
+        <MarketDetailSection />
+      </div>
 
       {/* Living In — soft navy orb bottom-left */}
       <div className="relative overflow-hidden bg-gradient-to-bl from-white via-[#f7f9fc] to-white">
@@ -51,6 +60,7 @@ export default function Home() {
         <InsightsSection />
       </div>
 
+      <ReportMeta />
       <AppFooter label="Homeowner-facing prototype" />
     </div>
   );
