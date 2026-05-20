@@ -38,11 +38,28 @@ interface Milestone {
   displayLabel?: string; // optional override for the "DAY X" badge (e.g. "MONTH 1")
   emoji?: string; // buyer's emotional state at this milestone
   touchpoints?: string[]; // parties that contact the buyer at this milestone
+  connectsToNext?: { label: string }; // dashed bridge to the next milestone with a label
+  spendType?: "planned" | "unplanned"; // tags money-flow cards as expected vs surprise spending
 }
 
 interface PhaseLabel {
   label: string;
   endDay?: number; // where this phase ends · the last phase extends to maxDay when undefined
+}
+
+interface SpendSummaryColumn {
+  kind: "planned" | "unplanned";
+  label: string;
+  total: string;
+  items: { label: string; amount: string }[];
+  caption?: string;
+}
+
+interface SpendSummary {
+  title: string;
+  subtitle?: string;
+  columns: SpendSummaryColumn[];
+  punchline?: string;
 }
 
 interface TimelineSlideConfig {
@@ -56,6 +73,7 @@ interface TimelineSlideConfig {
   titleEnd: string;
   subtitle: string;
   phaseLabels?: PhaseLabel[];
+  summary?: SpendSummary;
 }
 
 interface HeroSubStat {
@@ -96,32 +114,80 @@ interface StatsSlideConfig {
 
 type SlideConfig = TimelineSlideConfig | StatsSlideConfig;
 
-// ─── Slide 1 data: Pre-approval → Registration ──────────────────────────────
+// ─── Slide 1 data: The Dream Phase · Browsing → Bond approved ──────────────
 
-const MILESTONES_1: Milestone[] = [
+const MILESTONES_DREAM: Milestone[] = [
   {
-    day: -10,
+    day: -75,
+    displayLabel: "MONTHS OUT",
+    title: "Browsing the dream",
+    emoji: "🤩",
+    note: "Saved searches on Property24 / Private Property · affordability calculators · late-night 'what about this one?' messages to a partner.",
+  },
+  {
+    day: -45,
+    displayLabel: "WEEK -6",
     title: "Pre-approval",
     emoji: "🥺",
-    note: "Bank confirms how much the buyer can borrow · valid 3 months. Facilitated by bond consultant.",
+    note: "Bank confirms how much the buyer can borrow · valid 3 months. Bond consultant introduces the buyer to the process — first real-world step.",
+  },
+  {
+    day: -30,
+    displayLabel: "WEEK -4",
+    title: "House hunting & show days",
+    emoji: "😍",
+    note: "Saturday show-day circuits · 6–15 viewings on average · WhatsApp groups with the agent · second-look visits with parents and partners.",
+  },
+  {
+    day: -21,
+    displayLabel: "WEEK -3",
+    title: "Offer submitted",
+    emoji: "🤞",
+    note: "The decision moment. Offer goes in via the agent — price, deposit, occupational date, fittings to include. Now the wait: will the seller accept, counter, or take a higher bid?",
+  },
+  {
+    day: -7,
+    displayLabel: "WEEK -1",
+    title: "Offer accepted",
+    above: false,
+    emoji: "🥹",
+    note: "Often after one or two near-misses. Negotiation lands — counter-offers settled, occupational date agreed, fittings nailed down.",
   },
   {
     day: 0,
     title: "OTP signed",
     emphasis: true,
+    above: true,
     emoji: "🥳",
     flow: {
       from: "Buyer",
       to: "Attorney trust",
-      what: "Property deposit",
-      amount: "5–20% of price",
+      what: "Deposit on R 1.35m purchase",
+      amount: "R 202,500 (15%)",
     },
   },
   {
     day: 14,
     title: "Bond approved",
+    emphasis: true,
+    above: true,
     emoji: "😌",
-    note: "Bank's decision — no money moves yet",
+    note: "Bank's decision — no money moves yet. The dream is real.",
+  },
+];
+
+// ─── Slide 2 data: The Anxiety Phase · Bond approved → Registration ────────
+// Bond Approved (day 14) sits on both slides as the bridge — same pattern
+// as Registration (day 88) bridging the anxiety and reality slides.
+
+const MILESTONES_ANXIETY: Milestone[] = [
+  {
+    day: 14,
+    title: "Bond approved",
+    emphasis: true,
+    above: true,
+    emoji: "😌",
+    note: "Bank's decision — no money moves yet.",
   },
   {
     day: 27,
@@ -136,8 +202,8 @@ const MILESTONES_1: Milestone[] = [
     flow: {
       from: "Buyer",
       to: "Attorney trust",
-      what: "Funds transfer day",
-      amount: "≈ 5–11% of price",
+      what: "Bond & transfer costs on R 1.35m",
+      amount: "~R 61,000 (≈4.5%)",
     },
   },
   {
@@ -146,12 +212,12 @@ const MILESTONES_1: Milestone[] = [
     emphasis: true,
     emoji: "😰",
     multi: {
-      from: "Attorney trust pays",
+      from: "Attorney trust pays · ~R 61k on R 1.35m purchase",
       outflows: [
-        { to: "SARS", what: "Transfer duty" },
-        { to: "Transfer attorney", what: "Conveyancing" },
-        { to: "Bond attorney", what: "Bond reg" },
-        { to: "Deeds Office", what: "Statutory" },
+        { to: "SARS", what: "Transfer duty · R 4,200" },
+        { to: "Transfer attorney", what: "Conveyancing · R 28,000" },
+        { to: "Bond attorney", what: "Bond reg · R 26,000" },
+        { to: "Deeds Office", what: "Statutory · R 3,000" },
       ],
     },
   },
@@ -160,6 +226,7 @@ const MILESTONES_1: Milestone[] = [
     title: "Lodged at Deeds",
     emoji: "😬",
     note: "Registry checks the docs",
+    connectsToNext: { label: "2–6 weeks at the Deeds Office" },
   },
   {
     day: 88,
@@ -170,13 +237,13 @@ const MILESTONES_1: Milestone[] = [
     flow: {
       from: "Bank",
       to: "Seller (via attorney)",
-      what: "Loan amount settles the sale",
-      amount: "Bond amount",
+      what: "Bond settles the balance on R 1.35m",
+      amount: "R 1,147,500 (85%)",
     },
   },
 ];
 
-// ─── Slide 2 data: Registration → 3 months in ───────────────────────────────
+// ─── Slide 2 data: Reality kicks in · Month 0 → Month 6 after registration ──
 
 const MILESTONES_2: Milestone[] = [
   {
@@ -189,8 +256,8 @@ const MILESTONES_2: Milestone[] = [
     flow: {
       from: "Bank",
       to: "Seller (via attorney)",
-      what: "Loan amount settles the sale",
-      amount: "Bond amount",
+      what: "Bond settles the balance on R 1.35m",
+      amount: "R 1,147,500 (85%)",
     },
   },
   {
@@ -198,28 +265,90 @@ const MILESTONES_2: Milestone[] = [
     displayLabel: "WEEK 1",
     title: "Move in",
     emoji: "😁",
-    flow: {
-      from: "Buyer",
-      to: "Various",
-      what: "Removals + utility deposits",
-      amount: "R 5k – R 25k",
+    spendType: "unplanned",
+    multi: {
+      from: "Buyer pays · R 8k – R 25k",
+      outflows: [
+        { to: "Movers", what: "Removals · R 5k – R 15k" },
+        { to: "Municipality", what: "Utility deposits · R 1.5k – R 3.5k" },
+        { to: "Handyman", what: "Mount, hang, install · R 1.5k – R 4k" },
+        { to: "Fibre / DSTV", what: "Install + router · R 1k – R 3.5k" },
+      ],
     },
   },
   {
-    day: 30,
+    day: 28,
+    displayLabel: "WEEK 4",
+    title: "Snag list & contractors",
+    emoji: "😬",
+    spendType: "unplanned",
+    multi: {
+      from: "Buyer pays · R 8k – R 35k",
+      outflows: [
+        { to: "Glazier", what: "Shower door, broken glass" },
+        { to: "Blinds / curtains", what: "Repair or replace" },
+        { to: "Plumber / handyman", what: "Geyser, taps, snags" },
+        { to: "Alarm / armed response", what: "Reactivation + signup" },
+      ],
+    },
+  },
+  {
+    day: 35,
     displayLabel: "MONTH 1",
     title: "First monthly debits",
     emphasis: true,
     emoji: "😱",
+    spendType: "planned",
     multi: {
-      from: "Buyer pays",
+      from: "Buyer pays · ~R 14k – R 17k / month",
       outflows: [
-        { to: "Bank", what: "Bond instalment (R 6,038 fee bundled in)" },
-        { to: "Insurer", what: "HOC + life cover" },
-        { to: "Municipality", what: "Rates & taxes" },
-        { to: "Body corp", what: "Levy (if sectional title)" },
+        { to: "Bank", what: "Bond instalment · ~R 11,700 (R 6,038 init bundled)" },
+        { to: "Insurer", what: "HOC + life cover · ~R 700" },
+        { to: "Municipality", what: "Rates & taxes · ~R 1,800" },
+        { to: "Body corp", what: "Levy · ~R 2,500 (if sectional)" },
       ],
     },
+  },
+  {
+    day: 75,
+    displayLabel: "MONTH 2½",
+    title: "Outdoor & lifestyle setup",
+    emoji: "😩",
+    spendType: "unplanned",
+    multi: {
+      from: "Buyer pays · R 5k – R 30k+",
+      outflows: [
+        { to: "Pool service", what: "Startup + chemicals + equipment" },
+        { to: "Garden", what: "Borer, pest, irrigation" },
+        { to: "Pet-proofing", what: "Extra fencing, screens" },
+        { to: "Gate / garage", what: "Motor service, remotes" },
+      ],
+    },
+  },
+  {
+    day: 120,
+    displayLabel: "MONTH 4",
+    title: "Furniture catch-up",
+    emoji: "🥹",
+    spendType: "unplanned",
+    multi: {
+      from: "Buyer pays · R 20k – R 100k+",
+      outflows: [
+        { to: "Couch / lounge", what: "The old one looks wrong here" },
+        { to: "Curtains & rails", what: "Seller took theirs" },
+        { to: "Appliance gaps", what: "Washer, dryer, second fridge" },
+        { to: "Outdoor / patio", what: "Furniture for the new braai area" },
+      ],
+    },
+  },
+  {
+    day: 165,
+    displayLabel: "MONTH 5–6",
+    title: "Plans shelved, life pivots",
+    emphasis: true,
+    above: true,
+    emoji: "👶",
+    note: "Renovation budget reroutes to a life event — a baby on the way, a job change, a family shift. Six months in and still not fully settled. The wishlist quietly slides into the next phase…",
   },
 ];
 
@@ -359,31 +488,75 @@ const SLIDE_4_STATS: StatsSlideConfig = {
 
 const SLIDES: SlideConfig[] = [
   {
-    minDay: -10,
+    minDay: -75,
+    maxDay: 14,
+    milestones: MILESTONES_DREAM,
+    eyebrow: "Follow the money · Mortgage buyer · Browsing → Bond approved",
+    titleStart: "First, the buyer ",
+    titleAccent: "chooses their dream",
+    titleEnd: ".",
+    subtitle:
+      "Browsing, viewing, falling in love. Two to three months of momentum before any real money moves — saved searches, pre-approval, weekends on show days, the offer, and finally the bank's yes.",
+    phaseLabels: [{ label: "The Dream Phase" }],
+  },
+  {
+    minDay: 14,
     maxDay: 88,
-    milestones: MILESTONES_1,
-    eyebrow: "Follow the money · Mortgage buyer · Pre-approval → Registration",
-    titleStart: "Buyers chooses their dream, ",
+    milestones: MILESTONES_ANXIETY,
+    eyebrow: "Follow the money · Mortgage buyer · Bond approved → Registration",
+    titleStart: "Then ",
     titleAccent: "we enable their journey",
     titleEnd: ".",
     subtitle:
-      "Each card shows who pays whom, for what, and when — from OTP signing through to legal ownership transfer. The transfer attorney's trust account is the hub everything flows through.",
-    phaseLabels: [
-      { label: "The Dream Phase", endDay: 14 },
-      { label: "The Anxiety Phase" },
-    ],
+      "Insurance, attorney funds, disbursements, deeds. Ten weeks where the buyer pays out, signs more documents than they ever expected, and waits for the Registrar to say yes. The transfer attorney's trust account is the hub everything flows through.",
+    phaseLabels: [{ label: "The Anxiety Phase" }],
   },
   {
     minDay: 0,
     maxDay: 180,
     milestones: MILESTONES_2,
     eyebrow: "Follow the money · Mortgage buyer · Month 0 → Month 6 after registration",
-    titleStart: "Then the ",
-    titleAccent: "new normal",
-    titleEnd: " sets in.",
+    titleStart: "Then ",
+    titleAccent: "reality kicks in",
+    titleEnd: ".",
     subtitle:
-      "Monthly debits begin a month after registration. From there, the same outflow repeats every month for the life of the bond.",
+      "Settling takes longer than anyone tells you. The first six months are a steady drip of unplanned costs — snag-list contractors, furniture you forgot you needed, outdoor and pet setup, and life events that quietly reroute your renovation budget.",
     phaseLabels: [{ label: "Month 1–6 · Reality kicks in" }],
+    summary: {
+      title: "Where the money actually goes in the first 6 months",
+      subtitle:
+        "Most buyers budget for the planned column. The unplanned column is where reality lives — and it often costs more.",
+      columns: [
+        {
+          kind: "planned",
+          label: "Planned spend",
+          total: "R 84k – R 102k",
+          caption:
+            "What buyers expect — the bond debit. Many forget that insurance, rates, and levies ride alongside it.",
+          items: [
+            { label: "Bond instalment × 6", amount: "~R 70k" },
+            { label: "HOC + life cover × 6", amount: "~R 4k" },
+            { label: "Rates & taxes × 6", amount: "~R 11k" },
+            { label: "Body corp levy × 6 (if sectional)", amount: "up to ~R 15k" },
+          ],
+        },
+        {
+          kind: "unplanned",
+          label: "Unplanned spend",
+          total: "R 41k – R 190k+",
+          caption:
+            "What nobody warned them about. Most buyers think 'movers' and stop there — but the snag list, the outdoor setup, the furniture catch-up, and the life events all land in the same six months.",
+          items: [
+            { label: "Move-in (deposits, handyman, fibre)", amount: "R 8k – R 25k" },
+            { label: "Snag list & contractors", amount: "R 8k – R 35k" },
+            { label: "Outdoor & lifestyle setup", amount: "R 5k – R 30k+" },
+            { label: "Furniture catch-up", amount: "R 20k – R 100k+" },
+          ],
+        },
+      ],
+      punchline:
+        "Six months in: R 125k – R 290k+ has left the buyer's pocket on top of the deposit. That's another 9–22% of the purchase price — most of it unbudgeted.",
+    },
   },
   {
     minDay: 180,
@@ -495,7 +668,7 @@ function MilestoneCard({ milestone }: { milestone: Milestone }) {
   );
 }
 
-function TimelineSlide({ config }: { config: SlideConfig }) {
+function TimelineSlide({ config }: { config: TimelineSlideConfig }) {
   const {
     minDay,
     maxDay,
@@ -506,6 +679,7 @@ function TimelineSlide({ config }: { config: SlideConfig }) {
     titleEnd,
     subtitle,
     phaseLabels,
+    summary,
   } = config;
 
   const PAD_PCT = 6.5; // % padding for cards so they don't fall off the edge
@@ -571,11 +745,10 @@ function TimelineSlide({ config }: { config: SlideConfig }) {
         className="relative w-full overflow-x-auto"
       >
         <div className="min-w-[1900px] py-12">
-          {/* Timeline (line + cards) */}
-          <div className="relative" style={{ height: "720px" }}>
-            {/* Phase label(s) — each phase is positioned by its day range, with a small gap between phases */}
-            {phaseLabels &&
-              phaseLabels.map((phase, idx) => {
+          {/* Phase label row — lives ABOVE the timeline so it never collides with cards */}
+          {phaseLabels && (
+            <div className="relative h-20 mb-8">
+              {phaseLabels.map((phase, idx) => {
                 const startDay =
                   idx === 0 ? minDay : phaseLabels[idx - 1].endDay ?? maxDay;
                 const endDay = phase.endDay !== undefined ? phase.endDay : maxDay;
@@ -594,12 +767,12 @@ function TimelineSlide({ config }: { config: SlideConfig }) {
                 return (
                   <div
                     key={idx}
-                    className="absolute top-6 flex items-center"
+                    className="absolute inset-y-0 flex items-center"
                     style={{ left: `${leftPct}%`, right: `${rightPct}%` }}
                   >
                     <span className="w-3 h-3 rounded-full bg-black flex-shrink-0" />
                     <span className="flex-1 h-1 bg-black" />
-                    <span className="px-6 text-xs md:text-sm font-semibold uppercase tracking-[0.3em] text-black whitespace-nowrap">
+                    <span className="px-6 py-2 text-xl md:text-3xl lg:text-4xl font-heading font-extrabold uppercase tracking-[0.15em] text-[#3DBFAD] whitespace-nowrap">
                       {phase.label}
                     </span>
                     <span className="flex-1 h-1 bg-black" />
@@ -607,13 +780,39 @@ function TimelineSlide({ config }: { config: SlideConfig }) {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Timeline (line + cards) */}
+          <div className="relative" style={{ height: "720px" }}>
             {/* Center line — touches both edges of the slide */}
             <div className="absolute top-1/2 inset-x-0 -translate-y-1/2 h-0.5 bg-slate-200" />
+
+            {/* Dashed connectors — drawn ON the center line between specific milestone pairs, with a wait-time label above */}
+            {milestones.map((event, i) => {
+              if (!event.connectsToNext || i >= milestones.length - 1) return null;
+              const next = milestones[i + 1];
+              const startPct = PAD_PCT + ((event.day - minDay) / (maxDay - minDay)) * (100 - 2 * PAD_PCT);
+              const endPct = PAD_PCT + ((next.day - minDay) / (maxDay - minDay)) * (100 - 2 * PAD_PCT);
+              return (
+                <div
+                  key={`bridge-${event.day}`}
+                  className="absolute top-1/2 -translate-y-1/2 flex flex-col items-center"
+                  style={{ left: `${startPct}%`, right: `${100 - endPct}%` }}
+                >
+                  <span className="text-[11px] md:text-xs font-semibold uppercase tracking-[0.18em] text-[#0C2340] bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm whitespace-nowrap -mt-1 mb-1">
+                    {event.connectsToNext.label}
+                  </span>
+                  <div className="w-full border-t-2 border-dashed border-[#0C2340]/70" />
+                </div>
+              );
+            })}
 
             {milestones.map((event, i) => {
               const innerPct = (event.day - minDay) / (maxDay - minDay);
               const left = PAD_PCT + innerPct * (100 - 2 * PAD_PCT);
               const above = event.above !== undefined ? event.above : i % 2 === 0;
+              const hasFunds = !!event.flow || !!event.multi;
               return (
                 <div
                   key={event.day}
@@ -637,13 +836,33 @@ function TimelineSlide({ config }: { config: SlideConfig }) {
                     }}
                   />
                   <div
-                    className="absolute left-0 -translate-x-1/2 w-56"
+                    className="absolute left-0 -translate-x-1/2 w-56 flex flex-col items-start gap-1.5"
                     style={
                       above
                         ? { bottom: "calc(50% + 90px)" }
                         : { top: "calc(50% + 90px)" }
                     }
                   >
+                    {hasFunds && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center text-[10px] font-bold tracking-[0.15em] text-white bg-[#F97316] px-2 py-0.5 rounded-md shadow-sm">
+                          ZAR
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#F97316]">
+                          Money flows
+                        </span>
+                        {event.spendType === "planned" && (
+                          <span className="inline-flex items-center text-[10px] font-bold tracking-[0.15em] text-white bg-[#10B981] px-2 py-0.5 rounded-md shadow-sm">
+                            PLANNED
+                          </span>
+                        )}
+                        {event.spendType === "unplanned" && (
+                          <span className="inline-flex items-center text-[10px] font-bold tracking-[0.15em] text-white bg-[#EF4444] px-2 py-0.5 rounded-md shadow-sm">
+                            UNPLANNED
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <MilestoneCard milestone={event} />
                   </div>
                 </div>
@@ -653,6 +872,86 @@ function TimelineSlide({ config }: { config: SlideConfig }) {
 
         </div>
       </motion.div>
+
+      {summary && (
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.4 }}
+          className="relative w-full max-w-[1800px] mx-auto px-6 sm:px-12 mt-4 mb-8"
+        >
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+            <div className="px-6 sm:px-10 pt-6 pb-4 border-b border-slate-100">
+              <h3 className="font-heading font-bold text-2xl md:text-3xl text-[#0C2340] tracking-tight">
+                {summary.title}
+              </h3>
+              {summary.subtitle && (
+                <p className="text-[#0C2340]/65 text-sm md:text-base mt-1.5 max-w-3xl">
+                  {summary.subtitle}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+              {summary.columns.map((col) => {
+                const isPlanned = col.kind === "planned";
+                return (
+                  <div key={col.kind} className="p-6 sm:p-8">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span
+                        className={`inline-flex items-center text-[10px] font-bold tracking-[0.18em] text-white px-2.5 py-0.5 rounded-md ${
+                          isPlanned ? "bg-[#10B981]" : "bg-[#EF4444]"
+                        }`}
+                      >
+                        {isPlanned ? "PLANNED" : "UNPLANNED"}
+                      </span>
+                      <span className="text-[#0C2340] text-sm font-semibold uppercase tracking-wider">
+                        {col.label}
+                      </span>
+                    </div>
+                    <div
+                      className={`font-heading font-extrabold text-3xl md:text-4xl tracking-tight mb-3 ${
+                        isPlanned ? "text-[#10B981]" : "text-[#EF4444]"
+                      }`}
+                    >
+                      {col.total}
+                    </div>
+                    {col.caption && (
+                      <p className="text-[#0C2340]/65 text-xs md:text-sm leading-snug mb-4">
+                        {col.caption}
+                      </p>
+                    )}
+                    <ul className="space-y-1.5 border-t border-slate-100 pt-3">
+                      {col.items.map((item) => (
+                        <li
+                          key={item.label}
+                          className="flex items-start justify-between gap-3 text-xs md:text-[13px]"
+                        >
+                          <span className="text-[#0C2340] flex-1 min-w-0">
+                            {item.label}
+                          </span>
+                          <span className="text-[#0C2340] font-semibold whitespace-nowrap">
+                            {item.amount}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
+
+            {summary.punchline && (
+              <div className="px-6 sm:px-10 py-5 bg-gradient-to-r from-[#0C2340] to-[#1E3A5A] text-white">
+                <p className="text-sm md:text-base font-medium leading-snug">
+                  {summary.punchline}
+                </p>
+              </div>
+            )}
+          </div>
+        </motion.div>
+      )}
     </div>
   );
 }
