@@ -27,6 +27,17 @@ interface MultiFlow {
   outflows: MultiOutflow[];
 }
 
+interface ProductOfferItem {
+  label: string;
+  amount: string;
+}
+
+interface ProductOffer {
+  pitch: string;
+  bundles: ProductOfferItem[];
+  total: string;
+}
+
 interface Milestone {
   day: number;
   title: string;
@@ -40,6 +51,7 @@ interface Milestone {
   touchpoints?: string[]; // parties that contact the buyer at this milestone
   connectsToNext?: { label: string }; // dashed bridge to the next milestone with a label
   spendType?: "planned" | "unplanned"; // tags money-flow cards as expected vs surprise spending
+  productOffer?: ProductOffer; // marks a milestone as a MyHome product introduction
 }
 
 interface PhaseLabel {
@@ -164,6 +176,25 @@ const MILESTONES_DREAM: Milestone[] = [
       to: "Attorney trust",
       what: "Deposit on R 1.35m purchase",
       amount: "R 202,500 (15%)",
+    },
+  },
+  {
+    day: 7,
+    title: "MyHome All-in Loan",
+    emphasis: true,
+    above: false,
+    emoji: "✨",
+    productOffer: {
+      pitch:
+        "One loan rolled into the bond — covers attorney costs and the first six months of move-in spend, so nothing lands as a surprise out-of-pocket later.",
+      bundles: [
+        { label: "Bond & transfer costs", amount: "~R 61k" },
+        { label: "Move-in essentials", amount: "R 8k – 25k" },
+        { label: "Snag list & repairs", amount: "R 8k – 35k" },
+        { label: "Outdoor & lifestyle setup", amount: "R 5k – 30k+" },
+        { label: "Furniture catch-up", amount: "R 20k – 100k+" },
+      ],
+      total: "Bundle range · R 102k – R 250k+",
     },
   },
   {
@@ -576,6 +607,49 @@ const SLIDES: SlideConfig[] = [
 // ─── Components ─────────────────────────────────────────────────────────────
 
 function MilestoneCard({ milestone }: { milestone: Milestone }) {
+  if (milestone.productOffer) {
+    const offer = milestone.productOffer;
+    return (
+      <div className="relative rounded-xl px-3.5 py-3 text-left bg-gradient-to-br from-[#0C2340] via-[#0C2340] to-[#16395a] border border-[#3DBFAD]/40 shadow-xl text-white">
+        <div className="absolute -inset-px rounded-xl pointer-events-none ring-1 ring-[#3DBFAD]/20" />
+        <div className="flex items-center justify-between gap-2">
+          <div className="text-[10px] font-mono font-bold tracking-wider text-[#3DBFAD]">
+            {milestone.displayLabel ?? `DAY ${milestone.day}`}
+          </div>
+          {milestone.emoji && (
+            <span className="text-xl leading-none">{milestone.emoji}</span>
+          )}
+        </div>
+        <div className="text-sm font-bold leading-tight mt-0.5 mb-2 text-white">
+          {milestone.title}
+        </div>
+        <div className="text-[10px] italic text-white/75 leading-snug mb-2.5">
+          {offer.pitch}
+        </div>
+        <div className="border-t border-white/15 pt-2.5">
+          <div className="text-[9px] font-semibold uppercase tracking-[0.15em] text-[#3DBFAD] mb-1.5">
+            Bundled into one loan
+          </div>
+          <ul className="space-y-1 mb-2.5">
+            {offer.bundles.map((b) => (
+              <li
+                key={b.label}
+                className="flex items-start justify-between gap-2 text-[10px] leading-snug"
+              >
+                <span className="text-white/85 flex-1 min-w-0">{b.label}</span>
+                <span className="text-[#3DBFAD] font-mono whitespace-nowrap">
+                  {b.amount}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <div className="pt-2 border-t border-white/15 font-mono text-[10px] text-[#3DBFAD] font-bold">
+            {offer.total}
+          </div>
+        </div>
+      </div>
+    );
+  }
   const isEmphasis = milestone.emphasis === true;
   return (
     <div
@@ -684,6 +758,32 @@ function TimelineSlide({ config }: { config: TimelineSlideConfig }) {
 
   const PAD_PCT = 6.5; // % padding for cards so they don't fall off the edge
 
+  // Responsive scaling — the timeline body is laid out at a fixed 1900px width.
+  // On smaller viewports we scale the whole block down with a transform so cards
+  // shrink uniformly rather than overflowing horizontally.
+  const BASE_WIDTH = 1900;
+  const scaleWrapRef = useRef<HTMLDivElement>(null);
+  const scaleInnerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  const [scaledHeight, setScaledHeight] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const wrap = scaleWrapRef.current;
+    const inner = scaleInnerRef.current;
+    if (!wrap || !inner) return;
+    const compute = () => {
+      const wW = wrap.clientWidth;
+      const newScale = Math.min(1, wW / BASE_WIDTH);
+      setScale(newScale);
+      setScaledHeight(inner.offsetHeight * newScale);
+    };
+    compute();
+    const ro = new ResizeObserver(compute);
+    ro.observe(wrap);
+    ro.observe(inner);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div className="relative min-h-full w-full py-16 bg-gradient-to-br from-white via-[#f6fbfa] to-[#eef5f4] overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
@@ -736,15 +836,28 @@ function TimelineSlide({ config }: { config: TimelineSlideConfig }) {
         </motion.p>
       </div>
 
-      {/* Timeline area — FULL SLIDE WIDTH, line touches both edges */}
+      {/* Timeline area — laid out at 1900px, scaled down on smaller viewports */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: false, amount: 0.2 }}
         transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
-        className="relative w-full overflow-x-auto"
+        className="relative w-full overflow-hidden"
       >
-        <div className="min-w-[1900px] py-12">
+        <div
+          ref={scaleWrapRef}
+          className="w-full"
+          style={{ height: scaledHeight }}
+        >
+        <div
+          ref={scaleInnerRef}
+          className="py-12"
+          style={{
+            width: BASE_WIDTH,
+            transformOrigin: "top left",
+            transform: `scale(${scale})`,
+          }}
+        >
           {/* Phase label row — lives ABOVE the timeline so it never collides with cards */}
           {phaseLabels && (
             <div className="relative h-20 mb-8">
@@ -821,14 +934,20 @@ function TimelineSlide({ config }: { config: TimelineSlideConfig }) {
                 >
                   <div
                     className={`absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full ring-4 ring-white ${
-                      event.emphasis
+                      event.productOffer
+                        ? "bg-[#3DBFAD]"
+                        : event.emphasis
                         ? "bg-[#0C2340]"
                         : "bg-white border-2 border-slate-400"
                     }`}
                   />
                   <div
                     className={`absolute left-0 w-px ${
-                      event.emphasis ? "bg-[#0C2340]/40" : "bg-slate-300"
+                      event.productOffer
+                        ? "bg-[#3DBFAD]/60"
+                        : event.emphasis
+                        ? "bg-[#0C2340]/40"
+                        : "bg-slate-300"
                     }`}
                     style={{
                       top: above ? "calc(50% - 78px)" : "calc(50% + 12px)",
@@ -843,6 +962,16 @@ function TimelineSlide({ config }: { config: TimelineSlideConfig }) {
                         : { top: "calc(50% + 90px)" }
                     }
                   >
+                    {event.productOffer && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center text-[10px] font-bold tracking-[0.15em] text-white bg-[#3DBFAD] px-2 py-0.5 rounded-md shadow-sm">
+                          ✨ NEW
+                        </span>
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#3DBFAD]">
+                          MyHome product
+                        </span>
+                      </div>
+                    )}
                     {hasFunds && (
                       <div className="flex items-center gap-1.5 flex-wrap">
                         <span className="inline-flex items-center text-[10px] font-bold tracking-[0.15em] text-white bg-[#F97316] px-2 py-0.5 rounded-md shadow-sm">
@@ -870,6 +999,7 @@ function TimelineSlide({ config }: { config: TimelineSlideConfig }) {
             })}
           </div>
 
+        </div>
         </div>
       </motion.div>
 

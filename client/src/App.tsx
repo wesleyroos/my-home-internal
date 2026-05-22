@@ -33,6 +33,7 @@ import Personas from "./pages/Personas";
 import BuyerJourney from "./pages/BuyerJourney";
 import BuyerJourneyPresentation from "./pages/BuyerJourneyPresentation";
 import CashBuyerJourneyPresentation from "./pages/CashBuyerJourneyPresentation";
+import MortgageBuyerFlow from "./pages/MortgageBuyerFlow";
 
 function Router() {
   return (
@@ -64,6 +65,7 @@ function Router() {
       <Route path={"/buyer-journey"} component={BuyerJourney} />
       <Route path={"/buyer-journey-presentation"} component={BuyerJourneyPresentation} />
       <Route path={"/cash-buyer-journey-presentation"} component={CashBuyerJourneyPresentation} />
+      <Route path={"/mortgage-buyer-flow"} component={MortgageBuyerFlow} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

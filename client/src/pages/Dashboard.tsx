@@ -68,6 +68,15 @@ const GROUPS: Group[] = [
         added: "15 May 2026",
       },
       {
+        route: "/mortgage-buyer-flow",
+        label: "MyHome Mortgage Buyer Flow",
+        description: "Low-fi wireframe screens of the buyer's MyHome journey: BetterID handoff → vault → OTP → bond → registration.",
+        icon: <Workflow className="w-5 h-5" />,
+        accentBg: "bg-[#3DBFAD]/10",
+        accentText: "text-[#3DBFAD]",
+        added: "22 May 2026",
+      },
+      {
         route: "/",
         label: "BHG Journey",
         description: "Strategy scratchpad — journey map, ecosystem, personas, market stats, entry point scoring and comparison.",
