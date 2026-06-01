@@ -135,6 +135,34 @@ type Platform = "myhome" | "whatsapp" | "betterid" | "betterbond";
 const BETTERBOND_RED = "#DD1B22";
 const BETTERBOND_NAVY = "#002C5E";
 
+// BetterSure brand (colors from logo)
+const BETTERSURE_NAVY = "#2D5775";
+const BETTERSURE_ORANGE = "#ED7D2D";
+
+function BetterSureLogo({ className = "h-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 40 40" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* House roof outline with chimney */}
+      <path
+        d="M5 19 L10 15 L10 9 L13 9 L13 13 L20 8 L35 19"
+        stroke={BETTERSURE_NAVY}
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      {/* Orange smile arc below */}
+      <path
+        d="M11 25 A 10 10 0 0 0 29 25"
+        stroke={BETTERSURE_ORANGE}
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 function BetterBondLogo({ className = "h-3.5" }: { className?: string }) {
   return (
     <svg viewBox="0 0 172 28" className={className} fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -353,9 +381,9 @@ function PhoneFrame({
   const meta = PLATFORM_META[platform];
   return (
     <div className="flex flex-col items-center" style={{ width: SCREEN_W + 20 }}>
-      {/* Caption above the phone */}
+      {/* Caption above the phone — badge grows to fit longer step labels like "13c·q" */}
       <div className="flex items-center gap-1.5 mb-1">
-        <div className="w-5 h-5 rounded-full bg-[#0C2340] text-white text-[10px] font-bold flex items-center justify-center">
+        <div className="min-w-5 h-5 px-1.5 rounded-full bg-[#0C2340] text-white text-[10px] font-bold flex items-center justify-center whitespace-nowrap">
           {step}
         </div>
         <div className="text-[9px] font-bold tracking-wider uppercase text-[#0C2340]">
@@ -1118,8 +1146,6 @@ function ScreenVault() {
 
         {/* Single hero card — property + pre-approval + deal status in one */}
         <div className="rounded-lg border-2 border-[#3DBFAD]/40 overflow-hidden bg-white shadow-sm">
-          {/* Photo */}
-          <Block h={70} tone="slate" rounded="rounded-none" />
           {/* Property details */}
           <div className="px-2 py-1.5">
             <div className="text-[12px] font-extrabold text-[#0C2340] leading-tight">
@@ -1311,8 +1337,7 @@ function ScreenPreapproval() {
 
         {/* Property hero card — slimmer than screen 7 so the progress bar fits */}
         <div className="rounded-lg border-2 border-[#3DBFAD]/40 overflow-hidden bg-white shadow-sm">
-          <Block h={42} tone="slate" rounded="rounded-none" />
-          <div className="px-2 py-1">
+          <div className="px-2 py-1.5">
             <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
               R 1,350,000
             </div>
@@ -1471,56 +1496,80 @@ function ScreenBondBundle() {
 }
 
 function ScreenBondOffers() {
-  // The big moment — 4 banks come back with offers, buyer picks one.
-  const offers = [
-    { bank: "Nedbank", rate: "9.50%", spread: "Prime − 0.75", monthly: 14250, interest: 1960000, best: true },
-    { bank: "Absa", rate: "10.00%", spread: "Prime − 0.25", monthly: 14840, interest: 2060000, best: false },
-    { bank: "FNB", rate: "10.00%", spread: "Prime − 0.25", monthly: 14840, interest: 2060000, best: false },
-    { bank: "Standard", rate: "10.25%", spread: "Prime", monthly: 15130, interest: 2110000, best: false },
+  // The race finished — 4 offers in, the winner stands out
+  const winner = { bank: "Nedbank", rate: "9.50%", spread: "Prime − 0.75", monthly: 14250, interest: 1960000 };
+  const others = [
+    { bank: "Absa", rate: "10.00%", monthly: 14840, vs: "+R 100k" },
+    { bank: "FNB", rate: "10.00%", monthly: 14840, vs: "+R 100k" },
+    { bank: "Standard", rate: "10.25%", monthly: 15130, vs: "+R 150k" },
   ];
 
   return (
     <PhoneFrame step={11} label="Bank offers · compare & choose" platform="myhome" activeTab="deals">
       <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header — mirrors screen 10's structure */}
         <div className="flex items-center justify-between">
-          <Heading>4 banks responded</Heading>
-          <Pill tone="green">ALL ACCEPTED</Pill>
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-emerald-700">
+              All responses received
+            </span>
+          </div>
+          <div className="text-[8px] font-mono text-slate-400">4 of 4 · 4 days</div>
         </div>
-        <Caption>Your R 1.49m bundled bond · pick your bank</Caption>
 
-        {/* Offer cards */}
-        <div className="flex flex-col gap-1">
-          {offers.map((o) => (
-            <div
-              key={o.bank}
-              className={`border-2 rounded-md p-1.5 ${
-                o.best ? "border-emerald-400 bg-emerald-50" : "border-slate-200 bg-white"
-              }`}
-            >
-              <div className="flex items-center justify-between gap-1">
-                <div className="text-[10px] font-extrabold text-[#0C2340]">{o.bank}</div>
-                <div className="flex items-center gap-1">
-                  <div className="text-[13px] font-extrabold text-[#0C2340] tabular-nums">{o.rate}</div>
-                  {o.best && <Pill tone="green">BEST</Pill>}
-                </div>
+        {/* Headline */}
+        <div>
+          <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+            4 offers in — choose your bank
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            All 4 approved your R 1.49m bundled bond
+          </div>
+        </div>
+
+        {/* Recommended card — emerald, not gold */}
+        <div className="border-2 border-emerald-400 bg-emerald-50 rounded-md p-2 shadow-sm relative">
+          <div className="absolute top-1 right-1">
+            <Pill tone="green">BEST RATE</Pill>
+          </div>
+          <div className="text-[11px] font-extrabold text-[#0C2340]">
+            {winner.bank}
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-0.5">
+            <div className="text-[18px] font-extrabold text-[#0C2340] tabular-nums leading-none">
+              {winner.rate}
+            </div>
+            <div className="text-[7px] text-slate-600 font-semibold">{winner.spread}</div>
+          </div>
+          <div className="text-[8px] text-[#0C2340] font-semibold mt-1 tabular-nums">
+            R {winner.monthly.toLocaleString()}/mo · R {(winner.interest / 1000000).toFixed(2)}m interest over 20 yrs
+          </div>
+        </div>
+
+        {/* Other offers — compact rows with savings differential */}
+        <div className="border border-slate-200 rounded-md divide-y divide-slate-100">
+          {others.map((o) => (
+            <div key={o.bank} className="px-2 py-1 flex items-center gap-1.5">
+              <div className="text-[8.5px] font-bold text-[#0C2340] w-14">{o.bank}</div>
+              <div className="text-[9px] font-mono font-bold text-[#0C2340] w-12 tabular-nums">{o.rate}</div>
+              <div className="flex-1 text-[7px] text-slate-500 tabular-nums">
+                R {o.monthly.toLocaleString()}/mo
               </div>
-              <div className="flex items-center justify-between mt-0.5">
-                <div className="text-[7px] text-slate-500">{o.spread}</div>
-                <div className="text-[8px] font-mono text-[#0C2340]">
-                  R {o.monthly.toLocaleString()}/mo
-                </div>
-              </div>
-              <div className="text-[7px] text-slate-400 mt-0.5">
-                Total interest over 20 yrs: R {(o.interest / 1000000).toFixed(2)}m
-              </div>
+              <div className="text-[7.5px] font-semibold text-slate-500 tabular-nums">{o.vs}</div>
             </div>
           ))}
+        </div>
+
+        {/* Savings callout — neutral colors */}
+        <div className="text-[8.5px] text-slate-600 leading-tight px-1">
+          Accepting Nedbank saves <span className="font-extrabold text-[#0C2340]">R 100k</span> over the term vs Absa.
         </div>
 
         {/* CTA */}
         <div className="mt-auto">
           <div className="bg-[#3DBFAD] text-white text-[9.5px] font-bold rounded-lg py-1.5 text-center shadow-sm">
-            Accept Nedbank — save R 100k →
+            Accept Nedbank's offer →
           </div>
         </div>
       </div>
@@ -1529,23 +1578,97 @@ function ScreenBondOffers() {
 }
 
 function ScreenBondApp() {
+  const banks = [
+    { bank: "Nedbank", stage: "Credit check", progress: 2, dot: "#16a34a" },
+    { bank: "Absa", stage: "Credit check", progress: 2, dot: "#dc2626" },
+    { bank: "FNB", stage: "Booking valuation", progress: 1, dot: "#fb923c" },
+    { bank: "Standard", stage: "Application received", progress: 1, dot: "#0284c7" },
+  ];
   return (
-    <PhoneFrame step={10} label="Multi-bank submission" platform="myhome" activeTab="deals">
-      <div className="flex flex-col gap-2">
-        <Heading>Bond application</Heading>
-        <Caption>BetterBond · 4 banks · R 1,494,400 (bundled)</Caption>
-        {[
-          { bank: "Nedbank", status: "✓ Submitted", tone: "green" as const },
-          { bank: "Absa", status: "○ Pending", tone: "slate" as const },
-          { bank: "Standard", status: "○ Pending", tone: "slate" as const },
-          { bank: "FNB", status: "✓ Submitted", tone: "green" as const },
-        ].map((b) => (
-          <div key={b.bank} className="flex items-center justify-between border-b border-slate-100 pb-1">
-            <div className="text-[9px] font-semibold text-[#0C2340]">{b.bank}</div>
-            <Pill tone={b.tone}>{b.status}</Pill>
+    <PhoneFrame step={10} label="Bond application · in progress" platform="myhome" activeTab="deals">
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#3DBFAD] opacity-50" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#3DBFAD]" />
+            </span>
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-[#0C2340]/70">
+              In progress
+            </span>
           </div>
-        ))}
-        <Caption>Docs sent from your vault · 6 files</Caption>
+          <div className="text-[8px] font-mono text-slate-400">submitted today</div>
+        </div>
+
+        {/* Headline — clear and informative */}
+        <div>
+          <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+            Submitted to 4 banks
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            R 1,494,400 bundled · first response expected in <span className="font-bold text-[#0C2340]">3–5 days</span>
+          </div>
+        </div>
+
+        {/* Stage-progress bars per bank */}
+        <div className="flex flex-col gap-1 mt-0.5">
+          {banks.map((b) => (
+            <div key={b.bank} className="border border-slate-200 rounded-md px-2 py-1">
+              <div className="flex items-center justify-between mb-0.5">
+                <div className="flex items-center gap-1">
+                  <span
+                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: b.dot }}
+                  />
+                  <span className="text-[9px] font-bold text-[#0C2340]">{b.bank}</span>
+                </div>
+                <span className="text-[7px] text-slate-500 font-mono">{b.progress}/4</span>
+              </div>
+              {/* Stage stepper: Received · Credit · Valuation · Decision */}
+              <div className="flex items-center gap-0.5 mb-0.5">
+                {[0, 1, 2, 3].map((i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 h-1 rounded-full ${
+                      i < b.progress
+                        ? "bg-emerald-500"
+                        : i === b.progress
+                        ? "bg-amber-400"
+                        : "bg-slate-200"
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="text-[7px] text-slate-500 leading-tight">{b.stage}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Bianca contact strip */}
+        <div className="mt-auto rounded-lg border border-slate-200 bg-white p-1.5">
+          <div className="flex items-center gap-1.5">
+            <div
+              className="w-6 h-6 rounded-full text-white text-[9px] font-bold flex items-center justify-center flex-shrink-0"
+              style={{ backgroundColor: BETTERBOND_RED }}
+            >
+              BN
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[8.5px] font-bold text-[#0C2340] leading-tight">
+                Questions while you wait?
+              </div>
+              <div className="text-[7px] text-slate-500 leading-tight">
+                Bianca replies in ~30 min
+              </div>
+            </div>
+            <div className="flex gap-1 flex-shrink-0">
+              <div className="bg-[#3DBFAD] text-white text-[8px] font-bold rounded px-2 py-1">
+                Message
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </PhoneFrame>
   );
@@ -1554,25 +1677,164 @@ function ScreenBondApp() {
 function ScreenBondApproved() {
   return (
     <PhoneFrame step={12} label="Bond approved · letter signed" platform="myhome" activeTab="deals">
-      <div className="flex flex-col gap-2">
-        <Pill tone="green">APPROVED</Pill>
-        <Heading>Nedbank · R 1.49m bundled bond</Heading>
-        <div className="border border-emerald-200 bg-emerald-50 rounded-md p-2">
-          <Caption>Interest rate</Caption>
-          <div className="text-[15px] font-extrabold text-[#0C2340]">9.50%</div>
-          <Caption>Prime − 0.75 · linked</Caption>
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header — mirrors screens 10 and 11 */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-emerald-700">
+              Approved
+            </span>
+          </div>
+          <div className="text-[8px] font-mono text-slate-400">Nedbank · today</div>
         </div>
+
+        {/* Headline */}
+        <div>
+          <div className="text-[12px] font-extrabold text-[#0C2340] leading-tight">
+            Your bond is approved
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            R 1.49m bundled · 9.50% locked for 20 years
+          </div>
+        </div>
+
+        {/* Savings strip — neutral */}
+        <div className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1">
+          <div className="text-[8px] text-slate-600 leading-tight">
+            <span className="font-extrabold text-[#0C2340]">R 100k saved</span> by accepting Nedbank vs Absa
+          </div>
+        </div>
+
+        {/* Terms grid */}
         <div className="grid grid-cols-2 gap-1.5">
           <div className="border border-slate-200 rounded-md p-1.5">
-            <Caption>Term</Caption>
-            <div className="text-[9px] font-bold text-[#0C2340]">20 yrs</div>
+            <div className="text-[7px] uppercase tracking-wider text-slate-400 font-semibold">Rate</div>
+            <div className="text-[11px] font-extrabold text-[#0C2340] tabular-nums">9.50%</div>
+            <div className="text-[7px] text-slate-500">Prime − 0.75 · linked</div>
           </div>
           <div className="border border-slate-200 rounded-md p-1.5">
-            <Caption>Monthly</Caption>
-            <div className="text-[9px] font-bold text-[#0C2340]">R 14,250</div>
+            <div className="text-[7px] uppercase tracking-wider text-slate-400 font-semibold">Monthly</div>
+            <div className="text-[11px] font-extrabold text-[#0C2340] tabular-nums">R 14,250</div>
+            <div className="text-[7px] text-slate-500">20-year term</div>
           </div>
         </div>
-        <Caption>Letter saved to vault</Caption>
+
+        {/* Approval letter card */}
+        <div className="rounded-md border border-slate-200 bg-white px-2 py-1 flex items-center gap-1.5">
+          <span className="text-[12px] leading-none">📄</span>
+          <div className="flex-1 min-w-0">
+            <div className="text-[8.5px] font-bold text-[#0C2340] leading-tight">
+              Nedbank approval letter
+            </div>
+            <div className="text-[7px] text-slate-500 leading-tight">PDF · 4 pages · saved to vault</div>
+          </div>
+          <div className="text-[#3DBFAD] text-[12px] leading-none">›</div>
+        </div>
+
+        {/* Next-step handoff */}
+        <div className="text-[8.5px] text-[#0C2340] leading-tight px-1 mt-auto">
+          Next: <span className="font-bold">Transfer attorney</span> takes it from here · signing in 5 days
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function ScreenPostBondDashboard() {
+  // The hub between Bond Approved and Registered. Buyer dips into the four
+  // side trips (Money, FICA, Insurance, Timeline) from here.
+  return (
+    <PhoneFrame step={13} label="Dashboard · post-bond hub" platform="myhome" activeTab="home">
+      <div className="flex flex-col gap-2 h-full">
+        {/* Greeting strip — same as screen 7/8 */}
+        <div
+          className="-mx-2 -mt-2 px-2.5 pt-2 pb-2 flex items-center gap-2"
+          style={{
+            background: "linear-gradient(135deg, #3DBFAD15 0%, #0C234008 60%, white 100%)",
+          }}
+        >
+          <div className="w-7 h-7 rounded-full bg-[#0C2340] text-white text-[10px] font-extrabold flex items-center justify-center flex-shrink-0">
+            WR
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+              Bond approved · we wait now
+            </div>
+          </div>
+          <div className="relative flex-shrink-0">
+            <div className="text-[12px] text-[#0C2340]">🔔</div>
+            <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-500" />
+          </div>
+        </div>
+
+        {/* Property hero card — state moved forward */}
+        <div className="rounded-lg border-2 border-[#3DBFAD]/40 overflow-hidden bg-white shadow-sm">
+          <div className="px-2 py-1.5">
+            <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+              R 1,350,000
+            </div>
+            <div className="text-[7.5px] text-slate-600 leading-tight">
+              14 Greenside Cres · ERF 1209
+            </div>
+          </div>
+          {/* Deal progress — well past halfway */}
+          <div className="px-2 py-1.5 border-t border-slate-100">
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[7px] text-slate-400 uppercase tracking-wider font-semibold">
+                Deal progress
+              </div>
+              <div className="text-[7px] font-mono font-bold text-[#3DBFAD]">8 / 17</div>
+            </div>
+            <div className="flex items-center gap-0.5">
+              {Array.from({ length: 17 }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`flex-1 h-1 rounded-full ${
+                    i < 8 ? "bg-emerald-500" : i === 8 ? "bg-amber-500" : "bg-slate-200"
+                  }`}
+                />
+              ))}
+            </div>
+            <div className="text-[8px] text-[#0C2340] font-semibold mt-1">
+              Next: <span className="font-bold">Lodged at Deeds</span> · ETA 2–6 weeks
+            </div>
+          </div>
+        </div>
+
+        {/* Side-trip launcher grid — the four branches */}
+        <div className="text-[7px] uppercase tracking-wider font-semibold text-slate-400 mt-0.5">
+          While you wait
+        </div>
+        <div className="grid grid-cols-2 gap-1">
+          {[
+            { icon: "💸", label: "Money", sub: "3 owed", tone: "amber" },
+            { icon: "📋", label: "Tasks", sub: "3 from atty", tone: "amber" },
+            { icon: "🛡", label: "Insurance", sub: "Compare", tone: "teal" },
+            { icon: "📍", label: "Timeline", sub: "Live status", tone: "teal" },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className={`rounded-md border p-1.5 flex items-center gap-1.5 ${
+                s.tone === "amber"
+                  ? "border-amber-200 bg-amber-50"
+                  : "border-slate-200 bg-white"
+              }`}
+            >
+              <div className="text-[14px] leading-none">{s.icon}</div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[8.5px] font-bold text-[#0C2340] leading-tight">{s.label}</div>
+                <div className="text-[7px] text-slate-500 leading-tight">{s.sub}</div>
+              </div>
+              <div className="text-[#3DBFAD] text-[10px] leading-none">›</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Footer note */}
+        <div className="text-[8px] text-slate-500 leading-tight mt-auto px-1">
+          We'll ping you the moment Deeds registers. Sit tight.
+        </div>
       </div>
     </PhoneFrame>
   );
@@ -1580,24 +1842,64 @@ function ScreenBondApproved() {
 
 function ScreenMoneyWaterfall() {
   return (
-    <PhoneFrame step={15} label="Money waterfall" platform="myhome" activeTab="money">
-      <div className="flex flex-col gap-2">
-        <Heading>What you owe, when</Heading>
-        <Caption>Next 60 days · 4 events</Caption>
-        {[
-          { what: "Deposit", to: "Attorney trust", amt: "R 202,500", when: "today", tone: "amber" as const },
-          { what: "Bond + transfer", to: "Attorney trust", amt: "R 61,000", when: "Day 38", tone: "amber" as const },
-          { what: "Disbursements", to: "SARS · atty", amt: "~R 35k", when: "Day 45", tone: "slate" as const },
-          { what: "Bank settles", to: "Seller", amt: "R 1.15m", when: "Day 88", tone: "slate" as const },
-        ].map((e) => (
-          <div key={e.what} className="flex items-center justify-between border-l-2 border-amber-300 pl-1.5 py-0.5">
-            <div>
-              <div className="text-[9px] font-bold text-[#0C2340]">{e.what}</div>
-              <Caption>{e.to} · {e.when}</Caption>
-            </div>
-            <div className="text-[9px] font-bold text-amber-700 tabular-nums">{e.amt}</div>
+    <PhoneFrame step="13a" label="Money waterfall (side trip · Money tab)" platform="myhome" activeTab="money">
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header — matches 10/11/12 pattern */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-amber-700">
+              4 upcoming payments
+            </span>
           </div>
-        ))}
+          <div className="text-[8px] font-mono text-slate-400">next 88 days</div>
+        </div>
+
+        {/* Headline + total */}
+        <div>
+          <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+            What you owe, when
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            R 298,500 cash before the bank settles
+          </div>
+        </div>
+
+        {/* Payments list */}
+        <div className="flex flex-col gap-1 mt-0.5">
+          {[
+            { what: "Deposit", to: "Attorney trust", amt: "R 202,500", when: "today", paid: true },
+            { what: "Bond + transfer costs", to: "Attorney trust", amt: "R 61,000", when: "Day 38", paid: false },
+            { what: "Attorney disbursements", to: "SARS · attorneys · deeds", amt: "~R 35,000", when: "Day 45", paid: false },
+            { what: "Bank settles", to: "Seller", amt: "R 1.49m", when: "Day 88", paid: false, info: true },
+          ].map((e) => (
+            <div
+              key={e.what}
+              className={`rounded-md border px-2 py-1 ${
+                e.paid
+                  ? "border-emerald-200 bg-emerald-50"
+                  : e.info
+                  ? "border-slate-200 bg-slate-50"
+                  : "border-amber-200 bg-amber-50"
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <div className="text-[9px] font-bold text-[#0C2340]">{e.what}</div>
+                <div className="text-[9px] font-mono font-bold text-[#0C2340] tabular-nums">{e.amt}</div>
+              </div>
+              <div className="flex items-center justify-between mt-0.5">
+                <div className="text-[7px] text-slate-500">{e.to}</div>
+                <div className="text-[7px] font-semibold tabular-nums">
+                  {e.paid ? (
+                    <span className="text-emerald-700">✓ paid {e.when}</span>
+                  ) : (
+                    <span className="text-slate-500">{e.when}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </PhoneFrame>
   );
@@ -1605,25 +1907,79 @@ function ScreenMoneyWaterfall() {
 
 function ScreenFICA() {
   return (
-    <PhoneFrame step={16} label="Document inbox · FICA" platform="myhome" activeTab="vault">
-      <div className="flex flex-col gap-2">
+    <PhoneFrame step="13b" label="Attorney inbox (side trip · 28 pings absorbed)" platform="myhome" activeTab="vault">
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header */}
         <div className="flex items-center justify-between">
-          <Heading>Tasks from attorney</Heading>
-          <Pill tone="amber">3</Pill>
-        </div>
-        {[
-          { task: "Sign FICA pack", action: "Pre-filled from vault" },
-          { task: "Confirm cost statement", action: "v2 · attorney updated" },
-          { task: "Book signing apt", action: "3 slots offered" },
-        ].map((t) => (
-          <div key={t.task} className="flex items-start gap-1.5 border-b border-slate-100 pb-1.5">
-            <div className="w-3 h-3 rounded-full border-2 border-slate-300 flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <div className="text-[9px] font-semibold text-[#0C2340]">{t.task}</div>
-              <Caption>{t.action}</Caption>
-            </div>
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-amber-700">
+              6 tasks · 2 attorneys
+            </span>
           </div>
-        ))}
+          <div className="text-[8px] font-mono text-slate-400">28 messages in</div>
+        </div>
+
+        {/* Headline */}
+        <div>
+          <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+            Attorney inbox
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            Sandra (Transfer) + Pieter (Bond) · MyHome surfaces only what you need to do
+          </div>
+        </div>
+
+        {/* Filter chips */}
+        <div className="flex items-center gap-1">
+          {[
+            { label: "All", count: 6, active: true },
+            { label: "Transfer", count: 4, active: false },
+            { label: "Bond", count: 2, active: false },
+          ].map((f) => (
+            <div
+              key={f.label}
+              className={`text-[8px] font-bold rounded-full px-2 py-0.5 ${
+                f.active ? "bg-[#0C2340] text-white" : "bg-slate-100 text-slate-500"
+              }`}
+            >
+              {f.label} · {f.count}
+            </div>
+          ))}
+        </div>
+
+        {/* Tasks list — denser */}
+        <div className="flex flex-col gap-0.5 overflow-hidden">
+          {[
+            { task: "Sign FICA pack", who: "Transfer", action: "Pre-filled from vault", urgent: true },
+            { task: "Confirm cost statement v2", who: "Transfer", action: "updated yesterday · ~R 61k", urgent: true },
+            { task: "Book signing apt", who: "Transfer", action: "3 slots offered this week", urgent: false },
+            { task: "Sign bond docs", who: "Bond", action: "Pieter · separate signing", urgent: false },
+            { task: "Confirm bond cost", who: "Bond", action: "~R 26k bond registration", urgent: false },
+            { task: "EFT transfer + bond costs", who: "Transfer", action: "R 96k to trust · before Day 38", urgent: false },
+          ].map((t) => (
+            <div key={t.task} className="rounded-md border border-slate-200 bg-white px-1.5 py-1 flex items-center gap-1.5">
+              <div className="w-3 h-3 rounded-full border-2 border-slate-300 flex-shrink-0" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1">
+                  <div className="text-[8.5px] font-bold text-[#0C2340] truncate">{t.task}</div>
+                  {t.urgent && <Pill tone="amber">URGENT</Pill>}
+                </div>
+                <div className="text-[7px] text-slate-500 leading-tight">
+                  <span className="font-semibold">{t.who}</span> · {t.action}
+                </div>
+              </div>
+              <div className="text-[#3DBFAD] text-[10px] leading-none">›</div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div className="mt-auto">
+          <div className="bg-[#3DBFAD] text-white text-[9.5px] font-bold rounded-lg py-1.5 text-center shadow-sm">
+            Start first urgent task →
+          </div>
+        </div>
       </div>
     </PhoneFrame>
   );
@@ -1631,26 +1987,308 @@ function ScreenFICA() {
 
 function ScreenInsurance() {
   return (
-    <PhoneFrame step={17} label="Insurance · compare" platform="myhome" activeTab="deals">
-      <div className="flex flex-col gap-2">
-        <Heading>HOC + life cover</Heading>
-        <Caption>Compare before you sign</Caption>
-        {[
-          { name: "Bank broker", price: "695", best: false },
-          { name: "BetterSure", price: "540", best: true },
-          { name: "Naked", price: "580", best: false },
-        ].map((q) => (
-          <div
-            key={q.name}
-            className={`border-2 rounded-md p-1.5 ${q.best ? "border-emerald-400 bg-emerald-50" : "border-slate-200"}`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="text-[9px] font-bold text-[#0C2340]">{q.name}</div>
-              {q.best && <Pill tone="green">BEST</Pill>}
-            </div>
-            <Caption>R {q.price} / mo</Caption>
+    <PhoneFrame step="13c" label="Insurance · compare (side trip)" platform="myhome" activeTab="deals">
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-[#3DBFAD]" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-[#0C2340]/70">
+              3 quotes in
+            </span>
           </div>
-        ))}
+          <div className="text-[8px] font-mono text-slate-400">required by Day 38</div>
+        </div>
+
+        {/* Headline */}
+        <div>
+          <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+            HOC + life cover
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            Bank requires both — compare before you sign
+          </div>
+        </div>
+
+        {/* Recommended — BetterSure card with real logo */}
+        <div
+          className="border-2 rounded-md p-2 shadow-sm relative"
+          style={{ borderColor: BETTERSURE_ORANGE, backgroundColor: `${BETTERSURE_ORANGE}10` }}
+        >
+          <div className="absolute top-1 right-1">
+            <Pill tone="green">BEST RATE</Pill>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <BetterSureLogo className="h-5 w-auto flex-shrink-0" />
+            <div className="text-[11px] font-extrabold" style={{ color: BETTERSURE_NAVY }}>
+              BetterSure
+            </div>
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-1">
+            <div className="text-[16px] font-extrabold text-[#0C2340] tabular-nums leading-none">
+              R 540
+            </div>
+            <div className="text-[8px] text-slate-600 font-semibold">/ month</div>
+          </div>
+          <div className="text-[7.5px] text-slate-500 mt-0.5">
+            HOC R 320 · Life cover R 220 · same insurer, bundled
+          </div>
+        </div>
+
+        {/* Other quotes — compact */}
+        <div className="border border-slate-200 rounded-md divide-y divide-slate-100">
+          {[
+            { name: "Bank broker", price: 695, vs: "+R 155/mo" },
+            { name: "Naked", price: 580, vs: "+R 40/mo" },
+          ].map((q) => (
+            <div key={q.name} className="px-2 py-1 flex items-center gap-1.5">
+              <div className="text-[8.5px] font-bold text-[#0C2340] flex-1">{q.name}</div>
+              <div className="text-[9px] font-mono font-bold text-[#0C2340] w-14 tabular-nums">R {q.price}</div>
+              <div className="text-[7.5px] font-semibold text-slate-500 tabular-nums">{q.vs}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Savings note */}
+        <div className="text-[8.5px] text-slate-600 leading-tight px-1">
+          BetterSure saves <span className="font-extrabold text-[#0C2340]">R 1,860/yr</span> vs the bank broker.
+        </div>
+
+        {/* CTA */}
+        <div className="mt-auto">
+          <div
+            className="text-white text-[9.5px] font-bold rounded-lg py-1.5 text-center shadow-sm"
+            style={{ backgroundColor: BETTERSURE_ORANGE }}
+          >
+            Accept BetterSure quote →
+          </div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function ScreenBetterSureQuote() {
+  // Tapped from screen 13c — full quote detail before accepting.
+  // Optional further side trip from here into the Thandi WhatsApp chat.
+  return (
+    <PhoneFrame
+      step="13c·q"
+      label="BetterSure quote detail (tapped from compare)"
+      platform="myhome"
+      activeTab="deals"
+    >
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Detail-view header */}
+        <div className="-mx-2 -mt-2 px-2.5 py-1.5 flex items-center gap-1.5 border-b border-slate-100 bg-white">
+          <ChevronLeft className="w-3.5 h-3.5 text-[#0C2340]" strokeWidth={2.5} />
+          <div className="text-[8px] uppercase tracking-wider font-semibold text-slate-400">
+            Insurance /
+          </div>
+          <div className="text-[10px] font-extrabold text-[#0C2340]">Quote</div>
+        </div>
+
+        {/* Brand header */}
+        <div className="flex items-center gap-1.5">
+          <BetterSureLogo className="h-5 w-auto flex-shrink-0" />
+          <div className="flex-1">
+            <div className="text-[10px] font-extrabold" style={{ color: BETTERSURE_NAVY }}>
+              BetterSure
+            </div>
+            <div className="text-[7px] text-slate-500">Quote #BSI-2026-4821 · valid 30 days</div>
+          </div>
+        </div>
+
+        {/* Hero — total premium */}
+        <div
+          className="rounded-md p-2 text-white"
+          style={{ backgroundColor: BETTERSURE_NAVY }}
+        >
+          <div className="text-[7px] uppercase tracking-wider opacity-70 font-semibold">
+            Bundled premium
+          </div>
+          <div className="text-[18px] font-extrabold leading-none mt-0.5 tabular-nums">
+            R 540 <span className="text-[10px] font-semibold opacity-70">/ mo</span>
+          </div>
+          <div className="text-[7px] opacity-70 mt-0.5">starts at registration</div>
+        </div>
+
+        {/* Cover breakdown */}
+        <div className="border border-slate-200 rounded-md divide-y divide-slate-100">
+          <div className="px-2 py-1">
+            <div className="flex items-center justify-between">
+              <div className="text-[9px] font-bold text-[#0C2340]">Building cover (HOC)</div>
+              <div className="text-[9px] font-mono font-bold text-[#0C2340] tabular-nums">R 320</div>
+            </div>
+            <div className="text-[7px] text-slate-500">Replacement up to R 1,350,000 · R 5k excess</div>
+          </div>
+          <div className="px-2 py-1">
+            <div className="flex items-center justify-between">
+              <div className="text-[9px] font-bold text-[#0C2340]">Life cover (bond)</div>
+              <div className="text-[9px] font-mono font-bold text-[#0C2340] tabular-nums">R 220</div>
+            </div>
+            <div className="text-[7px] text-slate-500">Cover R 1,490,000 · 20-year term</div>
+          </div>
+        </div>
+
+        {/* CTAs */}
+        <div className="mt-auto flex flex-col gap-1">
+          <div
+            className="text-white text-[10px] font-bold rounded-lg py-2 text-center shadow-sm"
+            style={{ backgroundColor: BETTERSURE_ORANGE }}
+          >
+            Accept quote →
+          </div>
+          <div
+            className="border text-[8.5px] font-bold rounded-lg py-1.5 text-center flex items-center justify-center gap-1.5"
+            style={{ borderColor: BETTERSURE_NAVY, color: BETTERSURE_NAVY }}
+          >
+            <span>💬</span>
+            <span>Chat to Thandi about this quote</span>
+          </div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function ScreenAttorneyChat() {
+  // Side trip off the FICA / attorney inbox — shows the volume of pings
+  // the buyer would normally get from Sandra (transfer attorney). MyHome
+  // collapses these into the inbox above.
+  return (
+    <PhoneFrame
+      step="13b·i"
+      label="Transfer attorney ↔ buyer (Sandra's view)"
+      platform="whatsapp"
+      whatsappContact={{ name: "Wesley · 14 Greenside", sub: "online", initials: "W" }}
+      activeTab="chats"
+    >
+      <div className="flex flex-col gap-1.5 pt-0.5">
+        <div className="self-center bg-white/80 rounded px-2 py-0.5 shadow-sm">
+          <div className="text-[7px] font-semibold text-slate-500">LAST 5 DAYS</div>
+        </div>
+
+        {/* Sandra welcome */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm relative">
+          <div className="absolute -right-1 top-0 w-0 h-0 border-t-[6px] border-t-[#DCF8C6] border-r-[6px] border-r-transparent" />
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Hi Wesley — Sandra Pillay, transfer attorney at Cliffe Dekker. File opened on 14 Greenside Cres 👋
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">Mon ✓✓</div>
+        </div>
+
+        {/* FICA pack */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm">
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Need your FICA pack. Sending the list now…
+          </div>
+          <div className="bg-white/70 border border-slate-200/60 rounded px-1 py-0.5 mt-0.5">
+            <div className="text-[7px] font-bold text-[#0C2340]">📎 FICA_pack.pdf · 7 docs needed</div>
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">Tue ✓✓</div>
+        </div>
+
+        {/* Cost statement v2 */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm">
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Updated cost statement — slight bump for clearance certs. Please review.
+          </div>
+          <div className="bg-white/70 border border-slate-200/60 rounded px-1 py-0.5 mt-0.5">
+            <div className="text-[7px] font-bold text-[#0C2340]">📄 cost_statement_v2.pdf · R 61,200</div>
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">Wed ✓✓</div>
+        </div>
+
+        {/* Signing apt */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm">
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Booking your signing — 3 slots this week 📅 Thu 10am / Fri 2pm / Sat 9am
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">Thu ✓✓</div>
+        </div>
+
+        {/* System pill */}
+        <div className="self-center bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+          <div className="text-[7px] font-bold text-amber-800">
+            📥 4 of 28 messages · MyHome routes the rest to your inbox
+          </div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function ScreenBetterSureChat() {
+  // Side trip off the insurance screen — the BetterSure agent reaches out
+  // on WhatsApp to handle the sale. Mirrors the A1/B1 agent-perspective pattern.
+  return (
+    <PhoneFrame
+      step="13c·i"
+      label="BetterSure agent ↔ buyer (Thandi's view)"
+      platform="whatsapp"
+      whatsappContact={{ name: "Wesley · BetterSure", sub: "online", initials: "W" }}
+      activeTab="chats"
+    >
+      <div className="flex flex-col gap-1.5 pt-0.5">
+        <div className="self-center bg-white/80 rounded px-2 py-0.5 shadow-sm">
+          <div className="text-[7px] font-semibold text-slate-500">TODAY</div>
+        </div>
+
+        {/* Thandi greets — outgoing green bubble */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm relative">
+          <div className="absolute -right-1 top-0 w-0 h-0 border-t-[6px] border-t-[#DCF8C6] border-r-[6px] border-r-transparent" />
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Hi Wes! Thandi from BetterSure 👋 Congrats on the bond approval.
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">10:14 ✓✓</div>
+        </div>
+
+        {/* Quote sent — bubble with attachment card */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm">
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Your quote — bundled HOC + life cover:
+          </div>
+          <div className="bg-white/70 border border-slate-200/60 rounded px-1.5 py-1 mt-0.5">
+            <div className="flex items-center gap-1">
+              <div
+                className="w-3 h-3 rounded-sm flex-shrink-0"
+                style={{ backgroundColor: BETTERSURE_ORANGE }}
+              />
+              <div className="text-[7px] font-extrabold" style={{ color: BETTERSURE_NAVY }}>
+                BetterSure quote · R 540/mo
+              </div>
+            </div>
+            <div className="text-[6.5px] text-slate-500 mt-0.5">
+              HOC R 320 · life R 220 · cover from registration
+            </div>
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">10:15 ✓✓</div>
+        </div>
+
+        {/* Buyer accepts — incoming white bubble */}
+        <div className="self-start max-w-[160px] bg-white rounded-lg rounded-tl-sm px-2 py-1 shadow-sm relative">
+          <div className="absolute -left-1 top-0 w-0 h-0 border-t-[6px] border-t-white border-l-[6px] border-l-transparent" />
+          <div className="text-[9px] text-slate-800 leading-snug">
+            Looks great. Let's do it 👍
+          </div>
+          <div className="text-[6px] text-slate-400 mt-0.5">10:22</div>
+        </div>
+
+        {/* Thandi confirms — outgoing */}
+        <div className="self-end max-w-[180px] bg-[#DCF8C6] rounded-lg rounded-tr-sm px-2 py-1 shadow-sm">
+          <div className="text-[9px] text-slate-800 leading-snug">
+            🎉 Sorted. Policy doc lands in your MyHome vault in a sec.
+          </div>
+          <div className="text-[6px] text-slate-500 mt-0.5 text-right">10:23 ✓✓</div>
+        </div>
+
+        {/* System pill */}
+        <div className="self-center bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
+          <div className="text-[7px] font-bold text-amber-800">
+            📄 BetterSure policy synced to MyHome
+          </div>
+        </div>
       </div>
     </PhoneFrame>
   );
@@ -1671,7 +2309,7 @@ function ScreenStatusFeed() {
   ];
 
   return (
-    <PhoneFrame step={18} label="Deal timeline (open from anywhere)" platform="myhome" activeTab="deals">
+    <PhoneFrame step="13d" label="Deal timeline (side trip · open from anywhere)" platform="myhome" activeTab="deals">
       <div className="flex flex-col gap-2 h-full">
         <div className="flex items-center justify-between">
           <Heading>Deal timeline</Heading>
@@ -1734,27 +2372,184 @@ function ScreenStatusFeed() {
 
 function ScreenRegistered() {
   return (
-    <PhoneFrame step={19} label="Registered · keys" platform="myhome" activeTab="home">
-      <div className="flex flex-col gap-2 h-full">
-        <div className="flex flex-col items-center mt-3">
-          <div className="w-14 h-14 rounded-full bg-emerald-100 flex items-center justify-center mb-2">
-            <div className="text-emerald-600 text-3xl leading-none">✓</div>
+    <PhoneFrame step={14} label="Registered · keys (the milestone)" platform="myhome" activeTab="home">
+      <div
+        className="flex flex-col gap-2 h-full -m-2 p-3 relative overflow-hidden"
+        style={{
+          background: "linear-gradient(180deg, #3DBFAD22 0%, #3DBFAD0a 35%, white 100%)",
+        }}
+      >
+        {/* Soft celebratory orbs */}
+        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-[#3DBFAD]/20 blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-emerald-200/40 blur-2xl pointer-events-none" />
+
+        {/* Status header — matches the rest of the journey */}
+        <div className="flex items-center justify-between relative">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-emerald-700">
+              Registered at deeds
+            </span>
           </div>
-          <Pill tone="green">REGISTERED</Pill>
+          <div className="text-[8px] font-mono text-slate-400">today · 14:32</div>
         </div>
-        <div className="mt-2 text-center">
-          <Heading>Your home is yours</Heading>
-        </div>
-        <div className="text-center">
-          <Caption>Title deed · T1209/2026</Caption>
-        </div>
-        <Block h={44} tone="green" rounded="rounded-md" />
-        <div className="mt-auto flex flex-col gap-1">
-          <div className="bg-[#0C2340] text-white text-[9px] font-bold rounded-lg py-1.5 text-center">
-            View title deed
+
+        {/* The headline — emotional, big */}
+        <div className="text-center mt-1 relative">
+          <div className="text-[8px] font-semibold uppercase tracking-[0.2em] text-[#3DBFAD]">
+            🎉 You own it
           </div>
-          <div className="text-center">
-            <Caption>Up next: month 1 debits</Caption>
+          <div className="text-[18px] font-extrabold text-[#0C2340] leading-tight mt-1">
+            Welcome home, Wesley.
+          </div>
+          <div className="text-[9px] text-[#0C2340]/65 leading-snug mt-1">
+            14 Greenside Cres is now legally yours.
+          </div>
+        </div>
+
+        {/* Simple registration confirmation card */}
+        <div className="rounded-lg border border-[#3DBFAD]/30 bg-white p-2 mt-1">
+          <div className="flex items-start gap-1.5">
+            <div className="w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+              ✓
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] font-bold text-[#0C2340] leading-tight">
+                Your title deed has been registered in the Deeds Office.
+              </div>
+              <div className="text-[8px] text-slate-500 leading-tight mt-1">
+                Deed no. <span className="font-mono font-bold text-[#0C2340]">T1209/2026</span> · saved to your vault
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* What's next preview */}
+        <div className="rounded-md border border-slate-200 bg-white/70 px-2 py-1 mt-1">
+          <div className="text-[7px] uppercase tracking-wider font-semibold text-slate-400">
+            Up next
+          </div>
+          <div className="text-[8.5px] text-[#0C2340] leading-tight mt-0.5">
+            Move in this weekend · first bond debit{" "}
+            <span className="font-bold">1 June</span>
+          </div>
+        </div>
+
+        {/* CTA — the celebration moment */}
+        <div className="mt-auto flex flex-col gap-1 relative">
+          <div className="bg-[#3DBFAD] text-white text-[10px] font-bold rounded-lg py-2 text-center shadow-md">
+            View your title deed →
+          </div>
+          <div className="text-center text-[7.5px] text-slate-500 font-semibold">
+            Stored in your vault · for life
+          </div>
+        </div>
+      </div>
+    </PhoneFrame>
+  );
+}
+
+function ScreenMonth1() {
+  return (
+    <PhoneFrame step={15} label="Month 1 · bundle activated" platform="myhome" activeTab="home">
+      <div className="flex flex-col gap-1.5 h-full">
+        {/* Status header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[8px] font-extrabold uppercase tracking-widest text-emerald-700">
+              Homeowner · day 18
+            </span>
+          </div>
+          <div className="text-[8px] font-mono text-slate-400">first bond ran</div>
+        </div>
+
+        {/* Headline */}
+        <div>
+          <div className="text-[11px] font-extrabold text-[#0C2340] leading-tight">
+            You're up and running
+          </div>
+          <div className="text-[8px] text-slate-500 leading-tight mt-0.5">
+            All debits live · MyHome bundle activated
+          </div>
+        </div>
+
+        {/* Monthly debits — small live status */}
+        <div className="rounded-md border border-slate-200 bg-white">
+          <div className="px-2 py-0.5 text-[7px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
+            This month · 4 debits live
+          </div>
+          <div className="divide-y divide-slate-100">
+            {[
+              { who: "Nedbank · bond", amt: "R 14,250", done: true },
+              { who: "BetterSure · HOC + life", amt: "R 540", done: true },
+              { who: "Joburg · rates", amt: "~R 1,800", done: false },
+              { who: "Body corp · levy", amt: "R 2,500", done: false },
+            ].map((d) => (
+              <div key={d.who} className="flex items-center justify-between px-2 py-0.5">
+                <div className="flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${d.done ? "bg-emerald-500" : "bg-amber-400"}`} />
+                  <div className="text-[8px] text-[#0C2340]">{d.who}</div>
+                </div>
+                <div className="text-[8px] font-mono font-bold text-[#0C2340] tabular-nums">{d.amt}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* MyHome bundle — activated CashBuild facility */}
+        <div className="rounded-lg border-2 border-[#3DBFAD]/40 overflow-hidden bg-white shadow-sm">
+          <div className="px-2 py-1 bg-[#3DBFAD]/10 flex items-center justify-between border-b border-slate-100">
+            <div className="text-[7px] uppercase tracking-wider font-extrabold text-[#3DBFAD]">
+              MyHome bundle · live
+            </div>
+            <Pill tone="teal">2 of 4 in use</Pill>
+          </div>
+
+          {/* CashBuild facility row — hero */}
+          <div className="px-2 py-1.5 flex items-center gap-1.5">
+            <div className="w-7 h-7 rounded-md bg-orange-600 text-white text-[8px] font-extrabold flex items-center justify-center flex-shrink-0">
+              CB
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-[9.5px] font-extrabold text-[#0C2340] leading-tight">
+                CashBuild renovation facility
+              </div>
+              <div className="text-[7px] text-slate-500 leading-tight">
+                Tap & shop · rolled into your bond
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <div className="text-[10px] font-extrabold text-[#0C2340] tabular-nums leading-none">
+                R 50,000
+              </div>
+              <div className="text-[6.5px] text-emerald-600 font-bold mt-0.5">
+                AVAILABLE
+              </div>
+            </div>
+          </div>
+
+          {/* Other bundle items — slim rows */}
+          <div className="divide-y divide-slate-100 border-t border-slate-100">
+            {[
+              { label: "Move-in essentials", amt: "R 25,000", note: "✓ drawn week 1" },
+              { label: "Transfer + bond costs", amt: "R 61,000", note: "✓ paid at registration" },
+            ].map((b) => (
+              <div key={b.label} className="px-2 py-0.5 flex items-center justify-between">
+                <div>
+                  <div className="text-[8px] text-[#0C2340] font-semibold">{b.label}</div>
+                  <div className="text-[6.5px] text-slate-400">{b.note}</div>
+                </div>
+                <div className="text-[8px] font-mono text-slate-500 tabular-nums">{b.amt}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* CashBuild CTA */}
+        <div className="mt-auto">
+          <div className="text-white text-[10px] font-bold rounded-lg py-2 text-center shadow-sm bg-orange-600 flex items-center justify-center gap-1.5">
+            <span>Use your CashBuild card →</span>
           </div>
         </div>
       </div>
@@ -1798,9 +2593,42 @@ function PhaseFrameNode({ data }: NodeProps<Node<PhaseFrameData>>) {
   );
 }
 
+type NoteData = {
+  title: string;
+  lines: { lead: string; text: string }[];
+  tone?: "yellow" | "teal";
+};
+
+// Annotation sticky — sits on the canvas as a comment, visually distinct from
+// the wireframe phones so it reads as "designer's note", not part of the product.
+function NoteNode({ data }: NodeProps<Node<NoteData>>) {
+  const teal = data.tone === "teal";
+  return (
+    <div
+      className={`w-full h-full rounded-lg shadow-lg px-4 py-3 pointer-events-none border ${
+        teal ? "bg-[#E3F6F2] border-[#3DBFAD]/50" : "bg-[#FFF7C2] border-[#E4D46A]"
+      }`}
+      style={{ transform: "rotate(-0.5deg)" }}
+    >
+      <div className="text-[13px] font-extrabold text-[#0C2340] mb-2 flex items-center gap-1.5">
+        {data.title}
+      </div>
+      <ul className="flex flex-col gap-1.5">
+        {data.lines.map((l, i) => (
+          <li key={i} className="text-[10.5px] leading-snug text-[#0C2340]/85">
+            <span className="font-bold text-[#0C2340]">{l.lead}</span>{" "}
+            {l.text}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 const nodeTypes = {
   screen: ScreenNode,
   phase: PhaseFrameNode,
+  note: NoteNode,
 };
 
 // ─── Layout ────────────────────────────────────────────────────────────────
@@ -1848,11 +2676,17 @@ const PHASE_CONSULTANT_X = PHASE0_X + PHASE0_W - PHASE_CONSULTANT_W;
 const PHASE_AGENT_Y = PHASE_CONSULTANT_Y + PHASE_CONSULTANT_H + PHASE_GAP;
 const PHASE0_Y = PHASE_AGENT_Y;
 
-// Phase 1 — combined journey from OTP-signed dashboard through registration
-// 10 screens in a 5×2 grid (wraps at s10 → s11)
+// Phase 1 — combined journey, layout is an L-shape off the post-bond hub
+// Row 0 (linear, all 5 cols): pre-approval → bundle → bond app → offers → approved
+// Row 1: s_postbond (col 0) ──right──→ money · attorney inbox · insurance · timeline
+//        (these 4 branches fan out RIGHT of the hub)
+// Rows 2-3 (linear DOWN from hub, col 0): s_postbond → registered → month 1
+// Rows 2-3 (deeper side trips, under their parents in row 1):
+//   col 2: attorney WhatsApp chat
+//   col 3: BetterSure quote → BetterSure WhatsApp chat
 const PHASE1_Y = PHASE0_Y + PHASE0_H + PHASE_GAP;
-const PHASE1_ROWS = 2;
-const PHASE1_H = FRAME_PAD * 2 + PHASE1_ROWS * PHONE_BLOCK_H + ROW_GAP;
+const PHASE1_ROWS = 4;
+const PHASE1_H = FRAME_PAD * 2 + PHASE1_ROWS * PHONE_BLOCK_H + 3 * ROW_GAP;
 const PHASE1_COLS = 5;
 const PHASE1_W = FRAME_PAD * 2 + (PHASE1_COLS - 1) * COL + SCREEN_W + 20;
 
@@ -1861,7 +2695,46 @@ const colX = (n: number, baseX: number = X0) => baseX + FRAME_PAD + n * COL;
 const innerY = (frameY: number, row: number) =>
   frameY + FRAME_PAD + row * (PHONE_BLOCK_H + ROW_GAP);
 
+// Positioning sticky — pinned above the whole diagram so it's the first thing
+// read on the canvas. Width/position centred over the buyer journey.
+const NOTE_W = 600;
+const NOTE_H = 232;
+const NOTE_X = (X0 + PHASE_BUYER_X + PHASE1_W) / 2 - NOTE_W / 2;
+const NOTE_Y = Y0 - NOTE_H - 60;
+
 const nodes: Node[] = [
+  // ── Positioning note (top of canvas) ────────────────────────────────────
+  {
+    id: "note-positioning",
+    type: "note",
+    position: { x: NOTE_X, y: NOTE_Y },
+    data: {
+      title: "📌 What MyHome is — and what it isn't",
+      lines: [
+        {
+          lead: "A window, not a takeover.",
+          text: "BetterBond, the agent and the attorneys keep closing the deal exactly as they do today — MyHome never sits in the critical path. We just give the buyer a view in.",
+        },
+        {
+          lead: "White-label rails — think Discovery Vitality.",
+          text: "Not a standalone brand. Ships as “MyHome powered by BetterBond / RE/MAX / …” — partner-agnostic, plugs into any ecosystem.",
+        },
+        {
+          lead: "Before registration = PULL.",
+          text: "We watch & track the journey, mirroring status via API / webhook from the BetterBond platform, Salesforce and the attorneys. Read-only.",
+        },
+        {
+          lead: "After registration = PUSH.",
+          text: "Only once the deal registers (and the bank can’t re-assess) does MyHome start proactively pushing insights, nudges & offers to the new homeowner.",
+        },
+      ],
+    },
+    style: { width: NOTE_W, height: NOTE_H },
+    selectable: false,
+    draggable: false,
+    zIndex: 5,
+  },
+
   // ── Phase frames (rendered behind, must come first) ─────────────────────
   {
     id: "phase-agent",
@@ -1897,7 +2770,7 @@ const nodes: Node[] = [
     id: "phase-1",
     type: "phase",
     position: { x: PHASE_BUYER_X, y: PHASE1_Y },
-    data: { label: "Phase 1 · Buyer's journey", sub: "Pre-approval → registration · the full ride · MyHome carries the load for the buyer" },
+    data: { label: "Phase 1 · Buyer's journey", sub: "Pre-approval → registration: MyHome mirrors the deal (PULL) · at registration it flips to PUSH for the new homeowner" },
     style: { width: PHASE1_W, height: PHASE1_H },
     selectable: false,
     draggable: false,
@@ -1928,19 +2801,26 @@ const nodes: Node[] = [
   // Side branch — doc vault upload UI, opened from the dashboard
   { id: "s_vault", type: "screen", position: { x: colX(5, PHASE_BUYER_X), y: innerY(PHASE0_Y, 1) }, data: { Screen: ScreenDocVault }, draggable: false },
 
-  // ── Phase 1 — 5×2 grid (wraps at s_offers → s10)
-  // Row 0: dashboard-after-OTP → bundle → bond app → offers → bond approved
+  // ── Phase 1 — 3-row hub-and-branches layout
+  // Row 0 (linear): pre-approval → bundle → bond app → offers → bond approved
   { id: "s6", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenPreapproval }, draggable: false },
   { id: "s_bundle", type: "screen", position: { x: colX(1, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondBundle }, draggable: false },
   { id: "s9", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondApp }, draggable: false },
   { id: "s_offers", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondOffers }, draggable: false },
   { id: "s10", type: "screen", position: { x: colX(4, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondApproved }, draggable: false },
-  // Row 1: money waterfall → FICA → insurance → status → registered
-  { id: "s11", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenMoneyWaterfall }, draggable: false },
-  { id: "s12", type: "screen", position: { x: colX(1, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenFICA }, draggable: false },
-  { id: "s13", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenInsurance }, draggable: false },
-  { id: "s14", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenStatusFeed }, draggable: false },
-  { id: "s15", type: "screen", position: { x: colX(4, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenRegistered }, draggable: false },
+  // Row 1: post-bond hub (col 0) + 4 branches fanning out to the RIGHT (cols 1-4)
+  { id: "s_postbond", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenPostBondDashboard }, draggable: false },
+  { id: "s11", type: "screen", position: { x: colX(1, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenMoneyWaterfall }, draggable: false },
+  { id: "s12", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenFICA }, draggable: false },
+  { id: "s13", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenInsurance }, draggable: false },
+  { id: "s14", type: "screen", position: { x: colX(4, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenStatusFeed }, draggable: false },
+  // Linear continuation DOWN from the hub (col 0): registered → month 1
+  { id: "s15", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 2) }, data: { Screen: ScreenRegistered }, draggable: false },
+  { id: "s_month1", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 3) }, data: { Screen: ScreenMonth1 }, draggable: false },
+  // Deeper side trips under the row-1 branches
+  { id: "s_attorney_chat", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 2) }, data: { Screen: ScreenAttorneyChat }, draggable: false },
+  { id: "s_quote", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 2) }, data: { Screen: ScreenBetterSureQuote }, draggable: false },
+  { id: "s_bettersure", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 3) }, data: { Screen: ScreenBetterSureChat }, draggable: false },
 ];
 
 const SOLID = { type: "smoothstep", style: { stroke: "#0C2340", strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: "#0C2340" } } as const;
@@ -1984,25 +2864,38 @@ const edges: Edge[] = [
   // Phase 0 → Phase 1 — bezier curve from dashboard down-left into pre-approval
   { id: "e5-6", source: "s5", target: "s6", sourceHandle: "b", targetHandle: "t", ...PHASE_LINK },
 
-  // Phase 1 — row 0: dashboard (OTP signed) → bundle → bond app → offers → approved
+  // Phase 1 — row 0 (linear): dashboard → bundle → bond app → offers → approved
   { id: "e6-bundle", source: "s6", target: "s_bundle", sourceHandle: "r", targetHandle: "l", ...SOLID },
   { id: "ebundle-9", source: "s_bundle", target: "s9", sourceHandle: "r", targetHandle: "l", ...SOLID },
   { id: "e9-offers", source: "s9", target: "s_offers", sourceHandle: "r", targetHandle: "l", ...SOLID },
   { id: "eoffers-10", source: "s_offers", target: "s10", sourceHandle: "r", targetHandle: "l", ...SOLID },
 
-  // Phase 1 — wrap from row 0 (bond approved) to row 1 (money waterfall), bezier
-  { id: "e10-11", source: "s10", target: "s11", sourceHandle: "b", targetHandle: "t", ...PHASE_LINK },
+  // Phase 1 — wrap from row 0 (approved) to row 1 (post-bond hub), bezier.
+  // Enter s_postbond from the LEFT so it doesn't collide with the branch arcs
+  // coming out of s_postbond's top.
+  { id: "e10-postbond", source: "s10", target: "s_postbond", sourceHandle: "b", targetHandle: "l", ...PHASE_LINK },
 
-  // Phase 1 — row 1: money waterfall → FICA → insurance → status → registered
-  { id: "e11-12", source: "s11", target: "s12", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "e12-13", source: "s12", target: "s13", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "e13-14", source: "s13", target: "s14", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "e14-15", source: "s14", target: "s15", sourceHandle: "r", targetHandle: "l", ...SOLID },
+  // Phase 1 — linear continuation DOWN from the hub (col 0)
+  { id: "epostbond-15", source: "s_postbond", target: "s15", sourceHandle: "b", targetHandle: "t", ...SOLID, label: "after Deeds registers" },
+  { id: "e15-month1", source: "s15", target: "s_month1", sourceHandle: "b", targetHandle: "t", ...SOLID, label: "30 days later" },
+
+  // Phase 1 — branches chained left-to-right with short teal arrows
+  { id: "epostbond-11", source: "s_postbond", target: "s11", sourceHandle: "r", targetHandle: "l", ...SIDE },
+  { id: "e11-12", source: "s11", target: "s12", sourceHandle: "r", targetHandle: "l", ...SIDE },
+  { id: "e12-13", source: "s12", target: "s13", sourceHandle: "r", targetHandle: "l", ...SIDE },
+  { id: "e13-14", source: "s13", target: "s14", sourceHandle: "r", targetHandle: "l", ...SIDE },
+
+  // Phase 1 — deeper side trips DOWN from row-1 branches
+  // Insurance → BetterSure quote → (optional) Thandi WhatsApp
+  { id: "e13-quote", source: "s13", target: "s_quote", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "tap accept" },
+  { id: "equote-bettersure", source: "s_quote", target: "s_bettersure", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "chat to Thandi" },
+  // Attorney inbox → Sandra's WhatsApp
+  { id: "e12-attorney_chat", source: "s12", target: "s_attorney_chat", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "what Sandra sent" },
 ];
 
 // ─── Actor → node mapping (for the cast filter) ─────────────────────────────
 
-type ActorKey = "buyer" | "agent" | "consultant";
+type ActorKey = "buyer" | "agent" | "consultant" | "insurer" | "attorney";
 
 const NODE_ACTOR: Record<string, ActorKey> = {
   // Buyer (phases 0, 1 + all s_ nodes)
@@ -2023,11 +2916,13 @@ const NODE_ACTOR: Record<string, ActorKey> = {
   s9: "buyer",
   s_offers: "buyer",
   s10: "buyer",
+  s_postbond: "buyer",
   s11: "buyer",
   s12: "buyer",
   s13: "buyer",
   s14: "buyer",
   s15: "buyer",
+  s_month1: "buyer",
   // Agent prep
   "phase-agent": "agent",
   a1: "agent",
@@ -2036,6 +2931,11 @@ const NODE_ACTOR: Record<string, ActorKey> = {
   "phase-consultant": "consultant",
   b1: "consultant",
   b2: "consultant",
+  // BetterSure insurer (Thandi's chat + the quote detail are insurer-side)
+  s_bettersure: "insurer",
+  s_quote: "insurer",
+  // Attorney (Sandra's WhatsApp chat — the volume MyHome routes into the inbox)
+  s_attorney_chat: "attorney",
 };
 
 // ─── Page ──────────────────────────────────────────────────────────────────
@@ -2097,8 +2997,9 @@ const CAST: {
   { initials: "WR", name: "Wesley M. Roos", role: "Buyer", colour: "bg-[#0C2340]", actor: "buyer" },
   { initials: "BN", name: "Bianca Naidoo", role: "Bond consultant · BetterBond", colour: "bg-[#DD1B22]", actor: "consultant" },
   { initials: "—", name: "Seller", role: "Sells 14 Greenside Cres", colour: "bg-slate-400" },
-  { initials: "—", name: "Transfer attorney", role: "TBA · appointed by seller", colour: "bg-slate-300" },
-  { initials: "BS", name: "BetterSure", role: "Insurance · HOC + life cover", colour: "bg-emerald-500" },
+  { initials: "SP", name: "Sandra Pillay", role: "Transfer attorney · Cliffe Dekker", colour: "bg-sky-700", actor: "attorney" },
+  { initials: "PVW", name: "Pieter van Wyk", role: "Bond attorney · Findlay & Niemeyer", colour: "bg-sky-900", actor: "attorney" },
+  { initials: "TM", name: "Thandi Mokoena", role: "BetterSure · HOC + life cover", colour: "bg-[#ED7D2D]", actor: "insurer" },
 ];
 
 export default function MortgageBuyerFlow() {
