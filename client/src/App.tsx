@@ -34,6 +34,15 @@ import BuyerJourney from "./pages/BuyerJourney";
 import BuyerJourneyPresentation from "./pages/BuyerJourneyPresentation";
 import CashBuyerJourneyPresentation from "./pages/CashBuyerJourneyPresentation";
 import MortgageBuyerFlow from "./pages/MortgageBuyerFlow";
+import MortgageBuyerFlowV2 from "./pages/MortgageBuyerFlowV2";
+import PersonaFlowsPRD from "./pages/PersonaFlowsPRD";
+import RenterFlow from "./pages/RenterFlow";
+import BuyerMortgageFlow from "./pages/BuyerMortgageFlow";
+import PersonaFlowsBoard from "./pages/PersonaFlowsBoard";
+import CashBuyerFlow from "./pages/CashBuyerFlow";
+import SellerFlow from "./pages/SellerFlow";
+import OwnerFlow from "./pages/OwnerFlow";
+import LandlordFlow from "./pages/LandlordFlow";
 
 function Router() {
   return (
@@ -66,6 +75,15 @@ function Router() {
       <Route path={"/buyer-journey-presentation"} component={BuyerJourneyPresentation} />
       <Route path={"/cash-buyer-journey-presentation"} component={CashBuyerJourneyPresentation} />
       <Route path={"/mortgage-buyer-flow"} component={MortgageBuyerFlow} />
+      <Route path={"/mortgage-buyer-flow-v2"} component={MortgageBuyerFlowV2} />
+      <Route path={"/persona-prd"} component={PersonaFlowsPRD} />
+      <Route path={"/renter-flow"} component={RenterFlow} />
+      <Route path={"/buyer-mortgage-flow"} component={BuyerMortgageFlow} />
+      <Route path={"/persona-flows-board"} component={PersonaFlowsBoard} />
+      <Route path={"/cash-buyer-flow"} component={CashBuyerFlow} />
+      <Route path={"/seller-flow"} component={SellerFlow} />
+      <Route path={"/owner-flow"} component={OwnerFlow} />
+      <Route path={"/landlord-flow"} component={LandlordFlow} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

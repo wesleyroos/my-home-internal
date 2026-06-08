@@ -2689,6 +2689,238 @@ function ScreenWelcomeHome() {
   );
 }
 
+// v2 — Consolidated "client record" panel. Replaces the entire pre-registration
+// journey (A1 → 13d). The point: don't rebuild what BetterBond already owns.
+// Their whole ecosystem lands in Salesforce; MyHome reads a read-only mirror of
+// that record. MyHome is just the rails that collect, house & view the client
+// until BetterBond's touchpoints end (registration) and the takeover begins.
+function ScreenDataRecord() {
+  const sources = [
+    { name: "BetterBond platform", note: "bond status · offers" },
+    { name: "BetterID", note: "KYC · FICA" },
+    { name: "Bank / lender", note: "approval · rate" },
+    { name: "Conveyancing attorneys", note: "transfer · costs" },
+    { name: "Deeds Office", note: "registration" },
+  ];
+  const record = [
+    { group: "Identity & KYC", items: "ID verified · FICA cleared · credit consent", src: "BetterID" },
+    { group: "Buyer & deal", items: "Sarah (agent) · OTP signed · 14 Greenside Cres · R 1.35m", src: "Salesforce" },
+    { group: "Bond", items: "Pre-approved 4 banks · applied · approved · Nedbank @ prime −0.5%", src: "BetterBond" },
+    { group: "Costs", items: "Transfer R 61k · bond reg R 26k · deposit paid", src: "Attorneys" },
+    { group: "Insurance", items: "HOC + life quoted · BetterSure R 540pm", src: "BetterSure" },
+    { group: "Conveyancing", items: "Transfer + bond attorneys · FICA pack · signed · lodged", src: "Attorneys" },
+  ];
+  return (
+    <div style={{ width: DATA_W }} className="rounded-2xl border border-slate-200 bg-white shadow-md overflow-hidden font-sans">
+      {/* Header */}
+      <div className="px-4 py-3 text-white" style={{ background: "linear-gradient(135deg,#0C2340,#16304f)" }}>
+        <div className="flex items-center justify-between">
+          <div className="text-[8px] font-bold uppercase tracking-[0.22em] text-white/55">
+            Before takeover · read-only pull
+          </div>
+          <BetterBondLogo className="h-3 w-auto opacity-90 [&_path]:fill-white" />
+        </div>
+        <div className="text-[16px] font-extrabold leading-tight mt-1.5">
+          The client's record, mirrored into MyHome
+        </div>
+        <div className="text-[9px] text-white/70 leading-snug mt-1">
+          MyHome is just the rails — it collects, houses & views the buyer's profile and
+          journey. Every touchpoint here stays with BetterBond.
+        </div>
+      </div>
+
+      {/* Architecture — sources → Salesforce → MyHome */}
+      <div className="px-4 py-2.5 bg-slate-50 border-y border-slate-100">
+        <div className="text-[7px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+          How the data gets here
+        </div>
+        <div className="flex flex-wrap gap-1">
+          {sources.map((s) => (
+            <div key={s.name} className="rounded-md border border-slate-200 bg-white px-1.5 py-0.5">
+              <div className="text-[8px] font-bold text-[#0C2340] leading-none">{s.name}</div>
+              <div className="text-[6.5px] text-slate-400 leading-none mt-0.5">{s.note}</div>
+            </div>
+          ))}
+        </div>
+        <div className="text-center text-slate-300 text-[9px] leading-none my-1">↓ everything lands in</div>
+        {/* Salesforce — source of truth */}
+        <div className="rounded-lg px-3 py-1.5 flex items-center gap-2 text-white shadow-sm" style={{ background: "#00A1E0" }}>
+          <span className="text-[15px] leading-none">☁︎</span>
+          <div className="flex-1">
+            <div className="text-[11px] font-extrabold leading-none">Salesforce</div>
+            <div className="text-[7.5px] text-white/90 leading-none mt-0.5">
+              single source of truth · the whole BetterBond ecosystem
+            </div>
+          </div>
+        </div>
+        <div className="text-center text-slate-300 text-[9px] leading-none my-1">↓ MyHome reads a live mirror</div>
+        {/* MyHome — read-only view */}
+        <div className="rounded-lg px-3 py-1.5 flex items-center gap-2 border-2 border-[#3DBFAD] bg-[#3DBFAD]/10">
+          <span className="text-[13px] leading-none">🏠</span>
+          <div className="flex-1">
+            <div className="text-[11px] font-extrabold text-[#0C2340] leading-none">MyHome · unified profile</div>
+            <div className="text-[7.5px] text-slate-500 leading-none mt-0.5">read-only snapshot · via API / webhook</div>
+          </div>
+          <span className="rounded-full bg-white text-[#0C7766] text-[7px] font-bold px-1.5 py-0.5 border border-[#3DBFAD]/40">
+            PULL
+          </span>
+        </div>
+      </div>
+
+      {/* The record inventory */}
+      <div className="px-4 py-2.5">
+        <div className="text-[7px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+          What MyHome now holds on the buyer
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          {record.map((r) => (
+            <div key={r.group} className="rounded-lg border border-slate-200 bg-white px-2 py-1.5">
+              <div className="flex items-center justify-between gap-1">
+                <div className="text-[9px] font-extrabold text-[#0C2340]">{r.group}</div>
+                <div className="text-[6px] font-bold uppercase tracking-wide text-slate-400 flex-shrink-0">{r.src}</div>
+              </div>
+              <div className="text-[7.5px] text-slate-500 leading-snug mt-0.5">{r.items}</div>
+            </div>
+          ))}
+        </div>
+        {/* Registration — the trigger */}
+        <div className="mt-1.5 rounded-lg border-2 border-[#0C2340]/15 bg-[#0C2340]/[0.03] px-2.5 py-1.5 flex items-center gap-2">
+          <span className="text-[13px] leading-none">📍</span>
+          <div className="flex-1">
+            <div className="text-[9px] font-extrabold text-[#0C2340]">Registration — the trigger</div>
+            <div className="text-[7.5px] text-slate-500 leading-snug">
+              Deeds Office confirms transfer. BetterBond's job is done → MyHome takes over.
+            </div>
+          </div>
+          <span className="text-[#0C2340] text-[12px] font-bold">→</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// v2 — Ecosystem product card. Each BetterHome group product the buyer can
+// reach with a single BetterID login. They all sit ON the BetterID foundation.
+function ProductCard({
+  name,
+  tagline,
+  accent,
+  sub,
+}: {
+  name: string;
+  tagline: string;
+  accent: string;
+  sub?: string;
+}) {
+  return (
+    <div style={{ width: PRODUCT_W }} className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden font-sans">
+      <div className="h-1.5" style={{ backgroundColor: accent }} />
+      <div className="px-3 py-2.5">
+        <div className="flex items-center justify-between gap-1">
+          <div className="text-[13px] font-extrabold text-[#0C2340]">{name}</div>
+          {sub && (
+            <span
+              className="text-[7px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full flex-shrink-0"
+              style={{ backgroundColor: `${accent}1A`, color: accent }}
+            >
+              {sub}
+            </span>
+          )}
+        </div>
+        <div className="text-[9px] text-slate-500 leading-snug mt-1 min-h-[26px]">{tagline}</div>
+        <div
+          className="mt-2 flex items-center gap-1.5 rounded-lg border px-2 py-1"
+          style={{ borderColor: `${BETTERID_BLUE}55`, backgroundColor: `${BETTERID_BLUE}0D` }}
+        >
+          <BetterIDLogo className="h-2.5 w-auto" />
+          <span className="text-[8px] font-bold" style={{ color: BETTERID_NAVY }}>
+            Sign in with BetterID
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// v2 — BetterID foundation band. The bedrock the whole page rests on: the agent
+// seeds one verified identity, which becomes the single sign-on + canonical data
+// layer for every BetterHome product and the journey above.
+function ScreenBetterIDFoundation() {
+  const steps = [
+    { n: "1", t: "Agent enrols the buyer", s: "Captures & verifies details once" },
+    { n: "2", t: "Verified, consented profile", s: "The canonical identity record" },
+    { n: "3", t: "One login unlocks the group", s: "SSO across every product" },
+  ];
+  const profile = [
+    "Full name",
+    "SA ID · verified",
+    "FICA / KYC",
+    "Biometric selfie match",
+    "Contact details",
+    "Consents · POPIA",
+  ];
+  return (
+    <div
+      style={{ width: FND_W, borderColor: BETTERID_BLUE }}
+      className="rounded-2xl border-2 shadow-md overflow-hidden font-sans bg-white"
+    >
+      {/* Header */}
+      <div
+        className="px-4 py-2.5 flex items-center gap-3"
+        style={{ background: `linear-gradient(135deg, ${BETTERID_NAVY}, #1b1b8a)` }}
+      >
+        <BetterIDLogo className="h-5 w-auto [&_path]:fill-white" />
+        <div className="flex-1">
+          <div className="text-white text-[14px] font-extrabold leading-tight">
+            Identity & single sign-on — the foundation layer
+          </div>
+          <div className="text-white/70 text-[9px] leading-snug mt-0.5">
+            The agent enrols the buyer once. From then on, one verified identity is the key to the
+            entire BetterHome group.
+          </div>
+        </div>
+        <span className="text-[20px] leading-none">🔑</span>
+      </div>
+
+      {/* Three steps */}
+      <div className="px-4 py-2.5 grid grid-cols-3 gap-2 border-b border-slate-100" style={{ backgroundColor: `${BETTERID_BLUE}0A` }}>
+        {steps.map((st) => (
+          <div key={st.n} className="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5">
+            <span
+              className="w-4 h-4 rounded-full text-white text-[9px] font-extrabold flex items-center justify-center flex-shrink-0 mt-0.5"
+              style={{ backgroundColor: BETTERID_BLUE }}
+            >
+              {st.n}
+            </span>
+            <div className="min-w-0">
+              <div className="text-[10px] font-extrabold text-[#0C2340] leading-tight">{st.t}</div>
+              <div className="text-[8px] text-slate-500 leading-tight mt-0.5">{st.s}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* The verified profile */}
+      <div className="px-4 py-2.5">
+        <div className="text-[7px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+          The verified profile every product reads
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {profile.map((p) => (
+            <span
+              key={p}
+              className="rounded-full border px-2 py-0.5 text-[9px] font-semibold"
+              style={{ borderColor: `${BETTERID_BLUE}55`, color: BETTERID_NAVY }}
+            >
+              ✓ {p}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── React Flow nodes ──────────────────────────────────────────────────────
 
 type ScreenNodeData = { Screen: () => JSX.Element };
@@ -2777,62 +3009,64 @@ const FRAME_PAD = 40; // padding inside a phase frame
 const X0 = 40;
 const Y0 = 40;
 
-// Phase −1A — agent prep (2 screens) sitting to the LEFT of the buyer journey
-const PHASE_AGENT_X = X0;
-const PHASE_AGENT_ROWS = 1;
-const PHASE_AGENT_H = FRAME_PAD * 2 + PHASE_AGENT_ROWS * PHONE_BLOCK_H;
-const PHASE_AGENT_COLS = 2;
-const PHASE_AGENT_W = FRAME_PAD * 2 + (PHASE_AGENT_COLS - 1) * COL + SCREEN_W + 20;
+// ─── v2 layout — two zones ───────────────────────────────────────────────
+// LEFT  · the pull: ONE consolidated client-record panel. The whole pre-
+//         registration journey lives in the BetterBond ecosystem → Salesforce;
+//         MyHome reads a read-only mirror. (Replaces A1 → 13d.)
+// RIGHT · the takeover: once registration lands, MyHome powered by BetterBond
+//         owns the journey — Registered → Month 1 → Welcome-home hub.
 
-// Buyer journey (phases 0/1/2) — shifted right so agent fits on the left
-const PHASE_BUYER_X = PHASE_AGENT_X + PHASE_AGENT_W + 60;
+// Left zone — data record panel (width set on the component too)
+const DATA_W = 560;
+const DATA_H = 560;
+const PULL_FRAME_X = X0;
+const PULL_FRAME_Y = Y0 + 40; // room for the sticky note above
+const PULL_FRAME_W = FRAME_PAD * 2 + DATA_W;
+const PULL_FRAME_H = FRAME_PAD * 2 + DATA_H;
+const DATA_X = PULL_FRAME_X + FRAME_PAD;
+const DATA_Y = PULL_FRAME_Y + FRAME_PAD;
 
-// Phase −1B — bond consultant prep (2 screens) sits ABOVE the buyer journey,
-// right-aligned so its right edge matches Phase 0's right edge.
-const PHASE_CONSULTANT_COLS = 2;
-const PHASE_CONSULTANT_W = FRAME_PAD * 2 + (PHASE_CONSULTANT_COLS - 1) * COL + SCREEN_W + 20;
-const PHASE_CONSULTANT_H = FRAME_PAD * 2 + 1 * PHONE_BLOCK_H;
-const PHASE_CONSULTANT_Y = Y0;
+// Right zone — takeover phones in a row (Registered · Month 1 · Welcome home)
+const TAKEOVER_FRAME_W = FRAME_PAD * 2 + 2 * COL + SCREEN_W + 20;
+const TAKEOVER_FRAME_H = FRAME_PAD * 2 + PHONE_BLOCK_H;
+const TAKEOVER_FRAME_X = PULL_FRAME_X + PULL_FRAME_W + 140;
+const TAKEOVER_FRAME_Y = PULL_FRAME_Y + (PULL_FRAME_H - TAKEOVER_FRAME_H) / 2;
+const takeoverX = (n: number) => TAKEOVER_FRAME_X + FRAME_PAD + n * COL;
+const takeoverY = TAKEOVER_FRAME_Y + FRAME_PAD;
 
-// Phase 0 — 6 screens in row 0 (full happy path) + 1 fallback below row 0
-const PHASE0_X = PHASE_BUYER_X;
-const PHASE0_ROWS = 2;
-const PHASE0_H = FRAME_PAD * 2 + PHASE0_ROWS * PHONE_BLOCK_H + ROW_GAP;
-const PHASE0_COLS = 6;
-const PHASE0_W = FRAME_PAD * 2 + (PHASE0_COLS - 1) * COL + SCREEN_W + 20;
+// Positioning sticky — pinned above both zones
+const NOTE_W = 660;
+const NOTE_H = 250;
+const NOTE_X = (PULL_FRAME_X + TAKEOVER_FRAME_X + TAKEOVER_FRAME_W) / 2 - NOTE_W / 2;
+const NOTE_Y = Y0 - NOTE_H - 10;
 
-// Right-align consultant frame with Phase 0
-const PHASE_CONSULTANT_X = PHASE0_X + PHASE0_W - PHASE_CONSULTANT_W;
+// ─── v2 · BetterID foundation — three stacked layers ─────────────────────
+// JOURNEY (the pull → takeover band, above) runs on the BetterHome ECOSYSTEM
+// (middle), which all rests on BETTERID (bottom): one verified identity, seeded
+// by the agent, that unlocks every product via single sign-on.
+const BAND_W = TAKEOVER_FRAME_X + TAKEOVER_FRAME_W - X0;
+const JOURNEY_BOTTOM = PULL_FRAME_Y + PULL_FRAME_H;
 
-// Agent sits at the same Y as phase 0 (both below consultant)
-const PHASE_AGENT_Y = PHASE_CONSULTANT_Y + PHASE_CONSULTANT_H + PHASE_GAP;
-const PHASE0_Y = PHASE_AGENT_Y;
+// Middle band — ecosystem product cards
+const PRODUCT_W = 300;
+const PRODUCT_H = 150;
+const ECO_FRAME_X = X0;
+const ECO_FRAME_Y = JOURNEY_BOTTOM + PHASE_GAP;
+const ECO_FRAME_W = BAND_W;
+const ECO_FRAME_H = FRAME_PAD * 2 + PRODUCT_H;
+const ECO_COL = (ECO_FRAME_W - 2 * FRAME_PAD - PRODUCT_W) / 3;
+const productX = (n: number) => ECO_FRAME_X + FRAME_PAD + n * ECO_COL;
+const productY = ECO_FRAME_Y + FRAME_PAD;
 
-// Phase 1 — combined journey, layout is an L-shape off the post-bond hub
-// Row 0 (linear, all 5 cols): pre-approval → bundle → bond app → offers → approved
-// Row 1: s_postbond (col 0) ──right──→ money · attorney inbox · insurance · timeline
-//        (these 4 branches fan out RIGHT of the hub)
-// Rows 2-3 (linear DOWN from hub, col 0): s_postbond → registered → month 1
-// Rows 2-3 (deeper side trips, under their parents in row 1):
-//   col 2: attorney WhatsApp chat
-//   col 3: BetterSure quote → BetterSure WhatsApp chat
-const PHASE1_Y = PHASE0_Y + PHASE0_H + PHASE_GAP;
-const PHASE1_ROWS = 4;
-const PHASE1_H = FRAME_PAD * 2 + PHASE1_ROWS * PHONE_BLOCK_H + 3 * ROW_GAP;
-const PHASE1_COLS = 5;
-const PHASE1_W = FRAME_PAD * 2 + (PHASE1_COLS - 1) * COL + SCREEN_W + 20;
-
-// Inner X helper — X of column n inside a frame; pass baseX to position relative to a specific phase
-const colX = (n: number, baseX: number = X0) => baseX + FRAME_PAD + n * COL;
-const innerY = (frameY: number, row: number) =>
-  frameY + FRAME_PAD + row * (PHONE_BLOCK_H + ROW_GAP);
-
-// Positioning sticky — pinned above the whole diagram so it's the first thing
-// read on the canvas. Width/position centred over the buyer journey.
-const NOTE_W = 600;
-const NOTE_H = 232;
-const NOTE_X = (X0 + PHASE_BUYER_X + PHASE1_W) / 2 - NOTE_W / 2;
-const NOTE_Y = Y0 - NOTE_H - 60;
+// Bottom band — BetterID foundation (full width)
+const FND_FRAME_X = X0;
+const FND_FRAME_Y = ECO_FRAME_Y + ECO_FRAME_H + PHASE_GAP;
+const FND_FRAME_W = BAND_W;
+const FND_H = 188;
+const FND_FRAME_H = FRAME_PAD * 2 + FND_H;
+const FND_W = BAND_W - 2 * FRAME_PAD;
+const FND_X = FND_FRAME_X + FRAME_PAD;
+const FND_Y = FND_FRAME_Y + FRAME_PAD;
 
 const nodes: Node[] = [
   // ── Positioning note (top of canvas) ────────────────────────────────────
@@ -2841,23 +3075,23 @@ const nodes: Node[] = [
     type: "note",
     position: { x: NOTE_X, y: NOTE_Y },
     data: {
-      title: "📌 What MyHome is — and what it isn't",
+      title: "📌 MyHome v2 — BetterID is the foundation",
       lines: [
         {
-          lead: "A window, not a takeover.",
-          text: "BetterBond, the agent and the attorneys keep closing the deal exactly as they do today — MyHome never sits in the critical path. We just give the buyer a view in.",
+          lead: "BetterID is the foundation (bottom band).",
+          text: "The agent enrols the buyer once into BetterID — one verified identity that unlocks the whole BetterHome group (Private Property, BetterBond, BetterSure, MyHome) via SSO. Everything is built on it.",
         },
         {
-          lead: "White-label rails — think Discovery Vitality.",
-          text: "Not a standalone brand. Ships as “MyHome powered by BetterBond / RE/MAX / …” — partner-agnostic, plugs into any ecosystem.",
+          lead: "Two sources of truth.",
+          text: "BetterID = who the person is (identity). Salesforce = what's happening in the deal (journey). MyHome reads a live, read-only mirror of both — a snapshot, nothing more.",
         },
         {
-          lead: "Before registration = PULL.",
-          text: "We watch & track the journey, mirroring status via API / webhook from the BetterBond platform, Salesforce and the attorneys. Read-only.",
+          lead: "Pre-registration: rails, not a takeover.",
+          text: "Don't rebuild what BetterBond owns. The journey lives in their ecosystem; MyHome just collects, houses & views the client's record.",
         },
         {
-          lead: "After registration = PUSH.",
-          text: "Only once the deal registers (and the bank can’t re-assess) does MyHome start proactively pushing insights, nudges & offers to the new homeowner.",
+          lead: "At registration, MyHome takes over.",
+          text: "Once BetterBond have no further touchpoints (transfer registers, buyer moves in), MyHome owns the homeowner journey — still powered by the same BetterID identity.",
         },
       ],
     },
@@ -2869,93 +3103,64 @@ const nodes: Node[] = [
 
   // ── Phase frames (rendered behind, must come first) ─────────────────────
   {
-    id: "phase-agent",
+    id: "phase-pull",
     type: "phase",
-    position: { x: PHASE_AGENT_X, y: PHASE_AGENT_Y },
-    data: { label: "Phase −1A · Agent prep", sub: "Sarah works the OTP, uploads via BetterID — triggers buyer flow" },
-    style: { width: PHASE_AGENT_W, height: PHASE_AGENT_H },
+    position: { x: PULL_FRAME_X, y: PULL_FRAME_Y },
+    data: {
+      label: "Before takeover · the pull",
+      sub: "BetterBond ecosystem → Salesforce (source of truth) → MyHome mirrors it, read-only",
+    },
+    style: { width: PULL_FRAME_W, height: PULL_FRAME_H },
     selectable: false,
     draggable: false,
     zIndex: -1,
   },
   {
-    id: "phase-consultant",
+    id: "phase-takeover",
     type: "phase",
-    position: { x: PHASE_CONSULTANT_X, y: PHASE_CONSULTANT_Y },
-    data: { label: "Phase −1B · Bond consultant prep", sub: "Bianca gets Wes pre-approved across 4 banks, pushes the result to MyHome" },
-    style: { width: PHASE_CONSULTANT_W, height: PHASE_CONSULTANT_H },
+    position: { x: TAKEOVER_FRAME_X, y: TAKEOVER_FRAME_Y },
+    data: {
+      label: "At registration · MyHome powered by BetterBond takes over",
+      sub: "BetterBond's touchpoints end — MyHome now owns the homeowner journey",
+    },
+    style: { width: TAKEOVER_FRAME_W, height: TAKEOVER_FRAME_H },
     selectable: false,
     draggable: false,
     zIndex: -1,
   },
+
+  // ── Left zone — consolidated client record (the pull) ───────────────────
+  { id: "data_record", type: "screen", position: { x: DATA_X, y: DATA_Y }, data: { Screen: ScreenDataRecord }, draggable: false },
+
+  // ── Right zone — takeover screens (MyHome owns these) ───────────────────
+  { id: "s15", type: "screen", position: { x: takeoverX(0), y: takeoverY }, data: { Screen: ScreenRegistered }, draggable: false },
+  { id: "s_month1", type: "screen", position: { x: takeoverX(1), y: takeoverY }, data: { Screen: ScreenMonth1 }, draggable: false },
+  { id: "s_welcomehome", type: "screen", position: { x: takeoverX(2), y: takeoverY }, data: { Screen: ScreenWelcomeHome }, draggable: false },
+
+  // ── Middle band — BetterHome ecosystem (every product = one BetterID login) ──
   {
-    id: "phase-0",
+    id: "phase-eco",
     type: "phase",
-    position: { x: PHASE_BUYER_X, y: PHASE0_Y },
-    data: { label: "Phase 0 · Buyer onboarding", sub: "BetterID handoff → first dashboard — the make-or-break moment for the buyer" },
-    style: { width: PHASE0_W, height: PHASE0_H },
-    selectable: false,
-    draggable: false,
-    zIndex: -1,
+    position: { x: ECO_FRAME_X, y: ECO_FRAME_Y },
+    data: { label: "The BetterHome group · one ecosystem, one login", sub: "Every product authenticates against BetterID — the buyer signs in once, everywhere" },
+    style: { width: ECO_FRAME_W, height: ECO_FRAME_H },
+    selectable: false, draggable: false, zIndex: -1,
   },
+  { id: "prod_pp", type: "screen", position: { x: productX(0), y: productY }, data: { Screen: () => <ProductCard name="Private Property" tagline="Search, list & track property across SA." accent="#7B2D8E" sub="Search" /> }, draggable: false },
+  { id: "prod_bb", type: "screen", position: { x: productX(1), y: productY }, data: { Screen: () => <ProductCard name="BetterBond" tagline="Bond origination across every major bank." accent={BETTERBOND_NAVY} sub="Bond" /> }, draggable: false },
+  { id: "prod_bs", type: "screen", position: { x: productX(2), y: productY }, data: { Screen: () => <ProductCard name="BetterSure" tagline="Home, life & buildings cover." accent={BETTERSURE_ORANGE} sub="Insure" /> }, draggable: false },
+  { id: "prod_mh", type: "screen", position: { x: productX(3), y: productY }, data: { Screen: () => <ProductCard name="MyHome" tagline="The homeownership platform — powered by BetterBond." accent="#3DBFAD" sub="You are here" /> }, draggable: false },
+
+  // ── Bottom band — BetterID foundation (the bedrock everything rests on) ──
   {
-    id: "phase-1",
+    id: "phase-foundation",
     type: "phase",
-    position: { x: PHASE_BUYER_X, y: PHASE1_Y },
-    data: { label: "Phase 1 · Buyer's journey", sub: "Pre-approval → registration: MyHome mirrors the deal (PULL) · at registration it flips to PUSH for the new homeowner" },
-    style: { width: PHASE1_W, height: PHASE1_H },
-    selectable: false,
-    draggable: false,
-    zIndex: -1,
+    position: { x: FND_FRAME_X, y: FND_FRAME_Y },
+    data: { label: "BetterID · the foundational identity & data layer", sub: "Seeded by the agent · one verified identity underpins the entire ecosystem and journey" },
+    style: { width: FND_FRAME_W, height: FND_FRAME_H },
+    selectable: false, draggable: false, zIndex: -1,
   },
-
-  // ── Phase −1A — Agent prep ──────────────────────────────────────────────
-  { id: "a1", type: "screen", position: { x: colX(0), y: innerY(PHASE_AGENT_Y, 0) }, data: { Screen: ScreenAgentChat }, draggable: false },
-  { id: "a2", type: "screen", position: { x: colX(1), y: innerY(PHASE_AGENT_Y, 0) }, data: { Screen: ScreenAgentUpload }, draggable: false },
-
-  // ── Phase −1B — Bond consultant prep ─────────────────────────────────────
-  // Consultant phase sits to the right of agent phase, same row, own X helper.
-  { id: "b1", type: "screen", position: { x: PHASE_CONSULTANT_X + FRAME_PAD, y: innerY(PHASE_CONSULTANT_Y, 0) }, data: { Screen: ScreenConsultantChat }, draggable: false },
-  { id: "b2", type: "screen", position: { x: PHASE_CONSULTANT_X + FRAME_PAD + COL, y: innerY(PHASE_CONSULTANT_Y, 0) }, data: { Screen: ScreenConsultantUpload }, draggable: false },
-
-  // ── Phase 0 — row 0 (full happy path) and row 1 (just the fallback) ──────
-  { id: "s1", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE0_Y, 0) }, data: { Screen: ScreenAgentWhatsapp }, draggable: false },
-  { id: "s2", type: "screen", position: { x: colX(1, PHASE_BUYER_X), y: innerY(PHASE0_Y, 0) }, data: { Screen: ScreenBetterID }, draggable: false },
-  { id: "s3", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE0_Y, 0) }, data: { Screen: ScreenHandoff }, draggable: false },
-  // First MyHome touch — brand welcome
-  { id: "s_signin", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE0_Y, 0) }, data: { Screen: ScreenSignin }, draggable: false },
-  // Sign-up — create MyHome account (password / passkey)
-  { id: "s_login", type: "screen", position: { x: colX(4, PHASE_BUYER_X), y: innerY(PHASE0_Y, 0) }, data: { Screen: ScreenLogin }, draggable: false },
-  // Home dashboard — the first real product surface after sign-up
-  { id: "s5", type: "screen", position: { x: colX(5, PHASE_BUYER_X), y: innerY(PHASE0_Y, 0) }, data: { Screen: ScreenVault }, draggable: false },
-  // Fallback — re-engage sits below screen 3 (where the bouncer left)
-  { id: "s4", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE0_Y, 1) }, data: { Screen: ScreenReengage }, draggable: false },
-  // Side branch — doc vault upload UI, opened from the dashboard
-  { id: "s_vault", type: "screen", position: { x: colX(5, PHASE_BUYER_X), y: innerY(PHASE0_Y, 1) }, data: { Screen: ScreenDocVault }, draggable: false },
-
-  // ── Phase 1 — 3-row hub-and-branches layout
-  // Row 0 (linear): pre-approval → bundle → bond app → offers → bond approved
-  { id: "s6", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenPreapproval }, draggable: false },
-  { id: "s_bundle", type: "screen", position: { x: colX(1, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondBundle }, draggable: false },
-  { id: "s9", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondApp }, draggable: false },
-  { id: "s_offers", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondOffers }, draggable: false },
-  { id: "s10", type: "screen", position: { x: colX(4, PHASE_BUYER_X), y: innerY(PHASE1_Y, 0) }, data: { Screen: ScreenBondApproved }, draggable: false },
-  // Row 1: post-bond hub (col 0) + 4 branches fanning out to the RIGHT (cols 1-4)
-  { id: "s_postbond", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenPostBondDashboard }, draggable: false },
-  { id: "s11", type: "screen", position: { x: colX(1, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenMoneyWaterfall }, draggable: false },
-  { id: "s12", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenFICA }, draggable: false },
-  { id: "s13", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenInsurance }, draggable: false },
-  { id: "s14", type: "screen", position: { x: colX(4, PHASE_BUYER_X), y: innerY(PHASE1_Y, 1) }, data: { Screen: ScreenStatusFeed }, draggable: false },
-  // Linear continuation DOWN from the hub (col 0): registered → month 1
-  { id: "s15", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 2) }, data: { Screen: ScreenRegistered }, draggable: false },
-  { id: "s_month1", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: innerY(PHASE1_Y, 3) }, data: { Screen: ScreenMonth1 }, draggable: false },
-  // Deeper side trips under the row-1 branches
-  { id: "s_attorney_chat", type: "screen", position: { x: colX(2, PHASE_BUYER_X), y: innerY(PHASE1_Y, 2) }, data: { Screen: ScreenAttorneyChat }, draggable: false },
-  { id: "s_quote", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 2) }, data: { Screen: ScreenBetterSureQuote }, draggable: false },
-  { id: "s_bettersure", type: "screen", position: { x: colX(3, PHASE_BUYER_X), y: innerY(PHASE1_Y, 3) }, data: { Screen: ScreenBetterSureChat }, draggable: false },
-
-  // ── Standalone concept — not wired to anything. Floats below the canvas. ──
-  { id: "s_welcomehome", type: "screen", position: { x: colX(0, PHASE_BUYER_X), y: PHASE1_Y + PHASE1_H + PHASE_GAP }, data: { Screen: ScreenWelcomeHome }, draggable: false },
+  { id: "betterid", type: "screen", position: { x: FND_X, y: FND_Y }, data: { Screen: ScreenBetterIDFoundation }, draggable: false },
 ];
 
 const SOLID = { type: "smoothstep", style: { stroke: "#0C2340", strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: "#0C2340" } } as const;
@@ -2966,111 +3171,40 @@ const SIDE = { type: "default", style: { stroke: "#3DBFAD", strokeWidth: 2 }, ma
 // Phase-to-phase transition — bezier curve so the long diagonal reads cleanly
 const PHASE_LINK = { type: "default", style: { stroke: "#0C2340", strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: "#0C2340" } } as const;
 
+// Single sign-on — BetterID rises into every ecosystem product (BetterID blue)
+const SSO = { type: "smoothstep", style: { stroke: BETTERID_BLUE, strokeWidth: 2 }, markerEnd: { type: MarkerType.ArrowClosed, color: BETTERID_BLUE } } as const;
+// "rests on" — light dashed connector showing the journey sits on the ecosystem
+const RESTS = { type: "smoothstep", style: { stroke: "#94a3b8", strokeWidth: 1.5, strokeDasharray: "5 4" }, markerEnd: { type: MarkerType.ArrowClosed, color: "#94a3b8" } } as const;
+
 const edges: Edge[] = [
-  // Phase −1A — Agent prep flow
-  { id: "ea1-a2", source: "a1", target: "a2", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  // Trigger: agent's upload kicks off the buyer's WhatsApp invite (Phase 0)
-  // Agent sits to the LEFT of phase 0 now, so the arrow goes right → left
-  { id: "ea2-s1", source: "a2", target: "s1", sourceHandle: "r", targetHandle: "l", ...PHASE_LINK, label: "triggers BetterID invite" },
+  // The handoff — registration is BetterBond's last touchpoint; MyHome takes over.
+  { id: "edata-15", source: "data_record", target: "s15", sourceHandle: "r", targetHandle: "l", ...PHASE_LINK, label: "registration → MyHome takes over" },
 
-  // Phase −1B — Bond consultant prep flow
-  { id: "eb1-b2", source: "b1", target: "b2", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  // Push: consultant's pre-approval surfaces on the buyer's MyHome dashboard
-  { id: "eb2-s5", source: "b2", target: "s5", sourceHandle: "b", targetHandle: "t", ...PHASE_LINK, label: "pre-approval appears" },
+  // The takeover journey (MyHome owns these)
+  { id: "e15-month1", source: "s15", target: "s_month1", sourceHandle: "r", targetHandle: "l", ...SOLID, label: "30 days later" },
+  { id: "emonth1-welcome", source: "s_month1", target: "s_welcomehome", sourceHandle: "r", targetHandle: "l", ...SOLID, label: "settled in" },
 
-  // Phase 0 — main path
-  { id: "e1-2", source: "s1", target: "s2", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "e2-3", source: "s2", target: "s3", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "e3-signin", source: "s3", target: "s_signin", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "esignin-login", source: "s_signin", target: "s_login", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "elogin-5", source: "s_login", target: "s5", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  // Phase 0 — fallback (labelled, because they're not obvious).
-  // zIndex > 0 keeps the dashed line on top of any solid edge it crosses.
-  // Both fallback and happy path converge at s_signin — the buyer still has to
-  // set up their passkey first time, even if they came back via WhatsApp.
-  { id: "e3-4", source: "s3", target: "s4", sourceHandle: "b", targetHandle: "t", ...DASHED, label: "bounces", zIndex: 10 },
-  { id: "e4-signin", source: "s4", target: "s_signin", sourceHandle: "r", targetHandle: "b-t", ...DASHED, label: "recovered", zIndex: 10 },
+  // BetterID is the foundation — SSO rises up into every ecosystem product.
+  { id: "ebid-pp", source: "betterid", target: "prod_pp", sourceHandle: "t-s", targetHandle: "b-t", ...SSO },
+  { id: "ebid-bb", source: "betterid", target: "prod_bb", sourceHandle: "t-s", targetHandle: "b-t", ...SSO },
+  { id: "ebid-bs", source: "betterid", target: "prod_bs", sourceHandle: "t-s", targetHandle: "b-t", ...SSO, label: "one login · SSO" },
+  { id: "ebid-mh", source: "betterid", target: "prod_mh", sourceHandle: "t-s", targetHandle: "b-t", ...SSO },
 
-  // Side branch — dashboard ↔ doc vault round trip
-  // Down arrow uses the bottom handle; back-up arrow uses the right-side handles so the two lines don't overlap.
-  { id: "e5-vault", source: "s5", target: "s_vault", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "tap upload" },
-  { id: "evault-5", source: "s_vault", target: "s5", sourceHandle: "r", targetHandle: "r-t", ...SIDE, label: "done" },
-
-  // Phase 0 → Phase 1 — bezier curve from dashboard down-left into pre-approval
-  { id: "e5-6", source: "s5", target: "s6", sourceHandle: "b", targetHandle: "t", ...PHASE_LINK },
-
-  // Phase 1 — row 0 (linear): dashboard → bundle → bond app → offers → approved
-  { id: "e6-bundle", source: "s6", target: "s_bundle", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "ebundle-9", source: "s_bundle", target: "s9", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "e9-offers", source: "s9", target: "s_offers", sourceHandle: "r", targetHandle: "l", ...SOLID },
-  { id: "eoffers-10", source: "s_offers", target: "s10", sourceHandle: "r", targetHandle: "l", ...SOLID },
-
-  // Phase 1 — wrap from row 0 (approved) to row 1 (post-bond hub), bezier.
-  // Enter s_postbond from the LEFT so it doesn't collide with the branch arcs
-  // coming out of s_postbond's top.
-  { id: "e10-postbond", source: "s10", target: "s_postbond", sourceHandle: "b", targetHandle: "l", ...PHASE_LINK },
-
-  // Phase 1 — linear continuation DOWN from the hub (col 0)
-  { id: "epostbond-15", source: "s_postbond", target: "s15", sourceHandle: "b", targetHandle: "t", ...SOLID, label: "after Deeds registers" },
-  { id: "e15-month1", source: "s15", target: "s_month1", sourceHandle: "b", targetHandle: "t", ...SOLID, label: "30 days later" },
-
-  // Phase 1 — branches chained left-to-right with short teal arrows
-  { id: "epostbond-11", source: "s_postbond", target: "s11", sourceHandle: "r", targetHandle: "l", ...SIDE },
-  { id: "e11-12", source: "s11", target: "s12", sourceHandle: "r", targetHandle: "l", ...SIDE },
-  { id: "e12-13", source: "s12", target: "s13", sourceHandle: "r", targetHandle: "l", ...SIDE },
-  { id: "e13-14", source: "s13", target: "s14", sourceHandle: "r", targetHandle: "l", ...SIDE },
-
-  // Phase 1 — deeper side trips DOWN from row-1 branches
-  // Insurance → BetterSure quote → (optional) Thandi WhatsApp
-  { id: "e13-quote", source: "s13", target: "s_quote", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "tap accept" },
-  { id: "equote-bettersure", source: "s_quote", target: "s_bettersure", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "chat to Thandi" },
-  // Attorney inbox → Sandra's WhatsApp
-  { id: "e12-attorney_chat", source: "s12", target: "s_attorney_chat", sourceHandle: "b", targetHandle: "t", ...SIDE, label: "what Sandra sent" },
+  // The journey above runs on the ecosystem (light "rests on" connectors).
+  { id: "ebb-data", source: "prod_bb", target: "data_record", sourceHandle: "t-s", targetHandle: "b-t", ...RESTS, label: "feeds the mirror" },
+  { id: "emh-15", source: "prod_mh", target: "s15", sourceHandle: "t-s", targetHandle: "b-t", ...RESTS, label: "powers the takeover" },
 ];
 
 // ─── Actor → node mapping (for the cast filter) ─────────────────────────────
 
 type ActorKey = "buyer" | "agent" | "consultant" | "insurer" | "attorney";
 
+// v2 has just two zones; only the takeover screens belong to the buyer. The
+// data-record panel and the frames stay visible regardless of cast toggles.
 const NODE_ACTOR: Record<string, ActorKey> = {
-  // Buyer (phases 0, 1 + all s_ nodes)
-  "phase-0": "buyer",
-  "phase-1": "buyer",
-  s1: "buyer",
-  s2: "buyer",
-  s3: "buyer",
-  s_signin: "buyer",
-  s_login: "buyer",
-  s5: "buyer",
-  s4: "buyer",
-  s_vault: "buyer",
-  s6: "buyer",
-  s7: "buyer",
-  s8: "buyer",
-  s_bundle: "buyer",
-  s9: "buyer",
-  s_offers: "buyer",
-  s10: "buyer",
-  s_postbond: "buyer",
-  s11: "buyer",
-  s12: "buyer",
-  s13: "buyer",
-  s14: "buyer",
   s15: "buyer",
   s_month1: "buyer",
-  // Agent prep
-  "phase-agent": "agent",
-  a1: "agent",
-  a2: "agent",
-  // Bond consultant prep
-  "phase-consultant": "consultant",
-  b1: "consultant",
-  b2: "consultant",
-  // BetterSure insurer (Thandi's chat + the quote detail are insurer-side)
-  s_bettersure: "insurer",
-  s_quote: "insurer",
-  // Attorney (Sandra's WhatsApp chat — the volume MyHome routes into the inbox)
-  s_attorney_chat: "attorney",
+  s_welcomehome: "buyer",
 };
 
 // ─── Page ──────────────────────────────────────────────────────────────────
@@ -3137,7 +3271,7 @@ const CAST: {
   { initials: "TM", name: "Thandi Mokoena", role: "BetterSure · HOC + life cover", colour: "bg-[#ED7D2D]", actor: "insurer" },
 ];
 
-export default function MortgageBuyerFlow() {
+export default function MortgageBuyerFlowV2() {
   // Which actors are currently hidden — default: none (everyone shown)
   const [hidden, setHidden] = useState<Set<ActorKey>>(new Set());
 
@@ -3168,7 +3302,7 @@ export default function MortgageBuyerFlow() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-[#f0f5fa]">
-      <AppHeader label="Mortgage Buyer · User Journey · BetterID → Registered" />
+      <AppHeader label="Mortgage Buyer · User Journey (v2) · BetterID → Registered" />
 
       {/* Canvas */}
       <div className="relative flex-1">
